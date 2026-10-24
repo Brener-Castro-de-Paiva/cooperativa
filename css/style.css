@@ -1,0 +1,914 @@
+/* ============================================================
+   COJURIS — STYLE.CSS | Glass claro institucional • Versão 2
+   Aprendizado: variáveis, layout, efeito glass, animações e mobile.
+   Compatível com as classes do HTML desenvolvido até agora.
+   ============================================================ */
+/* 01 — IDENTIDADE VISUAL: altere aqui para testar toda a paleta */
+/* ESTUDO: --variaveis guardam cores, fontes e medidas. var(--nome) recupera o valor. */
+:root {
+    color-scheme: light;
+    --cor-primaria: #173a4c;
+    --cor-secundaria: #0e9f9f;
+    --cor-fundo: #f9fcfd;
+    --cor-fundo-alt: #edf6f8;
+    --cor-superficie: rgba(255, 255, 255, .78);
+    --cor-texto: #41566a;
+    --cor-texto-claro: #173a4c;
+    --cor-destaque: #6c8fc4;
+    --cor-borda: rgba(70, 132, 152, .19);
+    --cor-neon: #21b7b2;
+    --cor-neon-rgb: 33, 183, 178;
+    --cor-violeta-rgb: 108, 143, 196;
+    --fonte-titulo: "Merriweather", Georgia, serif;
+    --fonte-texto: "Roboto", Arial, sans-serif;
+    --largura-container: 1140px;
+    --espaco-secao: clamp(72px, 8vw, 112px);
+    --borda-arredondada: 18px;
+    --transicao: 250ms ease;
+}
+
+/* 02 — RESET E ACESSIBILIDADE */
+/* ESTUDO: estas regras globais criam uma base consistente e melhoram a navegação por teclado. */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+}
+
+body {
+    margin: 0;
+    font-family: var(--fonte-texto);
+    line-height: 1.65;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+blockquote {
+    margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+    color: var(--cor-texto-claro);
+    line-height: 1.2;
+    font-family: var(--fonte-titulo);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--transicao), background var(--transicao), transform var(--transicao), box-shadow var(--transicao);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+img,
+video {
+    max-width: 100%;
+    display: block;
+}
+
+button {
+    font: inherit;
+}
+
+:focus-visible {
+    outline: 3px solid var(--cor-neon);
+    outline-offset: 4px;
+}
+
+::selection {
+    background: var(--cor-neon);
+    color: #07111e;
+}
+
+.container {
+    width: min(100% - 48px, var(--largura-container));
+    margin-inline: auto;
+}
+
+/* 03 — CABEÇALHO (transparente sobre o vídeo) */
+/* ESTUDO: position: absolute coloca o menu sobre o vídeo; .scrolled será controlada pelo JavaScript. */
+.topo {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 40;
+    padding: 23px 0;
+    transition: background var(--transicao), padding var(--transicao), box-shadow var(--transicao);
+}
+
+.topo.scrolled {
+    position: fixed;
+    padding: 13px 0;
+    background: rgba(246, 252, 253, .91);
+    box-shadow: 0 10px 28px rgba(39,85,103,.10);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.topo-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.logo a {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: #e8ffff;
+}
+
+.logo-simbolo {
+    color: var(--cor-neon);
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 12px rgba(var(--cor-neon-rgb), .25));
+}
+
+
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-texto strong {
+    color: #e8ffff;
+    font-size: 1.43rem;
+    line-height: 1.15;
+    letter-spacing: .12em;
+}
+
+.logo-texto small {
+    font-size: .65rem;
+    letter-spacing: .15em;
+    color: #cfebed;
+    text-transform: uppercase;
+}
+
+.menu ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(15px, 2.5vw, 30px);
+}
+
+.menu a {
+    color: #f1fbfc;
+    font-size: .91rem;
+    font-weight: 500;
+}
+
+.menu a:hover {
+    color: var(--cor-neon);
+}
+
+.menu .btn-portal,
+.btn-portal {
+    display: inline-block;
+    padding: 10px 18px;
+    color: #071720;
+    background: #d6f7f4;
+    border: 1px solid rgba(255,255,255,.60);
+    border-radius: 999px;
+    font-weight: 700;
+    box-shadow: 0 0 18px rgba(var(--cor-neon-rgb), .22);
+}
+
+.menu .btn-portal:hover,
+.btn-portal:hover {
+    color: #051421;
+    background: #f0fefe;
+    box-shadow: 0 0 28px rgba(var(--cor-neon-rgb), .42);
+    transform: translateY(-2px);
+}
+
+.menu-toggle {
+    display: none;
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    background: rgba(255,255,255,.22);
+    padding: 12px;
+    cursor: pointer;
+}
+
+/* 04 — HERO: o vídeo continua sendo o protagonista */
+/* ESTUDO: o vídeo é uma camada, o overlay é o gradiente e o conteúdo fica à frente. */
+.hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 680px;
+    min-height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+    background: #071521 url("../assets/imagens/hero-poster.webp") center / cover no-repeat;
+}
+
+.hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: -3;
+}
+
+/* Gradiente horizontal: protege o texto e mantém a vista da sala visível. */
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: linear-gradient(90deg, rgba(10,35,49,.67) 0%, rgba(10,35,49,.39) 46%, rgba(10,35,49,.04) 100%), linear-gradient(0deg, rgba(10,35,49,.36), transparent 40%, rgba(10,35,49,.13));
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 120px;
+    z-index: -1;
+    background: linear-gradient(transparent, var(--cor-fundo));
+    pointer-events: none;
+}
+
+.hero-conteudo {
+    padding-block: 140px 100px;
+    max-width: var(--largura-container);
+    text-align: left;
+}
+
+.hero h1 {
+    color: #ffffff;
+    font-size: clamp(2.35rem, 5.5vw, 4.65rem);
+    max-width: 810px;
+    letter-spacing: -.035em;
+    text-wrap: balance;
+    margin-bottom: 25px;
+    text-shadow: 0 7px 30px rgba(0,0,0,.38);
+}
+
+.hero-subtitulo {
+    font-size: clamp(1rem, 1.65vw, 1.25rem);
+    line-height: 1.75;
+    max-width: 680px;
+    color: #f5fbff;
+    margin-bottom: 34px;
+    text-shadow: 0 2px 16px rgba(0,0,0,.45);
+}
+
+.btn-principal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15px 30px;
+    border-radius: 999px;
+    background: #d8faf6;
+    color: #123746;
+    font-weight: 700;
+    letter-spacing: .01em;
+    border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 0 22px rgba(var(--cor-neon-rgb), .27), 0 12px 24px rgba(0,0,0,.16);
+    cursor: pointer;
+}
+
+.btn-principal:hover {
+    background: #effffb;
+    transform: translateY(-3px);
+    box-shadow: 0 0 35px rgba(var(--cor-neon-rgb), .46), 0 15px 34px rgba(0,0,0,.23);
+}
+
+/* 05 — SEÇÕES E CONTEÚDO */
+/* ESTUDO: classes reutilizáveis permitem manter o visual consistente em várias seções. */
+.secao {
+    padding-block: var(--espaco-secao);
+}
+
+.sobre {
+    background: radial-gradient(ellipse at 90% 15%, rgba(var(--cor-neon-rgb), .055), transparent 45%), var(--cor-fundo);
+}
+
+.bg-cinza,
+.atuacao,
+.vantagens {
+    background: radial-gradient(ellipse at 5% 20%, rgba(var(--cor-violeta-rgb), .09), transparent 48%), var(--cor-fundo-alt);
+}
+
+.secao h2 {
+    font-size: clamp(1.9rem, 3.7vw, 3.05rem);
+    margin-bottom: 22px;
+    letter-spacing: -.025em;
+}
+
+.secao h2::after {
+    content: "";
+    display: block;
+    width: 76px;
+    height: 3px;
+    margin-top: 18px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--cor-neon), var(--cor-destaque));
+    box-shadow: 0 0 18px rgba(var(--cor-neon-rgb), .4);
+}
+
+/* Texto institucional: blocos com largura controlada e justificados. */
+.secao-intro,
+.texto-conteudo p {
+    max-width: 850px;
+    font-size: clamp(1rem, 1.3vw, 1.12rem);
+    line-height: 1.9;
+    color: var(--cor-texto);
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.secao-intro {
+    margin-bottom: 40px;
+}
+
+.texto-conteudo p {
+    margin-bottom: 20px;
+}
+
+/* Títulos não devem ser justificados. */
+.secao h2,
+.secao h3 {
+    text-align: left;
+}
+
+/* 06 — CARDS: preserva tanto .grid-atuacao quanto .grid-vantagens */
+/* ESTUDO: CSS Grid distribui cartões em duas colunas; media queries adaptam para uma. */
+.grid-atuacao,
+.grid-vantagens {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.card-atuacao,
+.card-vantagem {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(255,255,255,.89), rgba(247,253,253,.70));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--borda-arredondada);
+    padding: clamp(25px, 3vw, 38px);
+    box-shadow: 0 14px 38px rgba(37,92,116,.075);
+    transition: transform var(--transicao), border-color var(--transicao), box-shadow var(--transicao);
+}
+
+.card-atuacao::before,
+.card-vantagem::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(var(--cor-neon), var(--cor-destaque));
+}
+
+.card-atuacao:hover,
+.card-vantagem:hover {
+    transform: translateY(-6px);
+    border-color: rgba(var(--cor-neon-rgb), .65);
+    box-shadow: 0 14px 36px rgba(43,123,143,.14);
+}
+
+.card-atuacao h3,
+.card-vantagem h3 {
+    font-size: clamp(1.23rem, 1.8vw, 1.55rem);
+    margin-bottom: 14px;
+}
+
+.card-atuacao p,
+.card-vantagem p {
+    margin: 0;
+    color: #526879;
+    line-height: 1.8;
+    text-align: justify;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+/* 07 — DIVISOR PARALLAX */
+/* ESTUDO: a imagem fixa cria um efeito parallax simples; celulares usam scroll. */
+.parallax-divisor,
+.divisor {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 390px;
+    padding: 75px 0;
+    text-align: center;
+    background: #071421 url("../assets/imagens/fundo-divisor.jpg") center / cover fixed no-repeat;
+    isolation: isolate;
+}
+
+.parallax-divisor::before,
+.divisor::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, rgba(13,47,62,.62), rgba(31,99,108,.38));
+}
+
+.divisor-conteudo {
+    position: relative;
+    z-index: 1;
+}
+
+.divisor blockquote,
+.divisor-conteudo blockquote {
+    margin: 0 auto;
+    max-width: 920px;
+    font-family: var(--fonte-titulo);
+    font-size: clamp(1.55rem, 3.1vw, 2.5rem);
+    line-height: 1.5;
+    color: #f2f8ff;
+    font-style: italic;
+}
+
+.divisor blockquote p {
+    margin: 0;
+}
+
+/* 08 — CONVITE À ASSOCIAÇÃO */
+/* ESTUDO: CTA significa chamada para ação; aqui ela conduz ao portal. */
+.contato {
+    background: radial-gradient(circle at 50% 10%, rgba(var(--cor-neon-rgb), .08), transparent 52%), var(--cor-fundo);
+}
+
+.chamada-associacao {
+    width: min(100%, 850px);
+    margin: 45px auto 0;
+    padding: clamp(28px, 5vw, 58px);
+    text-align: center;
+    border-radius: 24px;
+    border: 1px solid rgba(var(--cor-neon-rgb), .35);
+    background: linear-gradient(145deg, rgba(255,255,255,.85), rgba(230,249,250,.77));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 18px 55px rgba(38, 108, 132, .10);
+}
+
+.chamada-associacao h3 {
+    font-size: clamp(1.45rem, 3vw, 2.25rem);
+    margin-bottom: 15px;
+}
+
+.chamada-associacao p {
+    max-width: 620px;
+    margin: 0 auto 25px;
+    line-height: 1.8;
+    text-align: center;
+}
+
+.chamada-associacao .aviso-cadastro {
+    font-size: .85rem;
+    color: #64798a;
+    margin: 20px auto 0;
+}
+
+.lista-contato {
+    display: grid;
+    gap: 15px;
+}
+
+.lista-contato a {
+    color: var(--cor-neon);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* 09 — RODAPÉ: identidade, menu e informações legais */
+/* Centralizado e com largura igual à das outras seções. */
+.rodape {
+    padding: 68px 0 28px;
+    color: var(--cor-texto);
+    background: linear-gradient(180deg, #f0f8fa 0%, #e6f2f5 100%);
+    border-top: 1px solid var(--cor-borda);
+}
+
+.rodape .container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* Área de marca: identidade e slogan */
+.rodape-topo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 34px;
+    text-align: center;
+}
+
+.rodape-identidade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+}
+
+.rodape-identidade strong,
+.rodape-topo > strong {
+    display: block;
+    font-family: var(--fonte-titulo);
+    font-size: clamp(1.75rem, 3vw, 2.15rem);
+    letter-spacing: .1em;
+    line-height: 1.25;
+    color: #167d88;
+}
+
+.rodape-identidade span,
+.rodape-topo > span {
+    font-size: .82rem;
+    text-transform: uppercase;
+    letter-spacing: .13em;
+    color: #587287;
+}
+
+.rodape-slogan {
+    max-width: 650px;
+    margin: 0 auto;
+    font-size: .99rem;
+    line-height: 1.65;
+    color: #526879;
+    text-align: center;
+}
+
+/* Links de navegação: centralizados e com quebra em telas menores */
+.rodape-nav {
+    width: 100%;
+    padding: 0 0 32px;
+    margin-bottom: 26px;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.rodape-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    text-align: center;
+}
+
+.rodape-menu a,
+.rodape-links a {
+    display: inline-block;
+    padding-block: 6px;
+    color: #3a596c;
+    font-size: .93rem;
+    line-height: 1.4;
+}
+
+.rodape-menu a:hover,
+.rodape-links a:hover {
+    color: #087f84;
+}
+
+/* Parte inferior: copyright à esquerda, links legais à direita */
+.rodape-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px 26px;
+    width: 100%;
+    font-size: .88rem;
+}
+
+.rodape-legal {
+    margin: 0;
+    text-align: left;
+}
+
+.rodape-links {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    text-align: right;
+}
+
+/* 10 — RESPONSIVIDADE */
+/* ESTUDO: @media aplica regras apenas se a condição de tela for verdadeira. */
+@media (max-width: 850px) {
+    .topo {
+        padding: 16px 0;
+    }
+
+    .menu-toggle {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 47px;
+        height: 45px;
+    }
+
+    .hamburger,
+    .hamburger::before,
+    .hamburger::after {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: var(--cor-neon);
+        border-radius: 3px;
+        transition: transform var(--transicao);
+    }
+
+    .hamburger {
+        position: relative;
+    }
+
+    .hamburger::before,
+    .hamburger::after {
+        content: "";
+        position: absolute;
+        left: 0;
+    }
+
+    .hamburger::before {
+        top: -7px;
+    }
+
+    .hamburger::after {
+        top: 7px;
+    }
+
+    .menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        padding: 23px 24px 26px;
+        background: rgba(247,252,253,.98);
+        border-block: 1px solid var(--cor-borda);
+        box-shadow: 0 18px 25px rgba(0,0,0,.3);
+    }
+
+    .menu.active {
+        display: block;
+    }
+
+    .menu ul {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 19px;
+        text-align: center;
+    }
+
+    .menu .btn-portal {
+        width: 100%;
+    }
+
+    .hero {
+        min-height: 650px;
+    }
+
+    .hero-overlay {
+        background: linear-gradient(90deg, rgba(12,42,57,.68), rgba(12,42,57,.26)), linear-gradient(0deg, rgba(12,42,57,.39), transparent 70%);
+    }
+
+    .grid-atuacao,
+    .grid-vantagens {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: min(100% - 36px, var(--largura-container));
+    }
+
+    .hero-conteudo {
+        padding-block: 135px 85px;
+    }
+
+    .hero h1 {
+        color: #ffffff;
+        font-size: clamp(2rem, 9.1vw, 3rem);
+    }
+
+    .hero-subtitulo {
+        font-size: 1rem;
+    }
+
+    .hero-video {
+        object-position: 60% center;
+    }
+
+    .parallax-divisor,
+    .divisor {
+        background-attachment: scroll;
+        min-height: 310px;
+    }
+
+    .rodape-bottom {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .rodape-legal {
+        text-align: center;
+    }
+
+    .rodape-menu {
+        gap: 10px 20px;
+    }
+
+    .rodape-links {
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Em telas estreitas, o alinhamento natural evita espaços excessivos. */
+    .card-atuacao p,
+    .card-vantagem p {
+        text-align: left;
+        hyphens: none;
+    }
+
+    .btn-principal {
+        width: 100%;
+    }
+
+}
+
+/* Preferência de acessibilidade: reduz movimento sem esconder conteúdo */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+
+    .parallax-divisor,
+    .divisor {
+        background-attachment: scroll;
+    }
+
+    .hero-video {
+        display: none;
+    }
+
+}
+
+/* 11 — CONTRASTE ADAPTATIVO DO MENU CLARO */
+/* ESTUDO: o menu precisa de texto claro sobre vídeo e escuro quando o fundo fica claro. */
+.topo.scrolled .logo a,
+.topo.scrolled .menu a {
+    color: #173a4c;
+}
+
+.topo.scrolled .logo-texto small {
+    color: #567a87;
+}
+
+.topo.scrolled .menu a:hover,
+.topo.scrolled .rodape-links a:hover {
+    color: #087f84;
+}
+
+.topo.scrolled .menu .btn-portal {
+    color: #123746;
+    background: #c7f4ef;
+}
+
+.topo.scrolled .menu-toggle {
+    background: rgba(224,246,248,.9);
+}
+
+.topo.scrolled .hamburger,
+.topo.scrolled .hamburger::before,
+.topo.scrolled .hamburger::after {
+    background: #237486;
+}
+
+.hero .hero-conteudo {
+    color: #ffffff;
+}
+
+.hero .btn-principal {
+    box-shadow: 0 8px 28px rgba(14,78,85,.13);
+}
+
+.rodape-identidade strong,
+.rodape-topo > strong {
+    color: #167d88;
+    text-shadow: none;
+}
+
+.rodape-menu a:hover,
+.rodape-links a:hover {
+    color: #087f84;
+}
+
+@media (max-width: 850px) {
+    .menu a,
+    .topo:not(.scrolled) .menu a {
+        color: #173a4c;
+    }
+
+    .menu .btn-portal {
+        background: #c7f4ef;
+    }
+
+}
+
+
+/* Ajuste: logotipo escuro para contraste quando o cabeçalho se torna claro. */
+.topo.scrolled .logo-texto strong {
+    color: var(--cor-primaria);
+}
+
+/* ============================================================
+   12 — ANIMAÇÕES DE ENTRADA (SCROLL REVEAL)
+   ============================================================ */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, transform;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Delay escalonado para os cards (efeito cascata) */
+.card-atuacao.reveal:nth-child(1), .card-vantagem.reveal:nth-child(1) { transition-delay: 0.1s; }
+.card-atuacao.reveal:nth-child(2), .card-vantagem.reveal:nth-child(2) { transition-delay: 0.2s; }
+.card-atuacao.reveal:nth-child(3), .card-vantagem.reveal:nth-child(3) { transition-delay: 0.3s; }
+.card-atuacao.reveal:nth-child(4), .card-vantagem.reveal:nth-child(4) { transition-delay: 0.4s; }
+
+/* ============================================================
+   ESTILO PARA O LINK DO CRIADOR NO RODAPÉ
+   ============================================================ */
+.link-criador {
+    color: var(--cor-neon);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--cor-neon);
+    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 0 2px;
+}
+
+.link-criador:hover {
+    color: #ffffff; /* Fica branco ao passar o mouse */
+    border-bottom-color: #ffffff;
+    text-shadow: 0 0 10px rgba(var(--cor-neon-rgb), 0.6); /* Efeito de brilho neon */
+    transform: translateY(-1px);
+}
+
+/* Ajuste para não ficar feio no celular */
+@media (max-width: 600px) {
+    .rodape-legal {
+        line-height: 2; /* Dá mais espaço entre as linhas no celular */
+    }
+    .quebra-mobile {
+        display: block;
+        content: "";
+        margin-top: 5px;
+    }
+}

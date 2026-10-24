@@ -5,137 +5,425 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO BÁSICO E AVANÇADO -->
-    <title>CONJURIS | Cooperativa de Advogados - Atuação NAcional</title>
-    <meta name="description" content="CONJURIS é uma cooperativa de advogados com atuação nacional. Assessoria Jurídica em Direito Civil, Trabalhista, Familía e Empresarial, unindo experiencia e tecnologia." >
+    <title>COJURIS | Cooperativa de Advogados - Atuação Nacional</title>
+    <meta name="description" content="Seja um advogado cooperado COJURIS. Tenha acesso a tecnologia, infraestrutura e divisão de lucros baseada no modelo cooperativo. Atuação nacional.">
     <meta name="author" content="COJURIS - Cooperativa de Advogados">
     <meta name="robots" content="index, follow">
-    <!-- <meta name="theme-color" content="#1a2b4c"> Cor da barra do navegador no mobile -->
+    
+    <!-- OPEN GRAPH -->
+    <meta property="og:title" content="COJURIS | Cooperativa de Advogados">
+    <meta property="og:description" content="O modelo cooperativo aplicado à advocacia. Mais rentabilidade e liberdade para o advogado.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.cojuris.adv.br/">
 
-    <!-- link rel="canonical" href="https://www.conjuris.adv.br/"> Desmentar quando tiver o domínio -->
-
-    <!-- OPEN GRAPH (whatApp, LinkedIn, Facebook) -->
-     <meta property="og>title" content="COJURIS | Cooperativa de Advogados">
-     <meta property="og:description" content="Assessoria Jurídica nacional com modelo cooperativo e tecnologia. Atendimento ágil e transparente.">
-     <meta property="og:type" content="website">
-     <meta property="og:url" content="https://www.conjuris.adv.br/">
-     <!-- <meta property="og:image"content="https://www.cojuris.adv.br/assets/imagens/share.jpg"> -->
-
-    <!-- FAVICON (Ícone da aba) -->
-     <!-- <link rel="icon" href="assets/imagens/favicon.ico" type="image/x-icon" -->
-
-     <!-- FONTE (performace) -->
+    <!-- FONTES (Performance) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-     <link rel="stylesheet" href="css/style.css">
-
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-<!-- 
-    CABEÇALHO FIXO + MENU -->
-
+    <!-- CABEÇALHO FIXO + MENU -->
     <header class="topo" role="banner">
         <div class="container topo-inner">
 
             <div class="logo">
                 <a href="#inicio" aria-label="COJURIS - voltar ao início">
-                    <span class="logo-simbolo" aria-hidden="true">⚖️</span>
+                    
+            <span class="logo-simbolo" aria-hidden="true">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="34"
+                    height="34"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+
+                    <circle cx="12" cy="5" r="2"/>
+                    <circle cx="5" cy="18" r="2"/>
+                    <circle cx="19" cy="18" r="2"/>
+
+                    <path d="M11 7 L6 16"/>
+                    <path d="M13 7 L18 16"/>
+                    <path d="M7 18 H17"/>
+
+                </svg>
+            </span>
+
                     <span class="logo-texto">
                         <strong>COJURIS</strong>
                         <small>Cooperativa de Advogados</small>
-                        
                     </span>
                 </a>
             </div>
 
-                <!-- Botão hamburger para mobile(controlado por JS) -->
-                 <button class="menu-toggle" aria-label="Navegação principal">
+            <button class="menu-toggle" aria-label="Abrir menu de navegação">
                 <span class="hamburger"></span>
-                </button>
+            </button>
 
-                <nav>
-                    <ul>
-                        <li><a href="#sobre">Sobre</a></li>
-                        <li><a href="atuação">Área de Atuação</a></li>
-                        <li><a href="contato">Contato</a></li>
-                        <li>    
-                        <a href="portal/index.html" class="btn-portal" aria-label="Acessar área restrita do portal de associados"> Portal do associados</a>
-                        </li>
-                    </ul>
-                </nav>
+            <nav class="menu" id="menu-principal">
+                <ul>
+                    <li><a href="#sobre">O Modelo</a></li>
+                    <li><a href="#vantagens">Vantagens</a></li>
+                    <li><a href="#atuacao">Áreas de Atuação</a></li>
+                    <li><a href="#contato">Seja Cooperado</a></li>
+                    <li>    
+                        <a href="portal/index.html" class="btn-portal" aria-label="Acessar área restrita do portal de associados">Portal do Cooperado</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </header>
 
+     <!-- HERO - VIDEO PARALLAX -->
+    <section id="inicio" class="hero" aria-labelledby="hero-titulo">
+        <video 
+            class="hero-video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-hidden="true"
+            disablepictureinpicture
+            disableremoteplayback>
+            
+            <!-- Aponta para o arquivo renomeado -->
+            <source src="assets/videos/escritório.principal.mp4" type="video/mp4">
+            
+            <!-- Fallback: Se o vídeo não rodar, mostra este texto -->
+            Seu navegador não suporta vídeo em HTML5.
+        </video>
 
-<!-- HERO - VIDEO PARALLAX -->
+        <!-- Overlay único (escurece o vídeo) -->
+        <div class="hero-overlay" aria-hidden="true"></div>
 
-<section id="inicio" class="hero" aria-labelledby="hero-titulo">
+        <div class="container hero-conteudo">
+            <h1 id="hero-titulo">
+    Sua independência. A força de uma grande cooperativa.
+            </h1>
 
-    <video 
-        class="hero-video"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="metadata"
-        poster="assets/videos/escritório.principal.mp4"    
-        aria-hidden="true"
-        disablepictureinpicture
-        disableremoteplayback>
-        <source src="assets/videos/escritório.principal.mp4" type="video/mp4">
+            <p class="hero-subtitulo">
+                Exerça a advocacia com autonomia e conte com a estrutura,
+                a tecnologia e as oportunidades de uma grande organização.
+                Na COJURIS, você compartilha recursos, amplia suas
+                possibilidades de atuação e participa dos resultados
+                gerados pelo crescimento coletivo.
+            </p>
 
-        <!-- Fallback de segurança -->
-         <img src="assets/videos/escritório.principal.mp4" alt="Cooperativa moderna">
-    </video>
+            <a href="#vantagens" class="btn-principal">
+                Descubra as vantagens de ser cooperado
+            </a>
+        </div>    
+    </section>
 
-    <div class="hero-overlay" aria-hidden="true"></div>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main>
 
-    <div class="hero-overlay" aria-hidden="true"></div>
+        <!-- SOBRE / O MODELO -->
+        <section id="sobre" class="secao sobre" aria-labelledby="sobre-titulo">
+            <div class="container">
+                <h2 id="sobre-titulo">O Modelo Cooperativo</h2>
+                <div class="texto-conteudo">
+                    <p>
+                        A COJURIS representa uma nova forma de exercer a advocacia,
+                        fundamentada na cooperação, na autonomia profissional e no
+                        crescimento coletivo. Mais do que integrar uma rede nacional,
+                        cada advogado participa de um empreendimento compartilhado,
+                        com acesso a infraestrutura, tecnologia e oportunidades,
+                        contribuindo para o fortalecimento da organização e
+                        participando dos resultados de seu desenvolvimento.
+                                        </p>
+                    <p>
+                        Aqui, você não divide seus honorários com "donos de escritório". Você atua de forma independente, 
+                        compartilha custos operacionais e participa ativamente das decisões e dos lucros da cooperativa.
+                    </p>
+                </div>
+            </div>
+        </section>
 
-    <div class="container hero-conteudo">
-        <h1 id="hero-titulo">Assessoria jurídica nacional, com a força de uma cooperativa</h1>
+        <!-- VANTAGENS (NOVO CONTEÚDO FOCO B2B) -->
+        <section id="vantagens" class="secao vantagens bg-cinza" aria-labelledby="vantagens-titulo">
+            
+            <div class="grid-atuacao">
 
-        <p class="hero-subtitulo">
-            A COJURIS reúne advogados especializados em diferentes áreas do Direito , unidos por um modelo cooperativo e apoiado por tecnologia para oferecer um atendimento ágil, transparente e próximo.
+                <article class="card-atuacao">
+                    <h3>Participação nos Resultados</h3>
+                    <p>
+                        Na COJURIS, o crescimento é compartilhado.
+                        Além dos rendimentos de sua própria atividade
+                        profissional, o cooperado participa dos resultados
+                        econômicos da organização, conforme sua contribuição
+                        e as regras de distribuição, transformando o
+                        desenvolvimento coletivo em oportunidades de
+                        prosperidade individual.
+                    </p>
+                </article>
+
+                <article class="card-atuacao">
+                    <h3>Infraestrutura e Tecnologia</h3>
+                    <p>
+                        Tenha à sua disposição recursos e ferramentas
+                        de uma grande estrutura jurídica, incluindo
+                        sistemas de gestão processual, assinatura eletrônica,
+                        soluções de inteligência artificial e suporte
+                        tecnológico. Amplie sua capacidade de atuação,
+                        otimize custos e concentre seus investimentos
+                        no crescimento da sua advocacia.
+                    </p>
+                </article>
+
+            </div>
+
+            </div>
+        </section>
+
+  <!-- A FORÇA DO COOPERATIVISMO -->
+<section id="atuacao" class="secao atuacao"
+         aria-labelledby="atuacao-titulo">
+
+    <div class="container">
+
+        <h2 id="atuacao-titulo">
+            A Força do Cooperativismo
+        </h2>
+
+        <p class="secao-intro">
+            Ao longo da história, o cooperativismo consolidou-se
+            como uma alternativa de organização econômica e
+            profissional em diversos setores da sociedade.
+
+            Fundamentado na união de esforços, no compartilhamento
+            de recursos e na participação coletiva, esse modelo
+            permite que profissionais independentes alcancem
+            benefícios que dificilmente conquistariam isoladamente.
+
+            Inspirada nesses princípios, a COJURIS propõe levar
+            à advocacia uma estrutura de cooperação capaz de
+            proporcionar maior estabilidade, competitividade
+            e oportunidades de crescimento.
         </p>
-        <a href="#contato" class="btn-principal">Fale com a COJURIS</a>
-    </div>    
+
+        <div class="grid-atuacao">
+
+            <article class="card-atuacao">
+                <h3>Independência Profissional</h3>
+                <p>
+                    Preserve sua autonomia, suas decisões e
+                    sua identidade profissional, contando com
+                    o apoio de uma organização estruturada.
+                    A cooperação fortalece a atuação individual
+                    sem exigir que o advogado renuncie à
+                    sua independência.
+                </p>
+            </article>
+
+            <article class="card-atuacao">
+                <h3>Segurança e Estabilidade Econômica</h3>
+                <p>
+                    O compartilhamento de despesas, recursos
+                    e infraestrutura contribui para reduzir
+                    custos operacionais e ampliar a previsibilidade
+                    financeira. Uma estrutura coletiva oferece
+                    melhores condições para enfrentar os desafios
+                    e as oscilações da atividade profissional.
+                </p>
+            </article>
+
+            <article class="card-atuacao">
+                <h3>A Força da União</h3>
+                <p>
+                    A união de profissionais reúne experiências,
+                    conhecimentos e capacidades complementares,
+                    ampliando as possibilidades de atuação.
+                    Juntos, os cooperados podem desenvolver
+                    projetos, compartilhar soluções e alcançar
+                    objetivos que seriam mais difíceis
+                    individualmente.
+                </p>
+            </article>
+
+            <article class="card-atuacao">
+                <h3>Crescimento Compartilhado</h3>
+                <p>
+                    Na COJURIS, o desenvolvimento individual
+                    está conectado ao fortalecimento coletivo.
+                    O modelo proposto valoriza a participação
+                    dos associados, o aproveitamento das
+                    oportunidades e a possibilidade de
+                    compartilhar os resultados econômicos
+                    da organização.
+                </p>
+            </article>
+
+        </div>
+
+    </div>
+
 </section>
 
+    </main>
 
-<!-- CONTEÚDO PRINCIPAL -->
-
-<main>
-
-<!-- SOBRE -->
-    <section id="sobre" class="secao sobre" aria-labelledby="sobre-titulo">
-    
-        <div class="container">
-            <h2 id="sobre-titulo">Sobre a COJURIS</h2>
-            <div class="texto-conteudo">
-                <p>A COJURIS é uma cooperativa de advogados com atuação em todo o território                          nacional. Reunimos profissionais de diferentes especialidades em um modelo de trabalho colaborativo, no qual cada cliente é atendido pelo advogado
-                        mais adequado ao seu caso.
-                    </p>
-                    <p>
-                        Nosso propósito é tornar o acesso à Justiça mais próximo, eficiente e
-                        transparente. Para isso, combinamos a experiência dos nossos cooperados
-                        com ferramentas tecnológicas que agilizam o acompanhamento processual e
-                        a comunicação com o cliente.
-                    </p>
-            </div>
+    <!-- PARALLAX DIVISOR -->
+    <section class="divisor parallax-divisor" aria-label="Mensagem institucional">
+        <div class="container divisor-conteudo">
+            <blockquote>
+                <p>"União que fortalece. Gestão que rentabiliza."</p>
+            </blockquote>
         </div>
     </section>
 
+    
+<!-- ASSOCIE-SE À COJURIS -->
+<section id="contato" class="secao contato"
+         aria-labelledby="contato-titulo">
 
+    <div class="container">
 
-</main>
+        <h2 id="contato-titulo">
+            Faça parte de uma nova era da advocacia
+        </h2>
 
+        <p class="secao-intro">
+            Sua independência profissional merece a força
+            de uma grande organização. Junte-se ao projeto
+            COJURIS e descubra as possibilidades de crescimento,
+            colaboração e participação nos resultados que
+            uma estrutura coletiva pode proporcionar.
 
+            O primeiro passo é simples: acesse nosso portal
+            e registre seu interesse em fazer parte dessa
+            iniciativa.
+        </p>
 
+        <div class="chamada-associacao">
 
+            <h3>Seu futuro profissional começa aqui.</h3>
+
+            <p>
+                Cadastre sua manifestação de interesse
+                e dê o primeiro passo para integrar
+                uma rede nacional de advogados.
+            </p>
+
+            <a href="portal/index.html"
+               class="btn-principal">
+                Quero fazer parte da COJURIS
+            </a>
+
+            <p class="aviso-cadastro">
+                O cadastro é uma manifestação inicial
+                de interesse e não implica associação
+                automática.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+        </div>
+    </section>
+
+  <!-- RODAPÉ -->
+<footer class="rodape">
+
+    <div class="container">
+
+        <!-- IDENTIDADE INSTITUCIONAL -->
+        <div class="rodape-topo">
+
+            <div class="rodape-identidade">
+                <strong>COJURIS</strong>
+                <span>Cooperativa de Advogados</span>
+            </div>
+
+            <p class="rodape-slogan">
+                Independência profissional.
+                Força coletiva. Crescimento compartilhado.
+            </p>
+
+        </div>
+
+        <!-- NAVEGAÇÃO DO RODAPÉ -->
+        <nav class="rodape-nav"
+             aria-label="Navegação do rodapé">
+
+            <ul class="rodape-menu">
+
+                <li>
+                    <a href="#inicio">Início</a>
+                </li>
+
+                <li>
+                    <a href="#sobre">Sobre a COJURIS</a>
+                </li>
+
+                <li>
+                    <a href="#atuacao">Cooperativismo</a>
+                </li>
+
+                <li>
+                    <a href="#contato">Associe-se</a>
+                </li>
+
+                <li>
+                    <a href="portal/index.html">
+                        Portal do Associado
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+        <!-- INFORMAÇÕES LEGAIS -->
+        <div class="rodape-bottom">
+
+            <p class="rodape-legal">
+            <small>
+                &copy; 2026 COJURIS. Todos os direitos reservados.
+                <br class="quebra-mobile"> <!-- Opcional: quebra a linha no celular para não espremer -->
+                Desenvolvido por 
+                <a href="https://brener-castro-de-paiva.github.io/Portifolio/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="link-criador">
+                Brener Castro de Paiva (Advogado)
+                </a>
+            </small>
+        </p>
+            </p>
+
+            <ul class="rodape-links">
+
+                <li>
+                    <a href="politica-privacidade.html">
+                        Política de Privacidade
+                    </a>
+                </li>
+
+                <li>
+                    <a href="aviso-legal.html">
+                        Aviso Legal
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</footer>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
