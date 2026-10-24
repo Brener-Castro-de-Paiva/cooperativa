@@ -267,6 +267,7 @@ button {
 .hero-subtitulo {
     font-size: clamp(1rem, 1.65vw, 1.25rem);
     line-height: 1.75;
+    text-align: justify;
     max-width: 680px;
     color: #f5fbff;
     margin-bottom: 34px;
