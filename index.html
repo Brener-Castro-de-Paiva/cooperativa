@@ -54,27 +54,87 @@
 
                 <!-- Botão hamburger para mobile(controlado por JS) -->
                  <button class="menu-toggle" aria-label="Navegação principal">
+                <span class="hamburger"></span>
+                </button>
 
+                <nav>
                     <ul>
                         <li><a href="#sobre">Sobre</a></li>
                         <li><a href="atuação">Área de Atuação</a></li>
                         <li><a href="contato">Contato</a></li>
-                            <a href="portal/index.html" class="btn-portal" aria-label="Acessar área restrita do portal de associados"> Portal do associados</a>
+                        <li>    
+                        <a href="portal/index.html" class="btn-portal" aria-label="Acessar área restrita do portal de associados"> Portal do associados</a>
+                        </li>
                     </ul>
-
-
-
-                 </button>
-
-
-
-
-
+                </nav>
         </div>
-
-
-
     </header>
+
+
+<!-- HERO - VIDEO PARALLAX -->
+
+<section id="inicio" class="hero" aria-labelledby="hero-titulo">
+
+    <video 
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster="assets/videos/escritório.principal.mp4"    
+        aria-hidden="true"
+        disablepictureinpicture
+        disableremoteplayback>
+        <source src="assets/videos/escritório.principal.mp4" type="video/mp4">
+
+        <!-- Fallback de segurança -->
+         <img src="assets/videos/escritório.principal.mp4" alt="Cooperativa moderna">
+    </video>
+
+    <div class="hero-overlay" aria-hidden="true"></div>
+
+    <div class="hero-overlay" aria-hidden="true"></div>
+
+    <div class="container hero-conteudo">
+        <h1 id="hero-titulo">Assessoria jurídica nacional, com a força de uma cooperativa</h1>
+
+        <p class="hero-subtitulo">
+            A COJURIS reúne advogados especializados em diferentes áreas do Direito , unidos por um modelo cooperativo e apoiado por tecnologia para oferecer um atendimento ágil, transparente e próximo.
+        </p>
+        <a href="#contato" class="btn-principal">Fale com a COJURIS</a>
+    </div>    
+</section>
+
+
+<!-- CONTEÚDO PRINCIPAL -->
+
+<main>
+
+<!-- SOBRE -->
+    <section id="sobre" class="secao sobre" aria-labelledby="sobre-titulo">
+    
+        <div class="container">
+            <h2 id="sobre-titulo">Sobre a COJURIS</h2>
+            <div class="texto-conteudo">
+                <p>A COJURIS é uma cooperativa de advogados com atuação em todo o território                          nacional. Reunimos profissionais de diferentes especialidades em um modelo de trabalho colaborativo, no qual cada cliente é atendido pelo advogado
+                        mais adequado ao seu caso.
+                    </p>
+                    <p>
+                        Nosso propósito é tornar o acesso à Justiça mais próximo, eficiente e
+                        transparente. Para isso, combinamos a experiência dos nossos cooperados
+                        com ferramentas tecnológicas que agilizam o acompanhamento processual e
+                        a comunicação com o cliente.
+                    </p>
+            </div>
+        </div>
+    </section>
+
+
+
+</main>
+
+
 
 
 </body>
