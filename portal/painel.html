@@ -1,25 +1,325 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Associado | COJURIS</title>
-    <link rel="stylesheet" href="css/portal.css">
-    <style>
-        /* Estilo específico para a etiqueta de status */
-        .status-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
-        .badge { padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; margin-left: 10px; }
-        .badge.pendente { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .badge.aprovado { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    </style>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#123748">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Meu Painel | COJURIS</title>
+
+    <link rel="stylesheet" href="./css/portal.css">
+    <link rel="stylesheet" href="./css/painel.css">
 </head>
-<body>
-    <div class="portal-container" id="painel-conteudo">
-        <!-- Enquanto os dados carregam do Firebase, aparece esta mensagem -->
-        <h1 style="text-align: center; color: #173a4c; margin-top: 50px;">Verificando seu acesso...</h1>
+
+<body class="cooperado-page">
+
+    <main class="dashboard" id="dashboard" hidden>
+
+        <!-- CABEÇALHO INSTITUCIONAL -->
+
+        <header class="dashboard-hero">
+
+            <div class="dashboard-top">
+
+                <a href="../index.html"
+                   class="dashboard-logo"
+                   aria-label="Página inicial da COJURIS">
+
+                    <span class="logo-symbol" aria-hidden="true">
+                        ✦
+                    </span>
+
+                    <span>
+                        <strong>COJURIS</strong>
+                        <small>Portal do Cooperado</small>
+                    </span>
+
+                </a>
+
+                <button
+                    type="button"
+                    id="btn-sair"
+                    class="logout-button">
+                    Sair
+                </button>
+
+            </div>
+
+            <div class="dashboard-greeting">
+
+                <span class="eyebrow">
+                    SUA ÁREA PROFISSIONAL
+                </span>
+
+                <p>Boas-vindas,</p>
+
+                <h1 id="nome-usuario">
+                    Cooperado
+                </h1>
+
+                <div class="status-chip"
+                     id="status-chip">
+                    Consultando cadastro...
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTEÚDO PRINCIPAL -->
+
+        <div class="dashboard-content">
+
+            <!-- TELA INICIAL -->
+
+            <section
+                id="tela-inicio"
+                class="dashboard-screen"
+                aria-labelledby="titulo-inicio">
+
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow dark">
+                            VISÃO GERAL
+                        </span>
+
+                        <h2 id="titulo-inicio">
+                            Seu espaço na COJURIS
+                        </h2>
+                    </div>
+                </div>
+
+
+                <!-- SITUAÇÃO CADASTRAL -->
+
+                <article class="status-card">
+
+                    <div class="card-topline">
+                        <span>Situação da solicitação</span>
+                        <span aria-hidden="true">◈</span>
+                    </div>
+
+                    <h3 id="situacao-titulo">
+                        Consultando...
+                    </h3>
+
+                    <p id="situacao-descricao">
+                        Buscando informações do seu cadastro.
+                    </p>
+
+                </article>
+
+
+                <!-- RECURSOS -->
+
+                <div class="section-heading">
+                    <h2>Explore a plataforma</h2>
+                </div>
+
+                <div class="feature-grid">
+
+                    <article class="feature-card">
+                        <span class="feature-icon"
+                              aria-hidden="true">⚖</span>
+
+                        <h3>Oportunidades</h3>
+
+                        <p>Projetos e colaborações profissionais.</p>
+
+                        <span class="feature-tag">
+                            Em desenvolvimento
+                        </span>
+                    </article>
+
+                    <article class="feature-card">
+                        <span class="feature-icon"
+                              aria-hidden="true">◎</span>
+
+                        <h3>Minha rede</h3>
+
+                        <p>Conexão entre profissionais do Direito.</p>
+
+                        <span class="feature-tag">
+                            Em desenvolvimento
+                        </span>
+                    </article>
+
+                    <article class="feature-card">
+                        <span class="feature-icon"
+                              aria-hidden="true">▤</span>
+
+                        <h3>Documentos</h3>
+
+                        <p>Materiais e documentos institucionais.</p>
+
+                        <span class="feature-tag">
+                            Em desenvolvimento
+                        </span>
+                    </article>
+
+                    <article class="feature-card">
+                        <span class="feature-icon"
+                              aria-hidden="true">✉</span>
+
+                        <h3>Mensagens</h3>
+
+                        <p>Comunicação dentro da plataforma.</p>
+
+                        <span class="feature-tag">
+                            Em desenvolvimento
+                        </span>
+                    </article>
+
+                </div>
+
+            </section>
+
+
+            <!-- TELA DE ATIVIDADES -->
+
+            <section
+                id="tela-atividades"
+                class="dashboard-screen"
+                aria-labelledby="titulo-atividades"
+                hidden>
+
+                <div class="section-heading">
+                    <h2 id="titulo-atividades">
+                        Minhas atividades
+                    </h2>
+                </div>
+
+                <article class="info-card">
+                    <h3>Acompanhamento cadastral</h3>
+
+                    <p id="atividade-status">
+                        Consultando situação...
+                    </p>
+
+                    <p>
+                        Outras atividades profissionais
+                        serão disponibilizadas conforme
+                        a evolução da plataforma.
+                    </p>
+                </article>
+
+            </section>
+
+
+            <!-- TELA DE PERFIL -->
+
+            <section
+                id="tela-perfil"
+                class="dashboard-screen"
+                aria-labelledby="titulo-perfil"
+                hidden>
+
+                <div class="section-heading">
+                    <h2 id="titulo-perfil">
+                        Meu perfil profissional
+                    </h2>
+                </div>
+
+                <article class="info-card">
+
+                    <div class="profile-avatar"
+                         aria-hidden="true"
+                         id="perfil-inicial">
+                        C
+                    </div>
+
+                    <div class="profile-field">
+                        <span>Nome completo</span>
+                        <strong id="perfil-nome">—</strong>
+                    </div>
+
+                    <div class="profile-field">
+                        <span>E-mail cadastrado</span>
+                        <strong id="perfil-email">—</strong>
+                    </div>
+
+                    <div class="profile-field">
+                        <span>Inscrição na OAB</span>
+                        <strong id="perfil-oab">—</strong>
+                    </div>
+
+                    <div class="profile-field">
+                        <span>Situação</span>
+                        <strong id="perfil-status">—</strong>
+                    </div>
+
+                </article>
+
+            </section>
+
+        </div>
+
+
+        <!-- NAVEGAÇÃO MOBILE -->
+
+        <nav class="bottom-navigation"
+             aria-label="Navegação do painel">
+
+            <button
+                type="button"
+                class="nav-item active"
+                data-tela="inicio"
+                aria-current="page">
+
+                <span aria-hidden="true">⌂</span>
+                <small>Início</small>
+
+            </button>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-tela="atividades">
+
+                <span aria-hidden="true">▦</span>
+                <small>Atividades</small>
+
+            </button>
+
+            <button
+                type="button"
+                class="nav-item"
+                data-tela="perfil">
+
+                <span aria-hidden="true">◉</span>
+                <small>Perfil</small>
+
+            </button>
+
+        </nav>
+
+    </main>
+
+
+    <!-- MENSAGEM DE CARREGAMENTO OU ERRO -->
+
+    <div id="painel-feedback"
+         class="painel-feedback"
+         role="status"
+         aria-live="polite">
+
+        Verificando sua sessão...
+
     </div>
 
-    <!-- O script que criamos -->
-    <script type="module" src="js/painel.js"></script>
+
+    <script
+        type="module"
+        src="./js/painel.js">
+    </script>
+
 </body>
 </html>
