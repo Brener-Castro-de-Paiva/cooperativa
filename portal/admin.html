@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Painel Administrativo | COJURIS</title>
+
+    <link rel="stylesheet" href="./css/portal.css">
+</head>
+
+<body class="admin-page">
+
+    <main class="admin-container">
+
+        <header class="admin-header">
+
+            <div>
+                <p class="admin-subtitle">COJURIS</p>
+
+                <h1>Painel Administrativo</h1>
+
+                <p>
+                    Gestão das manifestações de interesse
+                    dos futuros cooperados.
+                </p>
+            </div>
+
+            <button
+                id="admin-sair"
+                type="button"
+                class="btn-form"
+                disabled>
+                Encerrar sessão
+            </button>
+
+        </header>
+
+        <section
+            class="admin-section"
+            aria-labelledby="solicitacoes-titulo">
+
+            <h2 id="solicitacoes-titulo">
+                Solicitações de ingresso
+            </h2>
+
+            <p
+                id="admin-mensagem"
+                role="status"
+                aria-live="polite">
+                Verificando permissões...
+            </p>
+
+            <div
+                id="lista-interessados"
+                class="admin-lista">
+            </div>
+
+        </section>
+
+    </main>
+
+    <script
+        type="module"
+        src="./js/admin.js">
+    </script>
+
+</body>
+</html>

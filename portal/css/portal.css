@@ -189,3 +189,150 @@ body {
 .hidden {
     display: none !important;
 }
+
+/* ==========================================
+   COJURIS — PAINEL ADMINISTRATIVO
+   ========================================== */
+
+.admin-page {
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px 20px;
+    background: linear-gradient(
+        120deg,
+        #173a4c,
+        #119a9b
+    );
+    font-family: Arial, sans-serif;
+    color: #173a4c;
+    box-sizing: border-box;
+}
+
+.admin-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.admin-header,
+.admin-section {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.admin-header h1 {
+    margin: 8px 0;
+    color: #173a4c;
+}
+
+.admin-header p {
+    margin: 8px 0;
+}
+
+.admin-subtitle {
+    color: #119a9b;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.admin-header .btn-form {
+    width: auto;
+    min-width: 160px;
+}
+
+.admin-section h2 {
+    margin-bottom: 18px;
+}
+
+#admin-mensagem {
+    margin: 15px 0 25px;
+    font-size: 0.95rem;
+}
+
+.admin-lista {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 300px), 1fr)
+    );
+    gap: 20px;
+}
+
+.admin-card {
+    padding: 22px;
+    border: 1px solid #dce8eb;
+    border-radius: 14px;
+    background: #f9fcfd;
+}
+
+.admin-card h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #173a4c;
+}
+
+.admin-card p {
+    margin: 8px 0;
+    overflow-wrap: anywhere;
+}
+
+.admin-acoes {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-aprovar,
+.btn-rejeitar {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-aprovar {
+    background: #d8f5e8;
+    color: #176b48;
+}
+
+.btn-rejeitar {
+    background: #fbe1e4;
+    color: #963b46;
+}
+
+.btn-aprovar:disabled,
+.btn-rejeitar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-header .btn-form {
+        width: 100%;
+    }
+
+    .admin-header,
+    .admin-section {
+        padding: 22px;
+    }
+
+    .admin-acoes {
+        flex-direction: column;
+    }
+}

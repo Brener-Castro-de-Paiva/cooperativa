@@ -1,15 +1,16 @@
 
 /* ============================================================
-   COJURIS — CADASTRO E LOGIN DE INTERESSADOS
+   COJURIS — CADASTRO E LOGIN
 
    Funcionalidades:
    1. Alternância entre cadastro e login
    2. Validação de e-mail Gmail
    3. Cadastro no Firebase Authentication
-   4. Gravação no Cloud Firestore
+   4. Registro no Cloud Firestore
    5. Login de usuários cadastrados
-   6. Tratamento de erros
-   7. Redirecionamento para o painel
+   6. Verificação de permissão administrativa
+   7. Redirecionamento automático
+   8. Tratamento de erros
    ============================================================ */
 
 
@@ -26,6 +27,7 @@ import {
 
 import {
     doc,
+    getDoc,
     setDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -83,10 +85,14 @@ function alternarFormularios() {
 
     loginBox.classList.toggle("hidden");
 
+    mensagemCadastro.classList.add("hidden");
+    mensagemLogin.classList.add("hidden");
 }
 
-// Botões de alternância
-document.querySelectorAll(".toggle-link").forEach(botao => {
+
+// Botões para alternar entre os formulários
+
+document.querySelectorAll(".toggle-link").forEach((botao) => {
 
     botao.addEventListener("click", alternarFormularios);
 
@@ -94,21 +100,69 @@ document.querySelectorAll(".toggle-link").forEach(botao => {
 
 
 // ============================================================
-// 06 — CADASTRO DE INTERESSADOS
+// 06 — IDENTIFICAÇÃO DO ADMINISTRADOR
+// ============================================================
+
+async function verificarAdministrador(usuario) {
+
+    const adminRef = doc(
+        db,
+        "administradores",
+        usuario.uid
+    );
+
+    const adminDoc = await getDoc(adminRef);
+
+    return (
+        adminDoc.exists() &&
+        adminDoc.data().ativo === true
+    );
+}
+
+
+// ============================================================
+// 07 — REDIRECIONAMENTO POR PERFIL
+// ============================================================
+
+async function redirecionarUsuario(usuario) {
+
+    const ehAdministrador = await verificarAdministrador(usuario);
+
+    if (ehAdministrador) {
+
+        console.log("COJURIS: administrador identificado.");
+
+        window.location.replace("admin.html");
+
+    } else {
+
+        console.log("COJURIS: interessado identificado.");
+
+        window.location.replace("painel.html");
+
+    }
+}
+
+
+// ============================================================
+// 08 — CADASTRO DE INTERESSADOS
 // ============================================================
 
 formCadastro.addEventListener("submit", async (evento) => {
 
-    // Impede o recarregamento automático da página
     evento.preventDefault();
 
-    // Recupera os dados informados
-    const nome = document.getElementById("nome").value.trim();
+
+    // 8.1 — RECUPERAR OS DADOS
+
+    const nome = document.getElementById("nome")
+        .value.trim();
 
     const email = document.getElementById("email")
         .value.trim().toLowerCase();
 
-    const oab = document.getElementById("oab").value.trim();
+    const oab = document.getElementById("oab")
+        .value.trim();
 
     const senha = document.getElementById("senha").value;
 
@@ -117,9 +171,7 @@ formCadastro.addEventListener("submit", async (evento) => {
     );
 
 
-    // --------------------------------------------------------
-    // 6.1 — VALIDAÇÕES ANTES DO FIREBASE
-    // --------------------------------------------------------
+    // 8.2 — VALIDAR OS CAMPOS
 
     if (!nome || !email || !oab || !senha) {
 
@@ -133,6 +185,8 @@ formCadastro.addEventListener("submit", async (evento) => {
     }
 
 
+    // 8.3 — RESTRINGIR CADASTRO AO GMAIL
+
     if (!validarGmail(email)) {
 
         mostrarMensagem(
@@ -144,6 +198,8 @@ formCadastro.addEventListener("submit", async (evento) => {
         return;
     }
 
+
+    // 8.4 — VALIDAR A SENHA
 
     if (senha.length < 6) {
 
@@ -157,20 +213,19 @@ formCadastro.addEventListener("submit", async (evento) => {
     }
 
 
-    // --------------------------------------------------------
-    // 6.2 — INICIAR CADASTRO
-    // --------------------------------------------------------
+    // 8.5 — INICIAR O CADASTRO
 
     botao.disabled = true;
-
     botao.textContent = "Cadastrando...";
 
     let contaCriada = false;
+    let registroGravado = false;
 
 
     try {
 
-        // Cria a conta no Firebase Authentication
+        // Criar usuário no Firebase Authentication
+
         const credencial = await createUserWithEmailAndPassword(
             auth,
             email,
@@ -182,7 +237,8 @@ formCadastro.addEventListener("submit", async (evento) => {
         const usuario = credencial.user;
 
 
-        // Salva o registro no Firestore
+        // Gravar informações no Firestore
+
         await setDoc(
             doc(db, "interessados", usuario.uid),
             {
@@ -194,8 +250,11 @@ formCadastro.addEventListener("submit", async (evento) => {
             }
         );
 
+        registroGravado = true;
 
-        // Mensagem de sucesso
+
+        // Confirmar cadastro
+
         mostrarMensagem(
             mensagemCadastro,
             "Sua manifestação de interesse foi registrada com sucesso!",
@@ -203,25 +262,26 @@ formCadastro.addEventListener("submit", async (evento) => {
         );
 
 
-        // Limpa o formulário
+        // Limpar formulário
+
         formCadastro.reset();
 
 
-        // Encaminha para o painel
-        window.location.assign("painel.html");
+        // Novo interessado acessa o painel individual
+
+        window.location.replace("painel.html");
 
 
     } catch (erro) {
 
-        console.error("Erro no cadastro:", erro.code);
+        console.error("Erro no cadastro:", erro);
 
 
-        // Conta criada, mas documento não registrado
-        if (contaCriada) {
+        if (contaCriada && !registroGravado) {
 
             mostrarMensagem(
                 mensagemCadastro,
-                "Sua conta foi criada, mas não foi possível concluir a inscrição. Não crie outra conta. Entre em contato com o suporte.",
+                "Sua conta foi criada, mas não foi possível concluir a inscrição. Entre em contato com o suporte.",
                 "erro"
             );
 
@@ -237,7 +297,7 @@ formCadastro.addEventListener("submit", async (evento) => {
 
             mostrarMensagem(
                 mensagemCadastro,
-                "Escolha uma senha mais segura.",
+                "A senha informada é muito fraca.",
                 "erro"
             );
 
@@ -261,7 +321,6 @@ formCadastro.addEventListener("submit", async (evento) => {
     } finally {
 
         botao.disabled = false;
-
         botao.textContent = "Cadastrar Interesse";
     }
 
@@ -269,12 +328,15 @@ formCadastro.addEventListener("submit", async (evento) => {
 
 
 // ============================================================
-// 07 — LOGIN
+// 09 — LOGIN COM IDENTIFICAÇÃO ADMINISTRATIVA
 // ============================================================
 
 formLogin.addEventListener("submit", async (evento) => {
 
     evento.preventDefault();
+
+
+    // 9.1 — RECUPERAR CREDENCIAIS
 
     const email = document.getElementById("login-email")
         .value.trim();
@@ -286,20 +348,26 @@ formLogin.addEventListener("submit", async (evento) => {
     );
 
 
-    botao.disabled = true;
+    // 9.2 — INICIAR AUTENTICAÇÃO
 
+    botao.disabled = true;
     botao.textContent = "Entrando...";
 
 
     try {
 
-        // Autentica o usuário
-        await signInWithEmailAndPassword(
+        // Autenticar usuário
+
+        const credencial = await signInWithEmailAndPassword(
             auth,
             email,
             senha
         );
 
+        const usuario = credencial.user;
+
+
+        // Confirmar autenticação
 
         mostrarMensagem(
             mensagemLogin,
@@ -308,24 +376,48 @@ formLogin.addEventListener("submit", async (evento) => {
         );
 
 
-        // Redireciona para o painel
-        window.location.assign("painel.html");
+        // Verificar perfil e redirecionar
+
+        await redirecionarUsuario(usuario);
 
 
     } catch (erro) {
 
-        console.error("Erro no login:", erro.code);
+        console.error("Erro no login:", erro);
 
-        mostrarMensagem(
-            mensagemLogin,
-            "Não foi possível entrar. Confira seu e-mail e sua senha.",
-            "erro"
-        );
+
+        if (
+            erro.code === "auth/invalid-credential" ||
+            erro.code === "auth/wrong-password" ||
+            erro.code === "auth/user-not-found"
+        ) {
+
+            mostrarMensagem(
+                mensagemLogin,
+                "E-mail ou senha incorretos.",
+                "erro"
+            );
+
+        } else if (erro.code === "permission-denied") {
+
+            mostrarMensagem(
+                mensagemLogin,
+                "Login efetuado, mas não foi possível verificar suas permissões.",
+                "erro"
+            );
+
+        } else {
+
+            mostrarMensagem(
+                mensagemLogin,
+                "Não foi possível concluir o acesso. Verifique sua conexão ou tente novamente.",
+                "erro"
+            );
+        }
 
     } finally {
 
         botao.disabled = false;
-
         botao.textContent = "Entrar";
     }
 
