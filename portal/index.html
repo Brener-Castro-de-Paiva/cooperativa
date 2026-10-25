@@ -1,66 +1,265 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
+    <!-- CONFIGURAÇÕES GERAIS -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="description"
+          content="Portal COJURIS para manifestação de interesse e acesso de usuários cadastrados.">
+
     <title>Portal do Cooperado | COJURIS</title>
+
+    <!-- FOLHA DE ESTILOS -->
     <link rel="stylesheet" href="css/portal.css">
+
 </head>
+
 <body>
 
-    <div class="portal-container">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="portal-container">
 
-        <!-- Formulário de CADASTRO -->
-        <div id="cadastro-box">
-            <h1>Quero ser Cooperado</h1>
-            <p class="intro">Cadastre seu interesse em fazer parte da COJURIS.</p>
+        <!-- ==========================================
+             1. CADASTRO DE NOVOS INTERESSADOS
+             ========================================== -->
+
+        <section id="cadastro-box"
+                 aria-labelledby="cadastro-titulo">
+
+            <h1 id="cadastro-titulo">
+                Quero ser Cooperado
+            </h1>
+
+            <p class="intro">
+                Cadastre seu interesse em fazer parte
+                da COJURIS.
+            </p>
+
             <form id="form-cadastro">
+
+                <!-- NOME COMPLETO -->
                 <div class="form-group">
-                    <label for="nome">Nome Completo</label>
-                    <input type="text" id="nome" required placeholder="Seu nome" maxlength="150">
+
+                    <label for="nome">
+                        Nome Completo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        placeholder="Seu nome completo"
+                        autocomplete="name"
+                        maxlength="150"
+                        required
+                    >
+
                 </div>
+
+
+                <!-- E-MAIL -->
                 <div class="form-group">
-                    <label for="email">E-mail Profissional</label>
-                    <input type="email" id="email" required placeholder="seu@email.com">
+
+                    <label for="email">
+                        E-mail Gmail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="seunome@gmail.com"
+                        autocomplete="email"
+                        inputmode="email"
+                        maxlength="254"
+                        required
+                    >
+
                 </div>
+
+
+                <!-- INSCRIÇÃO OAB -->
                 <div class="form-group">
-                    <label for="oab">Número da OAB</label>
-                    <input type="text" id="oab" required placeholder="Ex: 123456/SP" maxlength="40">
+
+                    <label for="oab">
+                        Número da OAB
+                    </label>
+
+                    <input
+                        type="text"
+                        id="oab"
+                        name="oab"
+                        placeholder="Ex.: 123456/SP"
+                        maxlength="40"
+                        required
+                    >
+
                 </div>
+
+
+                <!-- SENHA -->
                 <div class="form-group">
-                    <label for="senha">Crie uma Senha</label>
-                    <input type="password" id="senha" required minlength="6" placeholder="Mínimo 6 caracteres">
+
+                    <label for="senha">
+                        Crie uma Senha
+                    </label>
+
+                    <input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        placeholder="Mínimo de 6 caracteres"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
                 </div>
-                <button type="submit" class="btn-form">Cadastrar Interesse</button>
+
+
+                <!-- BOTÃO DE CADASTRO -->
+                <button
+                    type="submit"
+                    class="btn-form">
+
+                    Cadastrar Interesse
+
+                </button>
+
             </form>
-            <button type="button" class="toggle-link">
+
+
+            <!-- ALTERNAR PARA LOGIN -->
+            <button
+                type="button"
+                class="toggle-link">
+
                 Já tenho cadastro. Fazer Login.
-            </button>
-            <div id="mensagem-cadastro" class="mensagem hidden"></div>
-        </div>
 
-        <!-- Formulário de LOGIN -->
-        <div id="login-box" class="hidden">
-            <h1>Acessar Portal</h1>
+            </button>
+
+
+            <!-- MENSAGENS DO CADASTRO -->
+            <div
+                id="mensagem-cadastro"
+                class="mensagem hidden"
+                role="status"
+                aria-live="polite">
+            </div>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             2. LOGIN DOS USUÁRIOS CADASTRADOS
+             ========================================== -->
+
+        <section id="login-box"
+                 class="hidden"
+                 aria-labelledby="login-titulo">
+
+            <h1 id="login-titulo">
+                Acessar Portal
+            </h1>
+
+            <p class="intro">
+                Entre com suas credenciais para
+                acompanhar sua manifestação de interesse.
+            </p>
+
             <form id="form-login">
+
+                <!-- E-MAIL DE LOGIN -->
                 <div class="form-group">
-                    <label for="login-email">E-mail</label>
-                    <input type="email" id="login-email" required>
+
+                    <label for="login-email">
+                        E-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="login-email"
+                        name="login-email"
+                        placeholder="seunome@gmail.com"
+                        autocomplete="username"
+                        required
+                    >
+
                 </div>
+
+
+                <!-- SENHA DE LOGIN -->
                 <div class="form-group">
-                    <label for="login-senha">Senha</label>
-                    <input type="password" id="login-senha" required>
+
+                    <label for="login-senha">
+                        Senha
+                    </label>
+
+                    <input
+                        type="password"
+                        id="login-senha"
+                        name="login-senha"
+                        placeholder="Sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+
                 </div>
-                <button type="submit" class="btn-form">Entrar</button>
+
+
+                <!-- BOTÃO DE LOGIN -->
+                <button
+                    type="submit"
+                    class="btn-form">
+
+                    Entrar
+
+                </button>
+
             </form>
-            <button type="button" class="toggle-link">
-                Ainda não tenho cadastro. Quero me associar.
+
+
+            <!-- ALTERNAR PARA CADASTRO -->
+            <button
+                type="button"
+                class="toggle-link">
+
+                Ainda não tenho cadastro.
+                Quero me associar.
+
             </button>
-            <div id="mensagem-login" class="mensagem hidden"></div>
-        </div>
 
-    </div>
 
-    <script type="module" src="js/cadastro.js"></script>
+            <!-- MENSAGENS DO LOGIN -->
+            <div
+                id="mensagem-login"
+                class="mensagem hidden"
+                role="status"
+                aria-live="polite">
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==========================================
+         3. JAVASCRIPT DO PORTAL
+         ========================================== -->
+
+    <script
+        type="module"
+        src="./js/cadastro.js">
+    </script>
+
 </body>
 </html>

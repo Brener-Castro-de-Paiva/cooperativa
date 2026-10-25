@@ -1,133 +1,332 @@
-/* COJURIS — CADASTRO E LOGIN */
 
-import { db } from "./firebase-config.js";
-import { criarConta, entrar } from "./auth.js";
+/* ============================================================
+   COJURIS — CADASTRO E LOGIN DE INTERESSADOS
+
+   Funcionalidades:
+   1. Alternância entre cadastro e login
+   2. Validação de e-mail Gmail
+   3. Cadastro no Firebase Authentication
+   4. Gravação no Cloud Firestore
+   5. Login de usuários cadastrados
+   6. Tratamento de erros
+   7. Redirecionamento para o painel
+   ============================================================ */
+
+
+// ============================================================
+// 01 — IMPORTAÇÃO DOS MÓDULOS
+// ============================================================
+
+import { auth, db } from "./firebase-config.js";
+
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
 import {
     doc,
     setDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// 1. Elementos da página
+
+// ============================================================
+// 02 — ELEMENTOS DO HTML
+// ============================================================
+
 const cadastroBox = document.getElementById("cadastro-box");
 const loginBox = document.getElementById("login-box");
+
 const formCadastro = document.getElementById("form-cadastro");
 const formLogin = document.getElementById("form-login");
 
-// 2. Alternar os formulários (botões acessíveis)
-document.querySelectorAll(".toggle-link").forEach(botao => {
-    botao.addEventListener("click", () => {
-        cadastroBox.classList.toggle("hidden");
-        loginBox.classList.toggle("hidden");
-    });
-});
+const mensagemCadastro = document.getElementById("mensagem-cadastro");
+const mensagemLogin = document.getElementById("mensagem-login");
 
-// 3. Mensagens para o usuário
-function mostrarMensagem(id, texto, tipo) {
-    const elemento = document.getElementById(id);
-    elemento.textContent = texto;
-    elemento.className = `mensagem ${tipo}`;
-    elemento.classList.remove("hidden");
+
+// ============================================================
+// 03 — VALIDAÇÃO DO GMAIL
+// ============================================================
+
+function validarGmail(email) {
+
+    const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+
+    return regex.test(email);
 }
 
-// 4. Cadastro de interessados
+
+// ============================================================
+// 04 — EXIBIÇÃO DE MENSAGENS
+// ============================================================
+
+function mostrarMensagem(elemento, texto, tipo) {
+
+    if (!elemento) return;
+
+    elemento.textContent = texto;
+
+    elemento.className = `mensagem ${tipo}`;
+
+    elemento.setAttribute("role", "alert");
+}
+
+
+// ============================================================
+// 05 — ALTERNÂNCIA ENTRE CADASTRO E LOGIN
+// ============================================================
+
+function alternarFormularios() {
+
+    cadastroBox.classList.toggle("hidden");
+
+    loginBox.classList.toggle("hidden");
+
+}
+
+// Botões de alternância
+document.querySelectorAll(".toggle-link").forEach(botao => {
+
+    botao.addEventListener("click", alternarFormularios);
+
+});
+
+
+// ============================================================
+// 06 — CADASTRO DE INTERESSADOS
+// ============================================================
+
 formCadastro.addEventListener("submit", async (evento) => {
+
+    // Impede o recarregamento automático da página
     evento.preventDefault();
 
+    // Recupera os dados informados
     const nome = document.getElementById("nome").value.trim();
-    const email = document.getElementById("email").value.trim();
+
+    const email = document.getElementById("email")
+        .value.trim().toLowerCase();
+
     const oab = document.getElementById("oab").value.trim();
+
     const senha = document.getElementById("senha").value;
 
-    const botao = formCadastro.querySelector('button[type="submit"]');
+    const botao = formCadastro.querySelector(
+        'button[type="submit"]'
+    );
+
+
+    // --------------------------------------------------------
+    // 6.1 — VALIDAÇÕES ANTES DO FIREBASE
+    // --------------------------------------------------------
+
+    if (!nome || !email || !oab || !senha) {
+
+        mostrarMensagem(
+            mensagemCadastro,
+            "Preencha todos os campos obrigatórios.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    if (!validarGmail(email)) {
+
+        mostrarMensagem(
+            mensagemCadastro,
+            "Utilize um endereço @gmail.com para se cadastrar na COJURIS.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    if (senha.length < 6) {
+
+        mostrarMensagem(
+            mensagemCadastro,
+            "A senha deve conter pelo menos 6 caracteres.",
+            "erro"
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // 6.2 — INICIAR CADASTRO
+    // --------------------------------------------------------
+
     botao.disabled = true;
+
     botao.textContent = "Cadastrando...";
 
     let contaCriada = false;
 
+
     try {
-        // Cria a identidade no Firebase Authentication
-        const credencial = await criarConta(email, senha);
+
+        // Cria a conta no Firebase Authentication
+        const credencial = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            senha
+        );
+
         contaCriada = true;
 
-        // Registra a manifestação no Firestore
-        await setDoc(doc(db, "interessados", credencial.user.uid), {
-            nome,
-            email,
-            oab,
-            status: "pendente",
-            dataCadastro: serverTimestamp()
-        });
+        const usuario = credencial.user;
 
+
+        // Salva o registro no Firestore
+        await setDoc(
+            doc(db, "interessados", usuario.uid),
+            {
+                nome: nome,
+                email: email,
+                oab: oab,
+                status: "pendente",
+                dataCadastro: serverTimestamp()
+            }
+        );
+
+
+        // Mensagem de sucesso
         mostrarMensagem(
-            "mensagem-cadastro",
-            "Manifestação de interesse registrada com sucesso! Você já pode fazer login.",
+            mensagemCadastro,
+            "Sua manifestação de interesse foi registrada com sucesso!",
             "sucesso"
         );
 
+
+        // Limpa o formulário
         formCadastro.reset();
 
-    } catch (erro) {
-        console.error("Falha no cadastro:", erro.code);
 
-        let texto;
+        // Encaminha para o painel
+        window.location.assign("painel.html");
+
+
+    } catch (erro) {
+
+        console.error("Erro no cadastro:", erro.code);
+
+
+        // Conta criada, mas documento não registrado
         if (contaCriada) {
-            texto = "Sua conta foi criada, mas não foi possível concluir a inscrição. Entre em contato com o suporte antes de tentar novamente.";
+
+            mostrarMensagem(
+                mensagemCadastro,
+                "Sua conta foi criada, mas não foi possível concluir a inscrição. Não crie outra conta. Entre em contato com o suporte.",
+                "erro"
+            );
+
         } else if (erro.code === "auth/email-already-in-use") {
-            texto = "Este e-mail já possui cadastro. Utilize a opção de login.";
+
+            mostrarMensagem(
+                mensagemCadastro,
+                "Este e-mail já está cadastrado. Utilize a opção de login.",
+                "erro"
+            );
+
         } else if (erro.code === "auth/weak-password") {
-            texto = "Sua senha precisa ter pelo menos 6 caracteres.";
+
+            mostrarMensagem(
+                mensagemCadastro,
+                "Escolha uma senha mais segura.",
+                "erro"
+            );
+
         } else if (erro.code === "auth/invalid-email") {
-            texto = "O e-mail informado não é válido.";
+
+            mostrarMensagem(
+                mensagemCadastro,
+                "O endereço de e-mail informado é inválido.",
+                "erro"
+            );
+
         } else {
-            texto = "Não foi possível concluir o cadastro. Verifique os dados e tente novamente.";
+
+            mostrarMensagem(
+                mensagemCadastro,
+                "Não foi possível realizar o cadastro. Tente novamente.",
+                "erro"
+            );
         }
 
-        mostrarMensagem("mensagem-cadastro", texto, "erro");
     } finally {
+
         botao.disabled = false;
+
         botao.textContent = "Cadastrar Interesse";
     }
+
 });
 
-// 5. Login
+
+// ============================================================
+// 07 — LOGIN
+// ============================================================
+
 formLogin.addEventListener("submit", async (evento) => {
+
     evento.preventDefault();
 
-    const email = document.getElementById("login-email").value.trim();
+    const email = document.getElementById("login-email")
+        .value.trim();
+
     const senha = document.getElementById("login-senha").value;
 
-    const botao = formLogin.querySelector('button[type="submit"]');
+    const botao = formLogin.querySelector(
+        'button[type="submit"]'
+    );
+
+
     botao.disabled = true;
+
     botao.textContent = "Entrando...";
 
-    try {
-        await entrar(email, senha);
 
-        mostrarMensagem("mensagem-login", "Autenticação realizada com sucesso! Redirecionando...", "sucesso");
-        
-        // Redireciona para o painel após breve delay (para usuário ver a mensagem)
-        setTimeout(() => {
-            window.location.href = "painel.html";
-        }, 800);
+    try {
+
+        // Autentica o usuário
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            senha
+        );
+
+
+        mostrarMensagem(
+            mensagemLogin,
+            "Login realizado com sucesso!",
+            "sucesso"
+        );
+
+
+        // Redireciona para o painel
+        window.location.assign("painel.html");
+
 
     } catch (erro) {
-        console.error("Falha na autenticação:", erro.code);
 
-        let texto;
-        if (erro.code === "auth/invalid-credential" || erro.code === "auth/wrong-password") {
-            texto = "E-mail ou senha incorretos.";
-        } else if (erro.code === "auth/user-not-found") {
-            texto = "Nenhuma conta encontrada com este e-mail.";
-        } else if (erro.code === "auth/too-many-requests") {
-            texto = "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
-        } else {
-            texto = "Não foi possível entrar. Confira suas credenciais.";
-        }
+        console.error("Erro no login:", erro.code);
 
-        mostrarMensagem("mensagem-login", texto, "erro");
+        mostrarMensagem(
+            mensagemLogin,
+            "Não foi possível entrar. Confira seu e-mail e sua senha.",
+            "erro"
+        );
+
     } finally {
+
         botao.disabled = false;
+
         botao.textContent = "Entrar";
     }
+
 });

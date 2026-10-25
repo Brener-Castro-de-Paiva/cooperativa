@@ -131,3 +131,61 @@ body {
 .hidden {
     display: none;
 }
+
+/* ==========================================
+   ADMINISTRAÇÃO — BOTÕES DE DECISÃO
+   ========================================== */
+
+.admin-acoes {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-aprovar,
+.btn-rejeitar {
+    flex: 1;
+    padding: 12px 16px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.btn-aprovar {
+    background: #d8f5e8;
+    color: #176b48;
+}
+
+.btn-aprovar:hover {
+    background: #b6e9ce;
+}
+
+.btn-rejeitar {
+    background: #fbe1e4;
+    color: #963b46;
+}
+
+.btn-rejeitar:hover {
+    background: #f5c9ce;
+}
+
+.btn-aprovar:disabled,
+.btn-rejeitar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .admin-acoes {
+        flex-direction: column;
+    }
+}
+.hidden {
+    display: none !important;
+}
