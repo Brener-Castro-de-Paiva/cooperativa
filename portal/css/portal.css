@@ -1,42 +1,268 @@
+
 /* ============================================================
-   COJURIS — PORTAL DO COOPERADO
+   COJURIS — SISTEMA VISUAL DO PORTAL
+   Cadastro | Login | Painel Individual | Administração
    ============================================================ */
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ============================================================
+   01 — VARIÁVEIS E CONFIGURAÇÕES GERAIS
+   ============================================================ */
+
+:root {
+    --azul: #173a4c;
+    --azul-escuro: #102d3c;
+    --turquesa: #1fb4b0;
+    --turquesa-escuro: #118d8c;
+
+    --branco: #ffffff;
+    --fundo-claro: #f5fafb;
+    --texto: #1c3948;
+    --texto-suave: #718793;
+    --borda: #dce8eb;
+
+    --sucesso: #176b48;
+    --erro: #963b46;
+
+    --raio: 18px;
+
+    --sombra:
+        0 24px 70px rgba(6, 32, 45, 0.17);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
 
 body {
-    font-family: 'Roboto', Arial, sans-serif;
-    background: linear-gradient(135deg, #173a4c 0%, #0e9f9f 100%);
     min-height: 100vh;
+    min-height: 100dvh;
+
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--texto);
+
+    background:
+        radial-gradient(
+            circle at 85% 15%,
+            rgba(92, 223, 213, 0.22),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 10% 85%,
+            rgba(27, 155, 172, 0.19),
+            transparent 36%
+        ),
+        linear-gradient(
+            135deg,
+            #102f40 0%,
+            #195967 55%,
+            #0e9696 100%
+        );
+
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+
+    padding: 32px 20px;
 }
+
+
+/* ============================================================
+   02 — ANIMAÇÕES
+   ============================================================ */
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes brilho {
+    0%, 100% {
+        opacity: 0.35;
+    }
+
+    50% {
+        opacity: 0.65;
+    }
+}
+
+
+/* ============================================================
+   03 — CONTAINER PADRÃO DO PORTAL
+   Também utilizado pelo painel individual
+   ============================================================ */
 
 .portal-container {
+    position: relative;
+
     width: 100%;
     max-width: 480px;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 18px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+
+    padding: 42px 40px;
+
+    background: rgba(255, 255, 255, 0.98);
+
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+
+    box-shadow: var(--sombra);
+
+    animation: aparecer 0.55s ease both;
 }
 
+
+/* ============================================================
+   04 — LAYOUT MODERNO DO CADASTRO E LOGIN
+
+   :has() identifica somente a página que contém
+   o formulário de cadastro.
+
+   Assim, o painel individual não é alterado.
+   ============================================================ */
+
+.portal-container:has(#form-cadastro) {
+    max-width: 950px;
+
+    min-height: 585px;
+
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+
+    gap: 0;
+    padding: 0;
+
+    overflow: hidden;
+}
+
+
+/* Painel institucional esquerdo */
+
+.portal-container:has(#form-cadastro)::before {
+    content:
+        "COJURIS"
+        "\A\A"
+        "Sua independência."
+        "\A"
+        "Nossa força coletiva."
+        "\A\A"
+        "Conectando profissionais do Direito em uma nova experiência de colaboração.";
+
+    white-space: pre-line;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    grid-column: 1;
+    grid-row: 1;
+
+    padding: 48px 42px;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: clamp(1.3rem, 2.5vw, 1.85rem);
+    line-height: 1.55;
+
+    color: #ffffff;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(66, 223, 215, 0.23),
+            transparent 45%
+        ),
+        linear-gradient(
+            155deg,
+            #102d3c 0%,
+            #174c5b 65%,
+            #0e7f85 100%
+        );
+}
+
+
+/* Detalhe gráfico discreto */
+
+.portal-container:has(#form-cadastro)::after {
+    content: "";
+
+    position: absolute;
+    left: 36px;
+    bottom: 32px;
+
+    width: 64px;
+    height: 4px;
+
+    border-radius: 99px;
+    background: #5cddd5;
+
+    pointer-events: none;
+}
+
+
+/* Área dos formulários */
+
+.portal-container:has(#form-cadastro)
+:is(#cadastro-box, #login-box) {
+    grid-column: 2;
+    grid-row: 1;
+
+    align-self: center;
+
+    width: 100%;
+    padding: 46px 43px;
+
+    animation: aparecer 0.35s ease both;
+}
+
+
+/* ============================================================
+   05 — TIPOGRAFIA
+   ============================================================ */
+
 .portal-container h1 {
-    color: #173a4c;
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: var(--azul);
+
+    font-size: clamp(1.65rem, 2.8vw, 2.1rem);
+    font-weight: 700;
+
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+
+    margin-bottom: 12px;
     text-align: center;
-    font-family: 'Merriweather', Georgia, serif;
-    font-size: 1.8rem;
-    margin-bottom: 10px;
 }
 
 .intro {
+    max-width: 360px;
+
+    margin: 0 auto 28px;
+
     text-align: center;
-    color: #666;
-    margin-bottom: 25px;
-    font-size: 0.95rem;
+    color: var(--texto-suave);
+
+    font-size: 0.94rem;
+    line-height: 1.65;
 }
+
+
+/* ============================================================
+   06 — CAMPOS DOS FORMULÁRIOS
+   ============================================================ */
 
 .form-group {
     margin-bottom: 18px;
@@ -44,271 +270,385 @@ body {
 
 .form-group label {
     display: block;
-    margin-bottom: 6px;
-    color: #41566a;
-    font-weight: 500;
-    font-size: 0.9rem;
+
+    margin-bottom: 8px;
+
+    color: #365365;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15px;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
+    min-height: 49px;
+
+    padding: 13px 15px;
+
+    background: #f8fbfc;
+    color: var(--texto);
+
+    border: 1px solid var(--borda);
+    border-radius: 11px;
+
+    font-family: inherit;
+    font-size: 0.95rem;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.form-group input::placeholder {
+    color: #9aabb3;
+}
+
+.form-group input:hover {
+    border-color: #b1cbd1;
+    background: #ffffff;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #21b7b2;
-    box-shadow: 0 0 0 3px rgba(33, 183, 178, 0.15);
+
+    border-color: var(--turquesa);
+    background: #ffffff;
+
+    box-shadow:
+        0 0 0 4px rgba(31, 180, 176, 0.12);
 }
 
+
+/* ============================================================
+   07 — BOTÃO PRINCIPAL
+   ============================================================ */
+
 .btn-form {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     width: 100%;
-    padding: 14px;
-    background: #21b7b2;
-    color: #ffffff;
+    min-height: 50px;
+
+    margin-top: 10px;
+    padding: 13px 20px;
+
     border: none;
-    border-radius: 8px;
-    font-size: 1.05rem;
+    border-radius: 11px;
+
+    background: linear-gradient(
+        125deg,
+        #20b9b3,
+        #139d9d
+    );
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 0.97rem;
     font-weight: 700;
+
     cursor: pointer;
-    transition: background 0.3s;
-    margin-top: 8px;
+
+    box-shadow:
+        0 8px 20px rgba(19, 157, 157, 0.17);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
 
 .btn-form:hover:not(:disabled) {
-    background: #173a4c;
+    transform: translateY(-2px);
+
+    background: linear-gradient(
+        125deg,
+        #159d9c,
+        #137f87
+    );
+
+    box-shadow:
+        0 12px 24px rgba(19, 157, 157, 0.23);
+}
+
+.btn-form:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .btn-form:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
 }
+
+
+/* ============================================================
+   08 — ALTERNÂNCIA ENTRE CADASTRO E LOGIN
+   ============================================================ */
 
 .toggle-link {
     display: block;
+
     width: 100%;
     margin-top: 20px;
-    padding: 10px;
-    background: transparent;
+    padding: 10px 5px;
+
     border: none;
-    color: #21b7b2;
-    font-size: 0.9rem;
-    cursor: pointer;
-    text-align: center;
+    background: transparent;
+
+    color: var(--turquesa-escuro);
+
     font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+
+    text-align: center;
+    line-height: 1.5;
+
+    cursor: pointer;
+    transition: color 0.2s ease;
 }
 
 .toggle-link:hover {
+    color: var(--azul);
     text-decoration: underline;
-    color: #0e9f9f;
 }
+
+
+/* ============================================================
+   09 — MENSAGENS DO SISTEMA
+   ============================================================ */
 
 .mensagem {
     margin-top: 20px;
-    padding: 12px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 0.9rem;
+    padding: 14px 16px;
+
+    border-radius: 11px;
+
+    font-size: 0.88rem;
     line-height: 1.5;
+
+    text-align: center;
 }
 
 .mensagem.sucesso {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background: #e1f5ea;
+    color: #176b48;
+    border: 1px solid #c2e8d3;
 }
 
 .mensagem.erro {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background: #fce9eb;
+    color: #923f4b;
+    border: 1px solid #f2cdd3;
 }
 
-.hidden {
-    display: none;
-}
-
-/* ==========================================
-   ADMINISTRAÇÃO — BOTÕES DE DECISÃO
-   ========================================== */
-
-.admin-acoes {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.btn-aprovar,
-.btn-rejeitar {
-    flex: 1;
-    padding: 12px 16px;
-
-    border: none;
-    border-radius: 10px;
-
-    font-size: 0.95rem;
-    font-weight: 700;
-
-    cursor: pointer;
-    transition: 0.25s ease;
-}
-
-.btn-aprovar {
-    background: #d8f5e8;
-    color: #176b48;
-}
-
-.btn-aprovar:hover {
-    background: #b6e9ce;
-}
-
-.btn-rejeitar {
-    background: #fbe1e4;
-    color: #963b46;
-}
-
-.btn-rejeitar:hover {
-    background: #f5c9ce;
-}
-
-.btn-aprovar:disabled,
-.btn-rejeitar:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-@media (max-width: 480px) {
-    .admin-acoes {
-        flex-direction: column;
-    }
-}
 .hidden {
     display: none !important;
 }
 
-/* ==========================================
-   COJURIS — PAINEL ADMINISTRATIVO
-   ========================================== */
 
-.admin-page {
+/* ============================================================
+   10 — PAINEL ADMINISTRATIVO
+   ============================================================ */
+
+body.admin-page {
+    display: block;
+
     min-height: 100vh;
-    margin: 0;
-    padding: 40px 20px;
-    background: linear-gradient(
-        120deg,
-        #173a4c,
-        #119a9b
-    );
-    font-family: Arial, sans-serif;
-    color: #173a4c;
-    box-sizing: border-box;
+
+    padding: 45px 20px;
+
+    color: var(--azul);
 }
 
 .admin-container {
-    max-width: 1100px;
+    width: 100%;
+    max-width: 1120px;
+
     margin: 0 auto;
+
+    animation: aparecer 0.5s ease both;
 }
 
 .admin-header,
 .admin-section {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 30px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 22px;
+
+    padding: 32px;
+    margin-bottom: 22px;
+
+    box-shadow:
+        0 14px 42px rgba(8, 44, 54, 0.12);
 }
 
 .admin-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 25px;
+
+    gap: 24px;
 }
 
 .admin-header h1 {
     margin: 8px 0;
-    color: #173a4c;
+
+    color: var(--azul);
+    font-size: 1.95rem;
+    letter-spacing: -0.5px;
 }
 
 .admin-header p {
     margin: 8px 0;
+    line-height: 1.6;
 }
 
 .admin-subtitle {
-    color: #119a9b;
-    font-weight: bold;
-    letter-spacing: 2px;
+    color: var(--turquesa-escuro);
+
+    font-size: 0.85rem;
+    font-weight: 800;
+
+    letter-spacing: 2.5px;
 }
 
 .admin-header .btn-form {
     width: auto;
-    min-width: 160px;
+    min-width: 165px;
+
+    margin-top: 0;
 }
 
 .admin-section h2 {
     margin-bottom: 18px;
+    font-size: 1.45rem;
 }
 
 #admin-mensagem {
     margin: 15px 0 25px;
+
+    color: #526c79;
     font-size: 0.95rem;
+    line-height: 1.6;
 }
+
+
+/* ============================================================
+   11 — CARTÕES ADMINISTRATIVOS
+   ============================================================ */
 
 .admin-lista {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(min(100%, 300px), 1fr)
-    );
-    gap: 20px;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+
+    gap: 18px;
 }
 
 .admin-card {
-    padding: 22px;
-    border: 1px solid #dce8eb;
-    border-radius: 14px;
-    background: #f9fcfd;
+    padding: 24px;
+
+    border: 1px solid var(--borda);
+    border-radius: 16px;
+
+    background: linear-gradient(
+        155deg,
+        #ffffff,
+        #f4f9fa
+    );
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #b7d9dc;
+
+    box-shadow:
+        0 10px 24px rgba(9, 43, 55, 0.07);
 }
 
 .admin-card h3 {
-    margin-top: 0;
-    margin-bottom: 12px;
-    color: #173a4c;
+    margin-bottom: 14px;
+
+    color: var(--azul);
+
+    font-size: 1.05rem;
+    line-height: 1.4;
 }
 
 .admin-card p {
     margin: 8px 0;
+
+    color: #46606e;
+
+    font-size: 0.92rem;
+    line-height: 1.5;
+
     overflow-wrap: anywhere;
 }
+
+
+/* ============================================================
+   12 — BOTÕES ADMINISTRATIVOS
+   ============================================================ */
 
 .admin-acoes {
     display: flex;
     gap: 12px;
-    margin-top: 20px;
+
+    margin-top: 22px;
 }
 
 .btn-aprovar,
 .btn-rejeitar {
     flex: 1;
-    padding: 12px;
+
+    min-height: 44px;
+    padding: 12px 15px;
+
     border: none;
-    border-radius: 9px;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 0.92rem;
     font-weight: 700;
+
     cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .btn-aprovar {
-    background: #d8f5e8;
+    background: #dcf5e9;
     color: #176b48;
 }
 
+.btn-aprovar:hover:not(:disabled) {
+    background: #bdebd5;
+    transform: translateY(-1px);
+}
+
 .btn-rejeitar {
-    background: #fbe1e4;
+    background: #fbe5e8;
     color: #963b46;
+}
+
+.btn-rejeitar:hover:not(:disabled) {
+    background: #f4ccd2;
+    transform: translateY(-1px);
 }
 
 .btn-aprovar:disabled,
@@ -317,22 +657,578 @@ body {
     cursor: not-allowed;
 }
 
+
+/* ============================================================
+   13 — ACESSIBILIDADE
+   ============================================================ */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 3px solid rgba(31, 180, 176, 0.45);
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   14 — TABLETS
+   ============================================================ */
+
+@media (max-width: 800px) {
+
+    .portal-container:has(#form-cadastro) {
+        max-width: 490px;
+
+        display: block;
+        min-height: auto;
+    }
+
+    .portal-container:has(#form-cadastro)::before {
+        display: none;
+    }
+
+    .portal-container:has(#form-cadastro)::after {
+        display: none;
+    }
+
+    .portal-container:has(#form-cadastro)
+    :is(#cadastro-box, #login-box) {
+        padding: 40px;
+    }
+
+}
+
+
+/* ============================================================
+   15 — CELULARES
+   ============================================================ */
+
 @media (max-width: 600px) {
+
+    body {
+        padding: 20px 14px;
+        align-items: flex-start;
+    }
+
+    .portal-container {
+        padding: 32px 24px;
+        border-radius: 19px;
+
+        margin: auto 0;
+    }
+
+    .portal-container:has(#form-cadastro)
+    :is(#cadastro-box, #login-box) {
+        padding: 32px 24px;
+    }
+
+    .portal-container h1 {
+        font-size: 1.7rem;
+    }
+
+    .intro {
+        font-size: 0.9rem;
+    }
+
+    body.admin-page {
+        padding: 22px 14px;
+    }
+
     .admin-header {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .admin-header,
+    .admin-section {
+        padding: 24px;
+        border-radius: 18px;
+    }
+
+    .admin-header h1 {
+        font-size: 1.65rem;
     }
 
     .admin-header .btn-form {
         width: 100%;
     }
 
-    .admin-header,
-    .admin-section {
-        padding: 22px;
-    }
-
     .admin-acoes {
         flex-direction: column;
     }
+
+}
+
+
+/* ============================================================
+   16 — REDUÇÃO DE MOVIMENTO
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+}
+
+/* ============================================================
+   COJURIS MOBILE EXPERIENCE
+   Design mobile-first — versão 1
+   ============================================================ */
+
+
+/* Cabeçalho exclusivo do celular */
+.mobile-hero {
+    display: none;
+}
+
+
+/* ============================================================
+   EXPERIÊNCIA PARA CELULARES
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    /* 01 — AMBIENTE GERAL */
+
+    html {
+        background: #edf4f6;
+    }
+
+    body:not(.admin-page) {
+        display: block;
+
+        min-height: 100dvh;
+
+        margin: 0;
+        padding: 0;
+
+        background: #edf4f6;
+    }
+
+
+    /* 02 — CONTAINER SEM BORDAS EXTERNAS */
+
+    .portal-container:has(#form-cadastro) {
+        display: block;
+
+        width: 100%;
+        max-width: none;
+        min-height: 100dvh;
+
+        margin: 0;
+        padding: 0;
+
+        border: none;
+        border-radius: 0;
+
+        overflow: visible;
+
+        background: #ffffff;
+        box-shadow: none;
+
+        animation: none;
+    }
+
+
+    /* Desativar painel decorativo do desktop */
+
+    .portal-container:has(#form-cadastro)::before,
+    .portal-container:has(#form-cadastro)::after {
+        display: none;
+    }
+
+
+    /* 03 — CABEÇALHO MOBILE */
+
+    .mobile-hero {
+        display: block;
+
+        position: relative;
+
+        min-height: 290px;
+
+        padding:
+            calc(27px + env(safe-area-inset-top, 0px))
+            25px
+            54px;
+
+        color: #ffffff;
+
+        background:
+            radial-gradient(
+                circle at 90% 5%,
+                rgba(64, 221, 210, 0.25),
+                transparent 45%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(27, 157, 168, 0.28),
+                transparent 45%
+            ),
+            linear-gradient(
+                145deg,
+                #102e3e 0%,
+                #174957 65%,
+                #0b787e 100%
+            );
+
+        overflow: hidden;
+    }
+
+    .mobile-hero::after {
+        content: "";
+
+        position: absolute;
+        width: 210px;
+        height: 210px;
+
+        top: 35px;
+        right: -115px;
+
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 35px rgba(255,255,255,0.025),
+            0 0 0 75px rgba(255,255,255,0.02);
+
+        pointer-events: none;
+    }
+
+
+    /* 04 — LOGOTIPO */
+
+    .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+
+        position: relative;
+        z-index: 1;
+    }
+
+    .mobile-brand-symbol {
+        display: grid;
+        place-items: center;
+
+        width: 42px;
+        height: 42px;
+
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 13px;
+
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+
+        color: #7be6dd;
+        font-size: 1.6rem;
+    }
+
+    .mobile-brand strong {
+        font-size: 1.18rem;
+        letter-spacing: 2px;
+        font-weight: 800;
+    }
+
+    .mobile-brand-tag {
+        margin-left: auto;
+
+        padding: 7px 10px;
+
+        border-radius: 99px;
+
+        background: rgba(255,255,255,0.11);
+
+        color: #d0f0ee;
+
+        font-size: 0.57rem;
+        font-weight: 700;
+        letter-spacing: 0.7px;
+    }
+
+
+    /* 05 — APRESENTAÇÃO */
+
+    .mobile-hero-content {
+        position: relative;
+        z-index: 1;
+
+        margin-top: 42px;
+    }
+
+    .mobile-eyebrow {
+        display: block;
+
+        margin-bottom: 11px;
+
+        color: #8ae9df;
+
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .mobile-hero-content h2 {
+        max-width: 330px;
+
+        font-size: clamp(1.85rem, 7vw, 2.4rem);
+        font-weight: 750;
+
+        line-height: 1.13;
+        letter-spacing: -1.1px;
+    }
+
+    .mobile-hero-content h2 span {
+        display: block;
+        color: #81e9de;
+    }
+
+    .mobile-hero-content p {
+        max-width: 290px;
+
+        margin-top: 13px;
+
+        color: #c6dde2;
+
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    .mobile-trust {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        margin-top: 22px;
+
+        color: #e0f2f3;
+
+        font-size: 0.77rem;
+    }
+
+    .mobile-trust span {
+        display: grid;
+        place-items: center;
+
+        width: 23px;
+        height: 23px;
+
+        border-radius: 50%;
+
+        background: rgba(89, 218, 196, 0.19);
+        color: #96f3dd;
+    }
+
+
+    /* 06 — FORMULÁRIO COMO SUPERFÍCIE FLUTUANTE */
+
+    .portal-container:has(#form-cadastro)
+    :is(#cadastro-box, #login-box) {
+
+        position: relative;
+        z-index: 2;
+
+        width: 100%;
+
+        margin-top: -25px;
+
+        padding:
+            30px
+            24px
+            calc(32px + env(safe-area-inset-bottom, 0px));
+
+        border-radius: 27px 27px 0 0;
+
+        background: #ffffff;
+
+        animation: aparecer 0.3s ease both;
+    }
+
+
+    /* 07 — TÍTULOS DO FORMULÁRIO */
+
+    .portal-container:has(#form-cadastro) h1 {
+        margin: 0 0 9px;
+
+        color: #173a4c;
+
+        font-family: Arial, Helvetica, sans-serif;
+
+        font-size: clamp(1.45rem, 5vw, 1.8rem);
+        font-weight: 800;
+
+        letter-spacing: -0.7px;
+        line-height: 1.2;
+
+        text-align: left;
+    }
+
+    .portal-container:has(#form-cadastro) .intro {
+        max-width: 100%;
+
+        margin: 0 0 28px;
+
+        color: #738994;
+
+        font-size: 0.89rem;
+        line-height: 1.55;
+
+        text-align: left;
+    }
+
+
+    /* 08 — CAMPOS OTIMIZADOS PARA TOQUE */
+
+    .portal-container:has(#form-cadastro)
+    .form-group {
+        margin-bottom: 19px;
+    }
+
+    .portal-container:has(#form-cadastro)
+    .form-group label {
+        margin-bottom: 8px;
+
+        color: #344e5e;
+
+        font-size: 0.86rem;
+        font-weight: 700;
+    }
+
+    .portal-container:has(#form-cadastro)
+    .form-group input {
+        width: 100%;
+        min-height: 56px;
+
+        padding: 15px 16px;
+
+        border: 1px solid #dce8eb;
+        border-radius: 15px;
+
+        background: #f5f9fa;
+
+        font-size: 16px;
+
+        box-shadow: none;
+
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .portal-container:has(#form-cadastro)
+    .form-group input:focus {
+        outline: none;
+
+        border-color: #18aaa6;
+
+        background: #ffffff;
+
+        box-shadow:
+            0 0 0 4px rgba(24, 170, 166, 0.12);
+    }
+
+
+    /* 09 — BOTÃO PRINCIPAL */
+
+    .portal-container:has(#form-cadastro)
+    .btn-form {
+
+        width: 100%;
+        min-height: 57px;
+
+        margin-top: 8px;
+
+        border-radius: 16px;
+
+        background: linear-gradient(
+            125deg,
+            #20b9b3,
+            #119d9b
+        );
+
+        color: #ffffff;
+
+        font-size: 1rem;
+        font-weight: 800;
+
+        box-shadow:
+            0 10px 22px rgba(18, 152, 150, 0.18);
+    }
+
+    .portal-container:has(#form-cadastro)
+    .btn-form:active:not(:disabled) {
+        transform: scale(0.985);
+    }
+
+
+    /* 10 — LINK DE LOGIN / CADASTRO */
+
+    .portal-container:has(#form-cadastro)
+    .toggle-link {
+        min-height: 48px;
+
+        margin-top: 16px;
+        padding: 12px 8px;
+
+        color: #138d8b;
+
+        font-size: 0.91rem;
+        font-weight: 700;
+    }
+
+
+    /* 11 — MENSAGENS */
+
+    .portal-container:has(#form-cadastro)
+    .mensagem {
+        margin-top: 17px;
+
+        padding: 16px;
+
+        border-radius: 13px;
+
+        text-align: left;
+    }
+
+
+    /* 12 — RESPEITO À ÁREA SEGURA DO CELULAR */
+
+    .portal-container {
+        max-width: 100%;
+    }
+
+}
+
+
+/* ============================================================
+   CELULARES MAIS ESTREITOS
+   ============================================================ */
+
+@media (max-width: 360px) {
+
+    .mobile-hero {
+        padding-left: 19px;
+        padding-right: 19px;
+    }
+
+    .mobile-brand-tag {
+        font-size: 0.5rem;
+        padding: 6px;
+    }
+
+    .portal-container:has(#form-cadastro)
+    :is(#cadastro-box, #login-box) {
+        padding-left: 19px;
+        padding-right: 19px;
+    }
+
+    .mobile-hero-content h2 {
+        font-size: 1.75rem;
+    }
+
 }
