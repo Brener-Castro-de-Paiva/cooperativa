@@ -32,13 +32,32 @@
                 </p>
             </div>
 
-            <button
-                id="admin-sair"
-                type="button"
-                class="btn-form"
-                disabled>
-                Encerrar sessão
-            </button>
+            
+            <!-- NAVEGAÇÃO DO ADMINISTRADOR -->
+
+            <div class="admin-navegacao">
+
+                <a
+                    href="./painel.html"
+                    class="btn-area-cooperado">
+
+                    <span aria-hidden="true">◉</span>
+                    Área do Cooperado
+
+                </a>
+
+                <button
+                    id="admin-sair"
+                    type="button"
+                    class="btn-form"
+                    disabled>
+
+                    Encerrar sessão
+
+                </button>
+
+            </div>
+
 
         </header>
 
@@ -56,6 +75,29 @@
                 aria-live="polite">
                 Verificando permissões...
             </p>
+
+                            
+            <div class="admin-ferramentas">
+
+                <button
+                    type="button"
+                    id="btn-limpar-tela"
+                    class="btn-limpar-tela">
+
+                    Limpar tela
+
+                </button>
+
+                <button
+                    type="button"
+                    id="btn-recarregar-lista"
+                    class="btn-recarregar-lista">
+
+                    Atualizar lista
+
+                </button>
+
+            </div>
 
             <div
                 id="lista-interessados"

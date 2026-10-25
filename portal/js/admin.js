@@ -227,3 +227,35 @@ btnSair.addEventListener("click", async () => {
         btnSair.disabled = false;
     }
 });
+
+/* ============================================================
+   COJURIS — CONTROLE DE VISUALIZAÇÃO ADMINISTRATIVA
+   ============================================================ */
+
+const botaoLimpar = document.getElementById("btn-limpar-tela");
+
+const botaoRecarregar = document.getElementById(
+    "btn-recarregar-lista"
+);
+
+
+// LIMPAR SOMENTE A TELA
+
+botaoLimpar.addEventListener("click", () => {
+
+    lista.replaceChildren();
+
+    mensagem.textContent =
+        "A visualização foi limpa. " +
+        "Os cadastros continuam preservados no Firebase.";
+
+});
+
+
+// RECARREGAR A LISTA
+
+botaoRecarregar.addEventListener("click", async () => {
+
+    await carregarInteressados();
+
+});

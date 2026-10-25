@@ -1232,3 +1232,118 @@ input:focus-visible {
     }
 
 }
+
+/* ==========================================
+   FERRAMENTAS DO PAINEL ADMINISTRATIVO
+   ========================================== */
+
+.admin-ferramentas {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.btn-limpar-tela,
+.btn-recarregar-lista {
+    min-height: 44px;
+    padding: 12px 18px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-limpar-tela {
+    background: #f0f5f6;
+    color: #365666;
+    border: 1px solid #d7e4e8;
+}
+
+.btn-limpar-tela:hover {
+    background: #dfeaec;
+}
+
+.btn-recarregar-lista {
+    background: #19aaa6;
+    color: #ffffff;
+    border: 1px solid #19aaa6;
+}
+
+.btn-recarregar-lista:hover {
+    background: #138c89;
+}
+
+@media (max-width: 480px) {
+    .admin-ferramentas {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .btn-limpar-tela,
+    .btn-recarregar-lista {
+        padding: 12px 8px;
+    }
+}
+
+/* ==========================================
+   COJURIS — NAVEGAÇÃO ADMINISTRATIVA
+   ========================================== */
+
+.admin-navegacao {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.btn-area-cooperado {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-height: 50px;
+    padding: 12px 20px;
+
+    border: 1px solid #cce6e5;
+    border-radius: 11px;
+
+    background: #e8f7f5;
+    color: #127d7b;
+
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.btn-area-cooperado:hover {
+    background: #d3f0ed;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 650px) {
+
+    .admin-navegacao {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+    }
+
+    .admin-navegacao .btn-form,
+    .btn-area-cooperado {
+        width: 100%;
+        min-width: 0;
+        padding: 12px 9px;
+        font-size: 0.82rem;
+    }
+
+}

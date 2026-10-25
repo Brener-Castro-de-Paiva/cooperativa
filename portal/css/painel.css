@@ -493,3 +493,43 @@ a:focus-visible {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ACESSO À ADMINISTRAÇÃO */
+
+.voltar-admin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+    padding: 10px 14px;
+
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.voltar-admin[hidden] {
+    display: none !important;
+}
+
+.voltar-admin:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+@media (max-width: 480px) {
+    .dashboard-top {
+        flex-wrap: wrap;
+    }
+
+    .voltar-admin {
+        order: 3;
+        width: 100%;
+    }
+}
