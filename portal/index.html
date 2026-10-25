@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Cooperado | COJURIS</title>
+    <link rel="stylesheet" href="css/portal.css">
+</head>
+<body>
+
+    <div class="portal-container">
+
+        <!-- Formulário de CADASTRO -->
+        <div id="cadastro-box">
+            <h1>Quero ser Cooperado</h1>
+            <p class="intro">Cadastre seu interesse em fazer parte da COJURIS.</p>
+            <form id="form-cadastro">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" required placeholder="Seu nome" maxlength="150">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail Profissional</label>
+                    <input type="email" id="email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="oab">Número da OAB</label>
+                    <input type="text" id="oab" required placeholder="Ex: 123456/SP" maxlength="40">
+                </div>
+                <div class="form-group">
+                    <label for="senha">Crie uma Senha</label>
+                    <input type="password" id="senha" required minlength="6" placeholder="Mínimo 6 caracteres">
+                </div>
+                <button type="submit" class="btn-form">Cadastrar Interesse</button>
+            </form>
+            <button type="button" class="toggle-link">
+                Já tenho cadastro. Fazer Login.
+            </button>
+            <div id="mensagem-cadastro" class="mensagem hidden"></div>
+        </div>
+
+        <!-- Formulário de LOGIN -->
+        <div id="login-box" class="hidden">
+            <h1>Acessar Portal</h1>
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-senha">Senha</label>
+                    <input type="password" id="login-senha" required>
+                </div>
+                <button type="submit" class="btn-form">Entrar</button>
+            </form>
+            <button type="button" class="toggle-link">
+                Ainda não tenho cadastro. Quero me associar.
+            </button>
+            <div id="mensagem-login" class="mensagem hidden"></div>
+        </div>
+
+    </div>
+
+    <script type="module" src="js/cadastro.js"></script>
+</body>
+</html>

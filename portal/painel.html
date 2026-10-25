@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Associado | COJURIS</title>
+    <link rel="stylesheet" href="css/portal.css">
+    <style>
+        /* Estilo específico para a etiqueta de status */
+        .status-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; margin-left: 10px; }
+        .badge.pendente { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .badge.aprovado { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+    <div class="portal-container" id="painel-conteudo">
+        <!-- Enquanto os dados carregam do Firebase, aparece esta mensagem -->
+        <h1 style="text-align: center; color: #173a4c; margin-top: 50px;">Verificando seu acesso...</h1>
+    </div>
+
+    <!-- O script que criamos -->
+    <script type="module" src="js/painel.js"></script>
+</body>
+</html>
