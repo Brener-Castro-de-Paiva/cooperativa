@@ -2195,3 +2195,147 @@ body[data-perfil-comunidade="administrador"]
         font-size: 0.62rem;
     }
 }
+
+/* ============================================================
+   27 — COMUNICADOS DINÂMICOS DA COMUNIDADE
+
+   FINALIDADE:
+   Adaptar publicações recebidas do Firestore ao
+   design original da comunidade.
+
+   Mantemos as classes existentes:
+   - post-card
+   - post-header
+   - post-avatar
+   - post-author
+   - content-tag
+   - post-footer
+
+   Este bloco complementa apenas o que é novo.
+   ============================================================ */
+
+
+/* 27.1 — Respeitar elementos ocultos pelo JavaScript */
+
+.comunidade-page [hidden] {
+    display: none !important;
+}
+
+
+/* 27.2 — Contêiner de publicações */
+
+.comunidade-lista-comunicados {
+    display: grid;
+    gap: 18px;
+}
+
+
+/* 27.3 — Preservar quebras de linha das publicações */
+
+.comunidade-post-conteudo {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.8;
+}
+
+
+/* 27.4 — Mensagens da consulta */
+
+.comunicados-mensagem {
+    margin: 12px 0 18px;
+    color: #637e8a;
+    font-size: 0.83rem;
+    line-height: 1.6;
+}
+
+
+/* 27.5 — Botões de atualização e paginação */
+
+.comunidade-feed-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.comunidade-feed-botao {
+    min-height: 43px;
+    padding: 10px 16px;
+
+    border: 1px solid #cce6e5;
+    border-radius: 11px;
+
+    background: #e8f7f5;
+    color: #137c79;
+
+    font-size: 0.82rem;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.comunidade-feed-botao:hover:not(:disabled) {
+    background: #d5f0ed;
+    border-color: #1fb4b0;
+}
+
+.comunidade-feed-botao:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* 27.6 — Gerenciamento exclusivo da administração */
+
+.comunidade-gerenciar {
+    margin-top: 17px;
+}
+
+.comunidade-gerenciar a {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 11px 15px;
+
+    border: 1px solid #cddfe8;
+    border-radius: 11px;
+
+    background: #f0f7fa;
+    color: #24566d;
+
+    font-size: 0.83rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.comunidade-gerenciar a:hover {
+    background: #e3f0f5;
+}
+
+
+/* ============================================================
+   28 — ADAPTAÇÃO PARA CELULARES
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+    .comunidade-lista-comunicados {
+        gap: 14px;
+    }
+
+    .comunidade-feed-acoes {
+        flex-direction: column;
+    }
+
+    .comunidade-feed-botao {
+        width: 100%;
+    }
+
+    .comunidade-post-conteudo {
+        line-height: 1.7;
+    }
+}

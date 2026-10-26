@@ -4,7 +4,7 @@
 
 <head>
     <!-- ==================================================
-         01 — CONFIGURAÇÕES DA COMUNIDADE
+         01 — CONFIGURAÇÕES GERAIS DA COMUNIDADE
          ================================================== -->
 
     <meta charset="UTF-8">
@@ -20,24 +20,23 @@
 
     <meta
         name="description"
-        content="Comunidade COJURIS. Um espaço de informação, colaboração e participação profissional."
+        content="Comunidade COJURIS. Informação, colaboração e participação profissional."
     >
 
     <title>Comunidade | COJURIS</title>
 
-    <link
-        rel="stylesheet"
-        href="./css/comunidade.css"
-    >
+    <!-- Mantemos a folha de estilos original -->
+    <link rel="stylesheet" href="./css/comunidade.css">
 
 </head>
 
 <body class="comunidade-page">
 
     <!-- ==================================================
-         02 — TELA DE IDENTIFICAÇÃO
+         02 — VERIFICAÇÃO DE ACESSO
 
-         Permanece visível até a autorização do Firebase.
+         O Firebase identifica o usuário e determina
+         se ele é administrador, participante ou leitor.
          ================================================== -->
 
     <section
@@ -73,12 +72,13 @@
 
 
     <!-- ==================================================
-         03 — APLICAÇÃO DA COMUNIDADE
+         03 — ESTRUTURA PRINCIPAL
 
-         Oculta até a verificação do usuário.
+         A aplicação somente é exibida quando
+         o JavaScript conclui a autorização.
 
-         A segurança dos dados não depende do hidden:
-         deverá ser garantida pelas regras do Firestore.
+         Os documentos continuam protegidos pelas
+         regras de segurança do Firestore.
          ================================================== -->
 
     <div
@@ -95,6 +95,8 @@
             class="sidebar"
             aria-label="Navegação da comunidade"
         >
+
+            <!-- IDENTIDADE INSTITUCIONAL -->
 
             <a
                 href="./painel.html"
@@ -123,10 +125,14 @@
             </div>
 
 
+            <!-- NAVEGAÇÃO PRINCIPAL -->
+
             <nav
                 class="side-nav"
-                aria-label="Seções"
+                aria-label="Seções da comunidade"
             >
+
+                <!-- VISÃO GERAL -->
 
                 <a
                     href="#visao-geral"
@@ -144,8 +150,10 @@
                 </a>
 
 
+                <!-- COMUNICADOS DA PRÓPRIA COMUNIDADE -->
+
                 <a
-                    href="./comunicados.html"
+                    href="#comunicados"
                     class="side-link"
                 >
 
@@ -158,6 +166,8 @@
 
                 </a>
 
+
+                <!-- PARTICIPAÇÃO -->
 
                 <a
                     href="#participacao"
@@ -173,6 +183,8 @@
 
                 </a>
 
+
+                <!-- INFORMAÇÕES INSTITUCIONAIS -->
 
                 <a
                     href="#institucional"
@@ -194,6 +206,8 @@
             <div class="sidebar-spacer"></div>
 
 
+            <!-- MENSAGEM INSTITUCIONAL -->
+
             <div class="sidebar-note">
 
                 <span
@@ -213,6 +227,8 @@
 
             </div>
 
+
+            <!-- RETORNO AO PAINEL -->
 
             <a
                 href="./painel.html"
@@ -234,10 +250,12 @@
         >
 
             <!-- ==========================================
-                 06 — CABEÇALHO
+                 06 — CABEÇALHO SUPERIOR
                  ========================================== -->
 
             <header class="topbar">
+
+                <!-- IDENTIDADE VISUAL PARA CELULARES -->
 
                 <a
                     href="./painel.html"
@@ -254,6 +272,8 @@
 
                 </a>
 
+
+                <!-- LOCALIZAÇÃO -->
 
                 <div
                     class="breadcrumb"
@@ -272,6 +292,8 @@
                 </div>
 
 
+                <!-- PERFIL E RETORNO -->
+
                 <div class="comunidade-topbar-acoes">
 
                     <span
@@ -286,8 +308,11 @@
                         href="./painel.html"
                         class="topbar-back"
                     >
+
                         Meu painel
+
                         <span aria-hidden="true">↗</span>
+
                     </a>
 
                 </div>
@@ -296,13 +321,15 @@
 
 
             <!-- ==========================================
-                 07 — APRESENTAÇÃO INSTITUCIONAL
+                 07 — APRESENTAÇÃO DA COMUNIDADE
                  ========================================== -->
 
             <section
                 class="welcome"
                 aria-labelledby="welcome-title"
             >
+
+                <!-- DETALHES DECORATIVOS -->
 
                 <div
                     class="welcome-decor welcome-decor-one"
@@ -359,10 +386,13 @@
 
 
             <!-- ==========================================
-                 08 — AVISO EXCLUSIVO DO MODO LEITURA
+                 08 — AVISO DE PERMISSÃO DE LEITURA
 
-                 O JavaScript exibe este aviso somente
-                 para interessados sem verificação.
+                 Aparece somente para interessados
+                 que ainda não possuem autorização
+                 de participação.
+
+                 Não é aviso de desenvolvimento.
                  ========================================== -->
 
             <div
@@ -379,12 +409,14 @@
 
                 <p>
 
-                    <strong>Seu acesso é de visualização.</strong>
+                    <strong>
+                        Seu acesso é de visualização.
+                    </strong>
 
                     Você pode acompanhar os comunicados
                     e as informações da comunidade.
-                    A participação nas interações
-                    é reservada aos profissionais
+                    A participação nas interações é
+                    reservada aos profissionais
                     aprovados e verificados.
 
                 </p>
@@ -393,7 +425,7 @@
 
 
             <!-- ==========================================
-                 09 — ACESSO ÀS SEÇÕES
+                 09 — ACESSO RÁPIDO ÀS SEÇÕES
                  ========================================== -->
 
             <section
@@ -420,6 +452,7 @@
 
                 <div class="quick-grid">
 
+                    <!-- COMUNICADOS -->
 
                     <a
                         href="#comunicados"
@@ -449,6 +482,8 @@
                     </a>
 
 
+                    <!-- PARTICIPAÇÃO -->
+
                     <a
                         href="#participacao"
                         class="quick-card"
@@ -476,6 +511,8 @@
 
                     </a>
 
+
+                    <!-- SOBRE A COJURIS -->
 
                     <a
                         href="#institucional"
@@ -510,23 +547,27 @@
 
 
             <!-- ==========================================
-                 10 — CONTEÚDO INSTITUCIONAL
+                 10 — CONTEÚDO DA COMUNIDADE
                  ========================================== -->
 
             <div class="content-grid">
 
+                <!-- COLUNA DE PUBLICAÇÕES -->
+
                 <div class="feed-column">
 
 
-                    <!-- ==============================
-                         10.1 — COMUNICADOS
-                         ============================== -->
+                    <!-- ==================================
+                         10.1 — COMUNICADOS REAIS
+                         ================================== -->
 
                     <section
                         id="comunicados"
                         class="section"
                         aria-labelledby="comunicados-title"
                     >
+
+                        <!-- CABEÇALHO DA SEÇÃO -->
 
                         <div class="section-heading">
 
@@ -546,75 +587,87 @@
 
 
                         <!--
-                            Conteúdo institucional estático.
+                            O conteúdo é recebido do Firestore:
 
-                            Publicações dinâmicas serão
-                            inseridas aqui quando houver
-                            integração de leitura com Firestore.
+                            Coleção: comunicados
+
+                            Cada documento contém:
+                            - titulo
+                            - conteudo
+                            - autorUid
+                            - publicadoEm
+
+                            Não inserimos publicações fixas.
                         -->
 
-                        <article class="post-card">
-
-                            <div class="post-header">
-
-                                <span
-                                    class="post-avatar"
-                                    aria-hidden="true"
-                                >✦</span>
-
-                                <div class="post-author">
-
-                                    <strong>COJURIS</strong>
-
-                                    <span>
-                                        Informação institucional
-                                    </span>
-
-                                </div>
-
-                            </div>
+                        <p
+                            id="comunicados-mensagem"
+                            class="comunicados-mensagem"
+                            role="status"
+                            aria-live="polite"
+                        >
+                            Carregando comunicados...
+                        </p>
 
 
-                            <span class="content-tag">
-                                Comunidade
-                            </span>
+                        <!-- CARTÕES CRIADOS PELO JAVASCRIPT -->
+
+                        <div
+                            id="comunidade-lista-comunicados"
+                            class="comunidade-lista-comunicados"
+                        ></div>
 
 
-                            <h3>
-                                Bem-vindo à Comunidade COJURIS
-                            </h3>
+                        <!-- CARREGAMENTO PAGINADO -->
+
+                        <div class="comunidade-feed-acoes">
+
+                            <button
+                                id="comunidade-atualizar"
+                                class="comunidade-feed-botao"
+                                type="button"
+                                disabled
+                            >
+                                Atualizar comunicados
+                            </button>
 
 
-                            <p>
-                                A COJURIS tem como propósito
-                                fortalecer a aproximação
-                                entre profissionais do Direito,
-                                valorizar a cooperação
-                                e incentivar relações
-                                pautadas na ética,
-                                na transparência
-                                e na responsabilidade.
-                            </p>
+                            <button
+                                id="comunidade-carregar-mais"
+                                class="comunidade-feed-botao"
+                                type="button"
+                                hidden
+                                disabled
+                            >
+                                Carregar mais
+                            </button>
+
+                        </div>
 
 
-                            <div class="post-footer">
+                        <!--
+                            Gerenciamento administrativo
+                            permanece na página própria.
+                        -->
 
-                                <span>
-                                    Comunicação institucional
-                                </span>
+                        <div
+                            id="comunidade-gerenciar"
+                            class="comunidade-gerenciar"
+                            hidden
+                        >
 
-                                <span aria-hidden="true">✦</span>
+                            <a href="./comunicados.html">
+                                Gerenciar comunicados
+                            </a>
 
-                            </div>
-
-                        </article>
+                        </div>
 
                     </section>
 
 
-                    <!-- ==============================
-                         10.2 — PARTICIPAÇÃO
-                         ============================== -->
+                    <!-- ==================================
+                         10.2 — PARTICIPAÇÃO RESPONSÁVEL
+                         ================================== -->
 
                     <section
                         id="participacao"
@@ -683,6 +736,7 @@
                     aria-label="Informações da COJURIS"
                 >
 
+                    <!-- CONFIANÇA E VERIFICAÇÃO -->
 
                     <section class="info-card">
 
@@ -691,9 +745,11 @@
                             aria-hidden="true"
                         >✦</span>
 
+
                         <h2>
                             Uma comunidade de confiança
                         </h2>
+
 
                         <p>
                             A COJURIS distingue
@@ -718,6 +774,8 @@
                     </section>
 
 
+                    <!-- PRINCÍPIOS INSTITUCIONAIS -->
+
                     <section class="roadmap-card">
 
                         <p class="section-overline">
@@ -740,7 +798,9 @@
 
                                 <span>
 
-                                    <strong>Ética profissional</strong>
+                                    <strong>
+                                        Ética profissional
+                                    </strong>
 
                                     <small>
                                         Responsabilidade no exercício
@@ -844,9 +904,9 @@
     </div>
 
 
-    <!-- ==============================================
-         13 — AUTENTICAÇÃO E CONTROLE DE ACESSO
-         ============================================== -->
+    <!-- ==================================================
+         13 — MÓDULO DA COMUNIDADE
+         ================================================== -->
 
     <script
         type="module"
