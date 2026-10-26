@@ -1,16 +1,17 @@
 
 /* ============================================================
-   COJURIS — CADASTRO E LOGIN
+   COJURIS — CADASTRO, LOGIN E RECUPERAÇÃO DE SENHA
 
    Funcionalidades:
-   1. Alternância entre cadastro e login
-   2. Validação de e-mail Gmail
-   3. Cadastro no Firebase Authentication
-   4. Registro no Cloud Firestore
-   5. Login de usuários cadastrados
-   6. Verificação de permissão administrativa
-   7. Redirecionamento automático
-   8. Tratamento de erros
+   1. Cadastro simplificado sem número da OAB
+   2. Declaração profissional obrigatória
+   3. Restrição de novos cadastros ao Gmail
+   4. Integração com Firebase Authentication
+   5. Registro de interessados no Cloud Firestore
+   6. Identificação de administradores
+   7. Redirecionamento automático por perfil
+   8. Recuperação de senha
+   9. Tratamento de erros
    ============================================================ */
 
 
@@ -22,7 +23,8 @@ import { auth, db } from "./firebase-config.js";
 
 import {
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 import {
@@ -43,13 +45,24 @@ const loginBox = document.getElementById("login-box");
 const formCadastro = document.getElementById("form-cadastro");
 const formLogin = document.getElementById("form-login");
 
-const mensagemCadastro = document.getElementById("mensagem-cadastro");
-const mensagemLogin = document.getElementById("mensagem-login");
+const mensagemCadastro = document.getElementById(
+    "mensagem-cadastro"
+);
+
+const mensagemLogin = document.getElementById(
+    "mensagem-login"
+);
+
+const botaoRecuperar = document.getElementById(
+    "esqueci-senha"
+);
 
 
 // ============================================================
-// 03 — VALIDAÇÃO DO GMAIL
+// 03 — FUNÇÕES AUXILIARES
 // ============================================================
+
+// Validar o domínio Gmail
 
 function validarGmail(email) {
 
@@ -59,9 +72,7 @@ function validarGmail(email) {
 }
 
 
-// ============================================================
-// 04 — EXIBIÇÃO DE MENSAGENS
-// ============================================================
+// Exibir mensagens
 
 function mostrarMensagem(elemento, texto, tipo) {
 
@@ -75,350 +86,573 @@ function mostrarMensagem(elemento, texto, tipo) {
 }
 
 
-// ============================================================
-// 05 — ALTERNÂNCIA ENTRE CADASTRO E LOGIN
-// ============================================================
+// Limpar mensagens anteriores
 
-function alternarFormularios() {
+function limparMensagem(elemento) {
 
-    cadastroBox.classList.toggle("hidden");
+    if (!elemento) return;
 
-    loginBox.classList.toggle("hidden");
+    elemento.textContent = "";
 
-    mensagemCadastro.classList.add("hidden");
-    mensagemLogin.classList.add("hidden");
+    elemento.className = "mensagem hidden";
 }
 
 
-// Botões para alternar entre os formulários
+// ============================================================
+// 04 — ALTERNÂNCIA ENTRE CADASTRO E LOGIN
+// ============================================================
 
 document.querySelectorAll(".toggle-link").forEach((botao) => {
 
-    botao.addEventListener("click", alternarFormularios);
+    botao.addEventListener("click", () => {
+
+        if (!cadastroBox || !loginBox) return;
+
+        cadastroBox.classList.toggle("hidden");
+
+        loginBox.classList.toggle("hidden");
+
+        limparMensagem(mensagemCadastro);
+
+        limparMensagem(mensagemLogin);
+    });
 
 });
 
 
 // ============================================================
-// 06 — IDENTIFICAÇÃO DO ADMINISTRADOR
+// 05 — VERIFICAÇÃO DO ADMINISTRADOR
 // ============================================================
 
 async function verificarAdministrador(usuario) {
 
-    const adminRef = doc(
+    const referencia = doc(
         db,
         "administradores",
         usuario.uid
     );
 
-    const adminDoc = await getDoc(adminRef);
+    const documento = await getDoc(referencia);
 
     return (
-        adminDoc.exists() &&
-        adminDoc.data().ativo === true
+        documento.exists() &&
+        documento.data().ativo === true
     );
 }
 
 
 // ============================================================
-// 07 — REDIRECIONAMENTO POR PERFIL
+// 06 — REDIRECIONAMENTO POR PERFIL
 // ============================================================
 
 async function redirecionarUsuario(usuario) {
 
-    const ehAdministrador = await verificarAdministrador(usuario);
+    const ehAdministrador = await verificarAdministrador(
+        usuario
+    );
 
     if (ehAdministrador) {
 
-        console.log("COJURIS: administrador identificado.");
+        console.info("COJURIS: acesso administrativo.");
 
         window.location.replace("admin.html");
 
     } else {
 
-        console.log("COJURIS: interessado identificado.");
+        console.info("COJURIS: acesso do interessado.");
 
         window.location.replace("painel.html");
-
     }
 }
 
 
 // ============================================================
-// 08 — CADASTRO DE INTERESSADOS
+// 07 — CADASTRO DE NOVOS INTERESSADOS
 // ============================================================
 
-formCadastro.addEventListener("submit", async (evento) => {
+if (formCadastro) {
 
-    evento.preventDefault();
+    formCadastro.addEventListener(
+        "submit",
+        async (evento) => {
 
-
-    // 8.1 — RECUPERAR OS DADOS
-
-    const nome = document.getElementById("nome")
-        .value.trim();
-
-    const email = document.getElementById("email")
-        .value.trim().toLowerCase();
-
-    const oab = document.getElementById("oab")
-        .value.trim();
-
-    const senha = document.getElementById("senha").value;
-
-    const botao = formCadastro.querySelector(
-        'button[type="submit"]'
-    );
+            evento.preventDefault();
 
 
-    // 8.2 — VALIDAR OS CAMPOS
+            // --------------------------------------------
+            // 7.1 — RECUPERAR OS DADOS
+            // --------------------------------------------
 
-    if (!nome || !email || !oab || !senha) {
+            const nome = document.getElementById("nome")
+                .value.trim();
 
-        mostrarMensagem(
-            mensagemCadastro,
-            "Preencha todos os campos obrigatórios.",
-            "erro"
-        );
+            const email = document.getElementById("email")
+                .value.trim().toLowerCase();
 
-        return;
-    }
+            const senha = document.getElementById("senha")
+                .value;
 
+            const campoDeclaracao = document.getElementById(
+                "declaracao-advogado"
+            );
 
-    // 8.3 — RESTRINGIR CADASTRO AO GMAIL
+            const declaracaoAceita =
+                campoDeclaracao?.checked === true;
 
-    if (!validarGmail(email)) {
-
-        mostrarMensagem(
-            mensagemCadastro,
-            "Utilize um endereço @gmail.com para se cadastrar na COJURIS.",
-            "erro"
-        );
-
-        return;
-    }
+            const botao = formCadastro.querySelector(
+                'button[type="submit"]'
+            );
 
 
-    // 8.4 — VALIDAR A SENHA
+            // --------------------------------------------
+            // 7.2 — LIMPAR MENSAGENS
+            // --------------------------------------------
 
-    if (senha.length < 6) {
-
-        mostrarMensagem(
-            mensagemCadastro,
-            "A senha deve conter pelo menos 6 caracteres.",
-            "erro"
-        );
-
-        return;
-    }
+            limparMensagem(mensagemCadastro);
 
 
-    // 8.5 — INICIAR O CADASTRO
+            // --------------------------------------------
+            // 7.3 — VALIDAR PREENCHIMENTO
+            // --------------------------------------------
 
-    botao.disabled = true;
-    botao.textContent = "Cadastrando...";
+            if (!nome || !email || !senha) {
 
-    let contaCriada = false;
-    let registroGravado = false;
+                mostrarMensagem(
+                    mensagemCadastro,
+                    "Preencha todos os campos obrigatórios.",
+                    "erro"
+                );
 
-
-    try {
-
-        // Criar usuário no Firebase Authentication
-
-        const credencial = await createUserWithEmailAndPassword(
-            auth,
-            email,
-            senha
-        );
-
-        contaCriada = true;
-
-        const usuario = credencial.user;
-
-
-        // Gravar informações no Firestore
-
-        await setDoc(
-            doc(db, "interessados", usuario.uid),
-            {
-                nome: nome,
-                email: email,
-                oab: oab,
-                status: "pendente",
-                dataCadastro: serverTimestamp()
+                return;
             }
-        );
-
-        registroGravado = true;
 
 
-        // Confirmar cadastro
+            // --------------------------------------------
+            // 7.4 — VALIDAR NOME
+            // --------------------------------------------
 
-        mostrarMensagem(
-            mensagemCadastro,
-            "Sua manifestação de interesse foi registrada com sucesso!",
-            "sucesso"
-        );
+            if (nome.length > 150) {
 
+                mostrarMensagem(
+                    mensagemCadastro,
+                    "O nome informado ultrapassa o limite de 150 caracteres.",
+                    "erro"
+                );
 
-        // Limpar formulário
-
-        formCadastro.reset();
-
-
-        // Novo interessado acessa o painel individual
-
-        window.location.replace("painel.html");
+                return;
+            }
 
 
-    } catch (erro) {
+            // --------------------------------------------
+            // 7.5 — VALIDAR GMAIL
+            // --------------------------------------------
 
-        console.error("Erro no cadastro:", erro);
+            if (!validarGmail(email)) {
+
+                mostrarMensagem(
+                    mensagemCadastro,
+                    "Para se cadastrar na COJURIS, utilize um endereço @gmail.com.",
+                    "erro"
+                );
+
+                return;
+            }
 
 
-        if (contaCriada && !registroGravado) {
+            // --------------------------------------------
+            // 7.6 — VALIDAR SENHA
+            // --------------------------------------------
 
-            mostrarMensagem(
-                mensagemCadastro,
-                "Sua conta foi criada, mas não foi possível concluir a inscrição. Entre em contato com o suporte.",
-                "erro"
-            );
+            if (senha.length < 6) {
 
-        } else if (erro.code === "auth/email-already-in-use") {
+                mostrarMensagem(
+                    mensagemCadastro,
+                    "A senha deve conter pelo menos 6 caracteres.",
+                    "erro"
+                );
 
-            mostrarMensagem(
-                mensagemCadastro,
-                "Este e-mail já está cadastrado. Utilize a opção de login.",
-                "erro"
-            );
+                return;
+            }
 
-        } else if (erro.code === "auth/weak-password") {
 
-            mostrarMensagem(
-                mensagemCadastro,
-                "A senha informada é muito fraca.",
-                "erro"
-            );
+            // --------------------------------------------
+            // 7.7 — VALIDAR DECLARAÇÃO PROFISSIONAL
+            // --------------------------------------------
 
-        } else if (erro.code === "auth/invalid-email") {
+            if (!declaracaoAceita) {
 
-            mostrarMensagem(
-                mensagemCadastro,
-                "O endereço de e-mail informado é inválido.",
-                "erro"
-            );
+                mostrarMensagem(
+                    mensagemCadastro,
+                    "Para continuar, confirme a declaração de que você é advogado(a) regularmente inscrito(a) na OAB.",
+                    "erro"
+                );
 
-        } else {
+                campoDeclaracao?.focus();
 
-            mostrarMensagem(
-                mensagemCadastro,
-                "Não foi possível realizar o cadastro. Tente novamente.",
-                "erro"
-            );
+                return;
+            }
+
+
+            // --------------------------------------------
+            // 7.8 — INICIAR O CADASTRO
+            // --------------------------------------------
+
+            if (botao.disabled) return;
+
+            botao.disabled = true;
+
+            botao.textContent = "Cadastrando...";
+
+            let contaCriada = false;
+            let registroGravado = false;
+
+
+            try {
+
+                // Criar conta no Firebase Authentication
+
+                const credencial =
+                    await createUserWithEmailAndPassword(
+                        auth,
+                        email,
+                        senha
+                    );
+
+                const usuario = credencial.user;
+
+                contaCriada = true;
+
+
+                // ----------------------------------------
+                // 7.9 — REGISTRAR INTERESSE NO FIRESTORE
+                // ----------------------------------------
+
+                await setDoc(
+                    doc(db, "interessados", usuario.uid),
+                    {
+                        nome: nome,
+
+                        email: email,
+
+                        declaracaoAdvogado: true,
+
+                        versaoDeclaracao: "1.0",
+
+                        dataDeclaracao: serverTimestamp(),
+
+                        verificacaoProfissional:
+                            "nao_verificada",
+
+                        status: "pendente",
+
+                        dataCadastro: serverTimestamp()
+                    }
+                );
+
+                registroGravado = true;
+
+
+                // ----------------------------------------
+                // 7.10 — CONFIRMAR CADASTRO
+                // ----------------------------------------
+
+                mostrarMensagem(
+                    mensagemCadastro,
+                    "Sua manifestação de interesse foi registrada com sucesso!",
+                    "sucesso"
+                );
+
+                formCadastro.reset();
+
+
+                // Abrir painel individual
+
+                window.location.replace("painel.html");
+
+
+            } catch (erro) {
+
+                console.error(
+                    "COJURIS — Erro no cadastro:",
+                    erro.code || erro.message
+                );
+
+                let texto =
+                    "Não foi possível realizar o cadastro. Tente novamente.";
+
+
+                // Conta criada, mas Firestore não concluiu
+
+                if (contaCriada && !registroGravado) {
+
+                    texto =
+                        "Sua conta foi criada, mas a inscrição " +
+                        "não foi concluída. Não crie outra conta. " +
+                        "Entre em contato com o suporte.";
+
+                } else if (
+                    erro.code === "auth/email-already-in-use"
+                ) {
+
+                    texto =
+                        "Este e-mail já está cadastrado. " +
+                        "Utilize a opção de login.";
+
+                } else if (
+                    erro.code === "auth/weak-password"
+                ) {
+
+                    texto =
+                        "A senha é muito fraca. " +
+                        "Escolha uma senha mais segura.";
+
+                } else if (
+                    erro.code === "auth/invalid-email"
+                ) {
+
+                    texto =
+                        "O endereço de e-mail informado é inválido.";
+
+                } else if (
+                    erro.code === "permission-denied"
+                ) {
+
+                    texto =
+                        "O cadastro não foi autorizado pelo banco " +
+                        "de dados. Verifique as regras do Firestore.";
+                }
+
+
+                mostrarMensagem(
+                    mensagemCadastro,
+                    texto,
+                    "erro"
+                );
+
+            } finally {
+
+                botao.disabled = false;
+
+                botao.textContent = "Cadastrar Interesse";
+            }
+
         }
-
-    } finally {
-
-        botao.disabled = false;
-        botao.textContent = "Cadastrar Interesse";
-    }
-
-});
-
-
-// ============================================================
-// 09 — LOGIN COM IDENTIFICAÇÃO ADMINISTRATIVA
-// ============================================================
-
-formLogin.addEventListener("submit", async (evento) => {
-
-    evento.preventDefault();
-
-
-    // 9.1 — RECUPERAR CREDENCIAIS
-
-    const email = document.getElementById("login-email")
-        .value.trim();
-
-    const senha = document.getElementById("login-senha").value;
-
-    const botao = formLogin.querySelector(
-        'button[type="submit"]'
     );
+}
 
 
-    // 9.2 — INICIAR AUTENTICAÇÃO
+// ============================================================
+// 08 — LOGIN COM IDENTIFICAÇÃO ADMINISTRATIVA
+// ============================================================
 
-    botao.disabled = true;
-    botao.textContent = "Entrando...";
+if (formLogin) {
 
+    formLogin.addEventListener(
+        "submit",
+        async (evento) => {
 
-    try {
-
-        // Autenticar usuário
-
-        const credencial = await signInWithEmailAndPassword(
-            auth,
-            email,
-            senha
-        );
-
-        const usuario = credencial.user;
+            evento.preventDefault();
 
 
-        // Confirmar autenticação
+            // --------------------------------------------
+            // 8.1 — RECUPERAR CREDENCIAIS
+            // --------------------------------------------
 
-        mostrarMensagem(
-            mensagemLogin,
-            "Login realizado com sucesso!",
-            "sucesso"
-        );
+            const email = document.getElementById(
+                "login-email"
+            ).value.trim();
 
+            const senha = document.getElementById(
+                "login-senha"
+            ).value;
 
-        // Verificar perfil e redirecionar
-
-        await redirecionarUsuario(usuario);
-
-
-    } catch (erro) {
-
-        console.error("Erro no login:", erro);
-
-
-        if (
-            erro.code === "auth/invalid-credential" ||
-            erro.code === "auth/wrong-password" ||
-            erro.code === "auth/user-not-found"
-        ) {
-
-            mostrarMensagem(
-                mensagemLogin,
-                "E-mail ou senha incorretos.",
-                "erro"
+            const botao = formLogin.querySelector(
+                'button[type="submit"]'
             );
 
-        } else if (erro.code === "permission-denied") {
 
-            mostrarMensagem(
-                mensagemLogin,
-                "Login efetuado, mas não foi possível verificar suas permissões.",
-                "erro"
-            );
+            // --------------------------------------------
+            // 8.2 — INICIAR LOGIN
+            // --------------------------------------------
 
-        } else {
+            if (botao.disabled) return;
 
-            mostrarMensagem(
-                mensagemLogin,
-                "Não foi possível concluir o acesso. Verifique sua conexão ou tente novamente.",
-                "erro"
-            );
+            botao.disabled = true;
+
+            botao.textContent = "Entrando...";
+
+            limparMensagem(mensagemLogin);
+
+
+            try {
+
+                // Autenticar usuário
+
+                const credencial =
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        senha
+                    );
+
+
+                // Verificar permissões e redirecionar
+
+                await redirecionarUsuario(
+                    credencial.user
+                );
+
+
+            } catch (erro) {
+
+                console.error(
+                    "COJURIS — Erro no login:",
+                    erro.code || erro.message
+                );
+
+
+                let texto =
+                    "Não foi possível concluir o acesso. " +
+                    "Verifique sua conexão ou tente novamente.";
+
+
+                const credenciaisInvalidas = [
+                    "auth/invalid-credential",
+                    "auth/wrong-password",
+                    "auth/user-not-found"
+                ];
+
+
+                if (
+                    credenciaisInvalidas.includes(erro.code)
+                ) {
+
+                    texto = "E-mail ou senha incorretos.";
+
+                } else if (
+                    erro.code === "permission-denied"
+                ) {
+
+                    texto =
+                        "Autenticação realizada, mas não foi " +
+                        "possível verificar suas permissões.";
+                }
+
+
+                mostrarMensagem(
+                    mensagemLogin,
+                    texto,
+                    "erro"
+                );
+
+            } finally {
+
+                botao.disabled = false;
+
+                botao.textContent = "Entrar";
+            }
+
         }
+    );
+}
 
-    } finally {
 
-        botao.disabled = false;
-        botao.textContent = "Entrar";
-    }
+// ============================================================
+// 09 — RECUPERAÇÃO DE SENHA
+// ============================================================
 
-});
+if (botaoRecuperar) {
+
+    botaoRecuperar.addEventListener(
+        "click",
+        async () => {
+
+            const campoEmail = document.getElementById(
+                "login-email"
+            );
+
+            const email = campoEmail.value
+                .trim()
+                .toLowerCase();
+
+
+            // --------------------------------------------
+            // 9.1 — VALIDAR E-MAIL
+            // --------------------------------------------
+
+            if (!email || !campoEmail.checkValidity()) {
+
+                mostrarMensagem(
+                    mensagemLogin,
+                    "Informe seu e-mail cadastrado para recuperar a senha.",
+                    "erro"
+                );
+
+                campoEmail.focus();
+
+                return;
+            }
+
+
+            // --------------------------------------------
+            // 9.2 — SOLICITAR RECUPERAÇÃO
+            // --------------------------------------------
+
+            botaoRecuperar.disabled = true;
+
+            botaoRecuperar.textContent = "Enviando...";
+
+            limparMensagem(mensagemLogin);
+
+
+            try {
+
+                // Configurar idioma da mensagem
+
+                auth.languageCode = "pt-BR";
+
+
+                // Solicitar e-mail de recuperação
+
+                await sendPasswordResetEmail(
+                    auth,
+                    email
+                );
+
+
+                // Resposta sem revelar existência da conta
+
+                mostrarMensagem(
+                    mensagemLogin,
+                    "Se existir uma conta vinculada a este " +
+                    "e-mail, você receberá instruções para " +
+                    "redefinir sua senha. Verifique também o spam.",
+                    "sucesso"
+                );
+
+
+            } catch (erro) {
+
+                console.error(
+                    "COJURIS — Recuperação de senha:",
+                    erro.code || erro.message
+                );
+
+                mostrarMensagem(
+                    mensagemLogin,
+                    "Não foi possível processar sua solicitação. " +
+                    "Tente novamente mais tarde.",
+                    "erro"
+                );
+
+            } finally {
+
+                botaoRecuperar.disabled = false;
+
+                botaoRecuperar.textContent =
+                    "Esqueci minha senha";
+            }
+
+        }
+    );
+}
