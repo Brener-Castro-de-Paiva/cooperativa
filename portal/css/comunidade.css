@@ -2070,3 +2070,128 @@ select:focus-visible {
         border-radius: 19px;
     }
 }
+
+/* ============================================================
+   25 — PERFIS DE ACESSO À COMUNIDADE
+
+   FINALIDADE:
+   Identificar visualmente o tipo de autorização
+   concedida ao usuário autenticado.
+
+   PERFIS:
+   - leitor
+   - participante
+   - administrador
+
+   O CSS apenas apresenta o perfil.
+   Não concede permissões de acesso.
+   ============================================================ */
+
+
+/* Organização das ações do cabeçalho */
+
+.comunidade-topbar-acoes {
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    flex-wrap: wrap;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+
+/* Etiqueta do perfil autorizado */
+
+.comunidade-perfil {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 12px;
+
+    border: 1px solid #cfe7e3;
+    border-radius: 99px;
+
+    background: #e9f7f4;
+
+    color: #137c76;
+
+    font-size: 0.73rem;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+
+/* Perfil com acesso somente para leitura */
+
+body[data-perfil-comunidade="leitor"]
+.comunidade-perfil {
+
+    background: #eef3f6;
+    border-color: #dce7eb;
+
+    color: #536f7b;
+}
+
+
+/* Perfil administrativo */
+
+body[data-perfil-comunidade="administrador"]
+.comunidade-perfil {
+
+    background: #e5f3f7;
+    border-color: #c9e2eb;
+
+    color: #24566d;
+}
+
+
+/* Aviso de leitura sem aparência de erro */
+
+#aviso-modo-leitura {
+
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+
+/* ============================================================
+   26 — RESPONSIVIDADE DOS PERFIS
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+    .comunidade-topbar-acoes {
+        gap: 8px;
+    }
+
+    .comunidade-perfil {
+
+        padding: 7px 9px;
+
+        font-size: 0.66rem;
+        white-space: nowrap;
+    }
+
+    .comunidade-topbar-acoes .topbar-back {
+
+        padding: 9px 10px;
+
+        font-size: 0.73rem;
+    }
+}
+
+@media (max-width: 380px) {
+
+    .comunidade-topbar-acoes {
+        gap: 6px;
+    }
+
+    .comunidade-perfil {
+        font-size: 0.62rem;
+    }
+}
