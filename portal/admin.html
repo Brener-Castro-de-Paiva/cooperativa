@@ -3,115 +3,374 @@
 <html lang="pt-BR">
 
 <head>
+    <!-- ==========================================
+         01 — CONFIGURAÇÕES GERAIS
+         ========================================== -->
+
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta name="theme-color" content="#123748">
 
     <meta name="robots" content="noindex, nofollow">
 
+    <meta
+        name="description"
+        content="Painel de gestão administrativa da COJURIS."
+    >
+
     <title>Painel Administrativo | COJURIS</title>
 
+    <!-- Identidade visual existente -->
     <link rel="stylesheet" href="./css/portal.css">
+
+    <!-- Estilos específicos da administração -->
+    <link rel="stylesheet" href="./css/admin.css">
+
 </head>
 
 <body class="admin-page">
 
     <main class="admin-container">
 
+        <!-- ======================================
+             02 — CABEÇALHO ADMINISTRATIVO
+             ====================================== -->
+
         <header class="admin-header">
 
-            <div>
-                <p class="admin-subtitle">COJURIS</p>
+            <div class="admin-identidade">
+
+                <p class="admin-subtitle">
+                    ✦ COJURIS
+                </p>
 
                 <h1>Painel Administrativo</h1>
 
                 <p>
-                    Gestão das manifestações de interesse
-                    dos futuros cooperados.
+                    Gestão de interessados, análise cadastral
+                    e verificação profissional.
                 </p>
+
             </div>
 
-            
-            <!-- NAVEGAÇÃO DO ADMINISTRADOR -->
+
+            <!-- NAVEGAÇÃO -->
 
             <div class="admin-navegacao">
 
                 <a
                     href="./painel.html"
-                    class="btn-area-cooperado">
-
+                    class="btn-area-cooperado"
+                >
                     <span aria-hidden="true">◉</span>
                     Área do Cooperado
-
                 </a>
 
                 <button
                     id="admin-sair"
                     type="button"
                     class="btn-form"
-                    disabled>
-
+                    disabled
+                >
                     Encerrar sessão
-
                 </button>
 
             </div>
-
 
         </header>
 
+
+        <!-- ======================================
+             03 — GESTÃO DE INTERESSADOS
+             ====================================== -->
+
         <section
             class="admin-section"
-            aria-labelledby="solicitacoes-titulo">
+            id="gestao-interessados"
+            aria-labelledby="solicitacoes-titulo"
+            hidden
+        >
 
-            <h2 id="solicitacoes-titulo">
-                Solicitações de ingresso
-            </h2>
+            <div class="admin-section-topo">
+
+                <div>
+
+                    <p class="admin-subtitle">
+                        CONTROLE DE INGRESSO
+                    </p>
+
+                    <h2 id="solicitacoes-titulo">
+                        Solicitações de ingresso
+                    </h2>
+
+                    <p class="admin-descricao">
+                        Consulte as solicitações, avalie
+                        os cadastros e registre as
+                        verificações profissionais.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- MENSAGENS OPERACIONAIS -->
 
             <p
                 id="admin-mensagem"
+                class="admin-mensagem"
                 role="status"
-                aria-live="polite">
+                aria-live="polite"
+            >
                 Verificando permissões...
             </p>
 
-                            
+
+            <!-- ==================================
+                 04 — INDICADORES
+                 ================================== -->
+
+            <div
+                class="admin-indicadores"
+                aria-label="Resumo das solicitações"
+            >
+
+                <div class="indicador-card">
+
+                    <span>Total</span>
+
+                    <strong id="total-interessados">0</strong>
+
+                </div>
+
+                <div class="indicador-card">
+
+                    <span>Pendentes</span>
+
+                    <strong id="total-pendentes">0</strong>
+
+                </div>
+
+                <div class="indicador-card">
+
+                    <span>Aprovados</span>
+
+                    <strong id="total-aprovados">0</strong>
+
+                </div>
+
+                <div class="indicador-card">
+
+                    <span>Verificados</span>
+
+                    <strong id="total-verificados">0</strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================
+                 05 — FERRAMENTAS ADMINISTRATIVAS
+                 ================================== -->
+
             <div class="admin-ferramentas">
 
+                <div class="admin-filtros">
+
+                    <label
+                        class="sr-only"
+                        for="admin-pesquisa"
+                    >
+                        Pesquisar interessados
+                    </label>
+
+                    <input
+                        type="search"
+                        id="admin-pesquisa"
+                        placeholder="Pesquisar por nome ou e-mail"
+                        autocomplete="off"
+                        disabled
+                    >
+
+
+                    <label
+                        class="sr-only"
+                        for="admin-filtro-status"
+                    >
+                        Filtrar por situação
+                    </label>
+
+                    <select
+                        id="admin-filtro-status"
+                        disabled
+                    >
+                        <option value="todos">
+                            Todos os cadastros
+                        </option>
+
+                        <option value="pendente">
+                            Pendentes
+                        </option>
+
+                        <option value="aprovado">
+                            Aprovados
+                        </option>
+
+                        <option value="rejeitado">
+                            Rejeitados
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div class="admin-botoes">
+
+                    <button
+                        type="button"
+                        id="btn-limpar-tela"
+                        class="btn-limpar-tela"
+                        disabled
+                    >
+                        Limpar tela
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btn-recarregar-lista"
+                        class="btn-recarregar-lista"
+                        disabled
+                    >
+                        Atualizar lista
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================
+                 06 — SELEÇÃO E EXCLUSÃO
+
+                 A exclusão será aplicada somente
+                 ao documento do Firestore.
+
+                 Não elimina automaticamente
+                 a conta no Authentication.
+                 ================================== -->
+
+            <div class="admin-selecao">
+
+                <label class="admin-selecionar-todos">
+
+                    <input
+                        type="checkbox"
+                        id="selecionar-todos"
+                        disabled
+                    >
+
+                    <span>Selecionar itens visíveis</span>
+
+                </label>
+
+
+                <span
+                    id="contador-selecao"
+                    class="contador-selecao"
+                >
+                    Nenhum selecionado
+                </span>
+
+
                 <button
                     type="button"
-                    id="btn-limpar-tela"
-                    class="btn-limpar-tela">
-
-                    Limpar tela
-
-                </button>
-
-                <button
-                    type="button"
-                    id="btn-recarregar-lista"
-                    class="btn-recarregar-lista">
-
-                    Atualizar lista
-
+                    id="btn-excluir-selecionado"
+                    class="btn-excluir-selecionado"
+                    disabled
+                >
+                    Excluir registro selecionado
                 </button>
 
             </div>
 
+
+            <!-- AVISO SOBRE EXCLUSÃO -->
+
+            <p class="admin-aviso-exclusao">
+
+                A exclusão remove o documento selecionado
+                do Firestore, mas não elimina a conta do
+                Firebase Authentication. Utilize essa
+                operação somente quando necessário.
+
+            </p>
+
+
+            <!-- ==================================
+                 07 — LISTAGEM DINÂMICA
+
+                 O admin.js cria os cartões aqui.
+
+                 Não inserimos usuários manualmente.
+                 ================================== -->
+
             <div
                 id="lista-interessados"
-                class="admin-lista">
+                class="admin-lista"
+            ></div>
+
+        </section>
+
+
+        <!-- ======================================
+             08 — MENSAGEM DE AUTORIZAÇÃO
+
+             Exibida até que o Firebase confirme
+             as permissões administrativas.
+             ====================================== -->
+
+        <section
+            id="admin-acesso"
+            class="admin-acesso"
+            aria-live="polite"
+        >
+
+            <div class="admin-acesso-card">
+
+                <span aria-hidden="true">✦</span>
+
+                <h2>COJURIS</h2>
+
+                <p id="admin-acesso-mensagem">
+                    Verificando acesso administrativo...
+                </p>
+
+                <a href="./index.html">
+                    Voltar ao portal
+                </a>
+
             </div>
 
         </section>
 
     </main>
 
+
+    <!-- ======================================
+         09 — SCRIPT ADMINISTRATIVO
+         ====================================== -->
+
     <script
         type="module"
-        src="./js/admin.js">
-    </script>
+        src="./js/admin.js"
+    ></script>
 
 </body>
+
 </html>

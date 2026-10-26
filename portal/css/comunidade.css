@@ -1,0 +1,2072 @@
+
+/* ============================================================
+   COJURIS — ÁREA COMUM DOS COOPERADOS
+   ARQUIVO: portal/css/comunidade.css
+   ============================================================
+
+   FINALIDADE:
+   Controlar exclusivamente a apresentação visual da
+   comunidade profissional COJURIS.
+
+   ORGANIZAÇÃO:
+
+   01 — Variáveis e identidade visual
+   02 — Reset e configurações globais
+   03 — Estrutura principal da aplicação
+   04 — Menu lateral
+   05 — Identidade institucional
+   06 — Navegação lateral
+   07 — Informações e retorno no menu
+   08 — Área principal
+   09 — Cabeçalho superior
+   10 — Banner de apresentação
+   11 — Aviso demonstrativo
+   12 — Títulos e organização das seções
+   13 — Cartões de acesso rápido
+   14 — Distribuição de conteúdos
+   15 — Publicações e comunicados
+   16 — Discussões e sugestões
+   17 — Cartão de segurança
+   18 — Etapas de desenvolvimento
+   19 — Rodapé
+   20 — Responsividade para tablets
+   21 — Responsividade para celulares
+   22 — Telas pequenas
+   23 — Acessibilidade e animações
+
+   IMPORTANTE:
+   Este arquivo não executa operações no Firebase.
+   Autenticação, permissões e publicação de dados
+   serão implementadas separadamente.
+   ============================================================ */
+
+
+/* ============================================================
+   01 — VARIÁVEIS E IDENTIDADE VISUAL
+
+   As variáveis centralizam as cores, dimensões e sombras.
+
+   Exemplo:
+   Para modificar a cor principal de toda a comunidade,
+   altere --azul-escuro e --azul-principal.
+
+   Assim evitamos procurar cores em centenas de linhas.
+   ============================================================ */
+
+:root {
+
+    /* Identidade institucional */
+
+    --azul-escuro: #102d3c;
+    --azul-principal: #173a4c;
+    --azul-medio: #245667;
+
+    --turquesa: #1fb4b0;
+    --turquesa-escuro: #118d8c;
+    --turquesa-claro: #e5f6f4;
+
+    /* Superfícies */
+
+    --branco: #ffffff;
+    --fundo-pagina: #f3f7f9;
+    --fundo-suave: #f8fbfc;
+
+    /* Textos */
+
+    --texto-principal: #203d4c;
+    --texto-secundario: #687f8c;
+    --texto-discreto: #8598a2;
+
+    /* Elementos estruturais */
+
+    --borda: #dfe9ed;
+    --borda-suave: #eaf0f2;
+
+    /* Cores auxiliares */
+
+    --verde-claro: #e4f7ed;
+    --verde-escuro: #247456;
+
+    --dourado-claro: #fff5df;
+    --dourado-escuro: #a97724;
+
+    /* Dimensões */
+
+    --largura-sidebar: 260px;
+    --largura-conteudo: 1260px;
+
+    --raio-pequeno: 12px;
+    --raio-medio: 17px;
+    --raio-grande: 24px;
+
+    /* Sombras */
+
+    --sombra-suave:
+        0 5px 22px rgba(19, 49, 63, 0.04);
+
+    --sombra-cartao:
+        0 12px 32px rgba(19, 49, 63, 0.06);
+
+    /* Transições */
+
+    --transicao: 0.2s ease;
+}
+
+
+/* ============================================================
+   02 — RESET E CONFIGURAÇÕES GLOBAIS
+
+   O reset remove espaçamentos automáticos do navegador.
+
+   box-sizing: border-box faz com que padding e bordas
+   sejam considerados dentro da largura dos elementos.
+
+   Isso facilita o controle da responsividade.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+}
+
+body.comunidade-page {
+
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: var(--texto-principal);
+    background: var(--fundo-pagina);
+
+    line-height: 1.5;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ============================================================
+   03 — ESTRUTURA PRINCIPAL DA APLICAÇÃO
+
+   .app-shell é o container principal.
+
+   No computador:
+   - coluna esquerda: menu lateral
+   - coluna direita: conteúdo da comunidade
+
+   A propriedade minmax(0, 1fr) permite que a área
+   principal diminua sem ultrapassar a largura da tela.
+   ============================================================ */
+
+.app-shell {
+
+    display: grid;
+
+    grid-template-columns:
+        var(--largura-sidebar)
+        minmax(0, 1fr);
+
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+
+/* ============================================================
+   04 — MENU LATERAL
+
+   A sidebar permanece visível no desktop.
+
+   position: sticky mantém o menu no lugar durante a
+   rolagem, respeitando a altura da janela.
+
+   Em telas pequenas, esse menu será ocultado.
+   ============================================================ */
+
+.sidebar {
+
+    position: sticky;
+    top: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    height: 100vh;
+    height: 100dvh;
+
+    padding: 29px 17px 22px;
+
+    background: var(--azul-escuro);
+    color: var(--branco);
+
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #50717d transparent;
+}
+
+
+/* ============================================================
+   05 — IDENTIDADE INSTITUCIONAL
+
+   Área superior da sidebar com símbolo, nome e subtítulo.
+
+   A identidade mantém a aparência do restante do portal.
+   ============================================================ */
+
+.brand {
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 5px 10px 28px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand-mark {
+
+    display: grid;
+    place-items: center;
+
+    width: 43px;
+    height: 43px;
+
+    flex-shrink: 0;
+
+    border-radius: 13px;
+
+    background:
+        rgba(57, 198, 188, 0.14);
+
+    color: #87e9dc;
+
+    font-size: 1.6rem;
+}
+
+.brand-copy {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.brand-copy strong {
+
+    color: var(--branco);
+
+    font-size: 1.12rem;
+    font-weight: 800;
+
+    letter-spacing: 1.7px;
+}
+
+.brand-copy small {
+
+    color: #a9c9cf;
+
+    font-size: 0.57rem;
+    font-weight: 700;
+
+    letter-spacing: 1.1px;
+}
+
+
+/* ============================================================
+   06 — NAVEGAÇÃO LATERAL
+
+   Os links permitem navegar pelas seções internas:
+
+   - Visão geral
+   - Comunicados
+   - Discussões
+   - Sugestões
+
+   .is-current identifica visualmente a opção principal.
+   ============================================================ */
+
+.sidebar-heading {
+
+    margin: 32px 12px 15px;
+
+    color: #809faa;
+
+    font-size: 0.65rem;
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+}
+
+.side-nav {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.side-link {
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    min-height: 47px;
+
+    padding: 11px 14px;
+
+    border: 1px solid transparent;
+    border-radius: 12px;
+
+    color: #b8d0d7;
+
+    font-size: 0.88rem;
+    font-weight: 600;
+
+    transition:
+        background-color var(--transicao),
+        color var(--transicao),
+        border-color var(--transicao);
+}
+
+.side-link:hover {
+
+    color: var(--branco);
+
+    background:
+        rgba(255, 255, 255, 0.065);
+}
+
+.side-link.is-current {
+
+    color: #ddfffa;
+
+    background:
+        rgba(31, 180, 176, 0.14);
+
+    border-color:
+        rgba(79, 220, 208, 0.15);
+}
+
+.nav-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 23px;
+    height: 23px;
+
+    flex-shrink: 0;
+
+    color: #84dcd3;
+    font-size: 1.2rem;
+}
+
+
+/* ============================================================
+   07 — INFORMAÇÕES E RETORNO NO MENU
+
+   .sidebar-spacer ocupa o espaço vertical disponível.
+
+   Isso posiciona o cartão institucional e o link
+   de retorno na parte inferior da navegação.
+   ============================================================ */
+
+.sidebar-spacer {
+    flex: 1;
+    min-height: 35px;
+}
+
+.sidebar-note {
+
+    padding: 20px 17px;
+
+    border: 1px solid
+        rgba(125, 217, 208, 0.13);
+
+    border-radius: 16px;
+
+    background:
+        rgba(255, 255, 255, 0.045);
+}
+
+.sidebar-note-symbol {
+
+    display: block;
+
+    margin-bottom: 14px;
+
+    color: #80e5d8;
+
+    font-size: 1.45rem;
+}
+
+.sidebar-note strong {
+
+    display: block;
+
+    color: #ecfffd;
+
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.sidebar-note p {
+
+    margin-top: 9px;
+
+    color: #a9c6ce;
+
+    font-size: 0.77rem;
+    line-height: 1.7;
+}
+
+.sidebar-back {
+
+    display: block;
+
+    margin-top: 18px;
+    padding: 13px 12px;
+
+    color: #a6cbd0;
+
+    font-size: 0.82rem;
+    font-weight: 600;
+
+    transition: color var(--transicao);
+}
+
+.sidebar-back:hover {
+    color: var(--branco);
+}
+
+
+/* ============================================================
+   08 — ÁREA PRINCIPAL
+
+   .main-content concentra o conteúdo da comunidade.
+
+   max-width evita linhas excessivamente longas em monitores
+   grandes, melhorando a leitura.
+
+   min-width: 0 evita vazamento horizontal em grids.
+   ============================================================ */
+
+.main-content {
+
+    width: 100%;
+    min-width: 0;
+
+    max-width: var(--largura-conteudo);
+
+    margin: 0 auto;
+
+    padding: 0 38px 28px;
+}
+
+
+/* ============================================================
+   09 — CABEÇALHO SUPERIOR
+
+   Apresenta a localização da página e o acesso ao painel.
+
+   .mobile-brand permanece oculto no computador.
+   Será exibido na versão para celular.
+   ============================================================ */
+
+.topbar {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    min-height: 90px;
+
+    margin-bottom: 12px;
+}
+
+.mobile-brand {
+    display: none;
+}
+
+.breadcrumb {
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+    gap: 10px;
+
+    color: var(--texto-secundario);
+
+    font-size: 0.84rem;
+}
+
+.breadcrumb strong {
+
+    color: var(--azul-principal);
+    font-weight: 700;
+}
+
+.breadcrumb-sep {
+    color: #b6c5cb;
+}
+
+.topbar-back {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 11px 16px;
+
+    border: 1px solid var(--borda);
+    border-radius: 11px;
+
+    background: var(--branco);
+
+    color: var(--azul-principal);
+
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    transition:
+        border-color var(--transicao),
+        background-color var(--transicao);
+}
+
+.topbar-back:hover {
+
+    background: var(--turquesa-claro);
+    border-color: #badedb;
+}
+
+
+/* ============================================================
+   10 — BANNER DE APRESENTAÇÃO
+
+   Principal destaque visual da comunidade.
+
+   Utilizamos gradientes em CSS em vez de uma imagem grande.
+
+   Vantagens:
+   - carregamento mais rápido
+   - melhor adaptação ao celular
+   - manutenção simples
+   - identidade visual consistente
+   ============================================================ */
+
+.welcome {
+
+    position: relative;
+
+    min-height: 285px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 44px 47px;
+
+    border-radius: var(--raio-grande);
+
+    color: var(--branco);
+
+    background:
+        radial-gradient(
+            circle at 88% 8%,
+            rgba(61, 226, 208, 0.24),
+            transparent 38%
+        ),
+        linear-gradient(
+            125deg,
+            #102d3c 0%,
+            #174e5e 61%,
+            #0d797e 100%
+        );
+
+    overflow: hidden;
+
+    box-shadow: var(--sombra-cartao);
+}
+
+
+/* Formas decorativas do banner */
+
+.welcome-decor {
+
+    position: absolute;
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.12);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.welcome-decor-one {
+
+    width: 285px;
+    height: 285px;
+
+    top: -140px;
+    right: -85px;
+}
+
+.welcome-decor-two {
+
+    width: 205px;
+    height: 205px;
+
+    right: 55px;
+    bottom: -135px;
+}
+
+
+/* Texto principal do banner */
+
+.welcome-content {
+
+    position: relative;
+    z-index: 1;
+
+    max-width: 660px;
+}
+
+.eyebrow {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 9px;
+
+    margin-bottom: 19px;
+
+    color: #92ece1;
+
+    font-size: 0.69rem;
+    font-weight: 800;
+
+    letter-spacing: 1.7px;
+}
+
+.eyebrow-dot {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #79e9d8;
+}
+
+.welcome h1 {
+
+    color: var(--branco);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(2rem, 3.4vw, 2.8rem);
+
+    font-weight: 700;
+
+    line-height: 1.2;
+    letter-spacing: -0.8px;
+}
+
+.welcome h1 em {
+
+    color: #91ebe0;
+
+    font-style: normal;
+}
+
+.welcome-content > p {
+
+    max-width: 560px;
+
+    margin-top: 19px;
+
+    color: #d1e5e9;
+
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.welcome-chip {
+
+    display: inline-flex;
+    align-items: center;
+
+    max-width: 100%;
+
+    margin-top: 25px;
+    padding: 9px 14px;
+
+    border: 1px solid
+        rgba(168, 240, 231, 0.16);
+
+    border-radius: 99px;
+
+    background:
+        rgba(255, 255, 255, 0.085);
+
+    color: #dffbf5;
+
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   11 — AVISO DEMONSTRATIVO
+
+   Informa que a comunidade ainda está em desenvolvimento.
+
+   O aviso deverá ser revisado quando iniciarmos
+   o funcionamento real das publicações.
+   ============================================================ */
+
+.preview-alert {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 13px;
+
+    margin-top: 22px;
+    padding: 17px 19px;
+
+    border: 1px solid #d5e9e7;
+    border-radius: var(--raio-medio);
+
+    background: #edf8f7;
+
+    color: #446975;
+}
+
+.preview-icon {
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    width: 25px;
+    height: 25px;
+
+    border-radius: 50%;
+
+    background: #d3efeb;
+
+    color: #147d7a;
+
+    font-size: 1rem;
+}
+
+.preview-alert p {
+
+    font-size: 0.84rem;
+    line-height: 1.75;
+}
+
+.preview-alert strong {
+    color: #166b68;
+}
+
+
+/* ============================================================
+   12 — TÍTULOS E ORGANIZAÇÃO DAS SEÇÕES
+
+   Reutilizados em:
+   - Comunicados
+   - Discussões
+   - Sugestões
+   - Acesso rápido
+
+   A padronização evita títulos com aparências diferentes.
+   ============================================================ */
+
+.section {
+    margin-top: 37px;
+    min-width: 0;
+}
+
+.section-heading {
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 15px;
+
+    margin-bottom: 19px;
+}
+
+.section-overline {
+
+    margin-bottom: 8px;
+
+    color: var(--turquesa-escuro);
+
+    font-size: 0.67rem;
+    font-weight: 800;
+
+    letter-spacing: 1.45px;
+}
+
+.section-heading h2 {
+
+    color: var(--azul-principal);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(1.3rem, 2vw, 1.65rem);
+
+    line-height: 1.3;
+}
+
+.section-label {
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 11px;
+
+    border: 1px solid #dde8ec;
+    border-radius: 99px;
+
+    background: #edf2f4;
+
+    color: #627e88;
+
+    font-size: 0.67rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   13 — CARTÕES DE ACESSO RÁPIDO
+
+   Esses cartões funcionam como links para seções da página.
+
+   No desktop:
+   três cartões lado a lado.
+
+   No celular:
+   cartões reorganizados verticalmente.
+   ============================================================ */
+
+.quick-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+.quick-card {
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+    min-height: 100px;
+
+    padding: 19px 16px;
+
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-medio);
+
+    background: var(--branco);
+
+    box-shadow: var(--sombra-suave);
+
+    transition:
+        transform var(--transicao),
+        box-shadow var(--transicao),
+        border-color var(--transicao);
+}
+
+.quick-card:hover {
+
+    transform: translateY(-3px);
+
+    border-color: #b3ded9;
+
+    box-shadow: var(--sombra-cartao);
+}
+
+.quick-icon {
+
+    display: grid;
+    place-items: center;
+
+    flex: 0 0 43px;
+
+    width: 43px;
+    height: 43px;
+
+    border-radius: 13px;
+
+    font-size: 1.35rem;
+}
+
+.quick-icon-blue {
+
+    background: #e9f2f7;
+    color: #315d78;
+}
+
+.quick-icon-green {
+
+    background: #e5f7f1;
+    color: #1c8570;
+}
+
+.quick-icon-gold {
+
+    background: #fff5df;
+    color: #a97724;
+}
+
+.quick-copy {
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    gap: 5px;
+}
+
+.quick-copy strong {
+
+    color: var(--azul-principal);
+
+    font-size: 0.89rem;
+    font-weight: 800;
+}
+
+.quick-copy small {
+
+    color: var(--texto-secundario);
+
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.quick-arrow {
+
+    margin-left: auto;
+    align-self: flex-start;
+
+    color: #a1b7be;
+
+    font-size: 1rem;
+}
+
+
+/* ============================================================
+   14 — DISTRIBUIÇÃO DE CONTEÚDOS
+
+   Divide a área principal em duas colunas:
+
+   .feed-column:
+   Publicações, discussões e sugestões.
+
+   .support-column:
+   Segurança e planejamento institucional.
+
+   A coluna principal recebe mais espaço.
+   ============================================================ */
+
+.content-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.75fr)
+        minmax(260px, 0.85fr);
+
+    align-items: start;
+
+    gap: 24px;
+}
+
+.feed-column,
+.support-column {
+    min-width: 0;
+}
+
+.support-column {
+    padding-top: 37px;
+}
+
+
+/* ============================================================
+   15 — PUBLICAÇÕES E COMUNICADOS
+
+   Estrutura visual das futuras publicações oficiais.
+
+   Estes estilos poderão ser reutilizados quando o
+   Firestore começar a fornecer dados reais.
+
+   A criação do HTML deverá preservar essas classes.
+   ============================================================ */
+
+.post-card {
+
+    padding: 25px;
+
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-grande);
+
+    background: var(--branco);
+
+    box-shadow: var(--sombra-suave);
+}
+
+.post-header {
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 24px;
+}
+
+.post-avatar {
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 14px;
+
+    background: var(--azul-principal);
+
+    color: #9df1e6;
+
+    font-size: 1.5rem;
+}
+
+.post-author {
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    gap: 4px;
+}
+
+.post-author strong {
+
+    color: var(--azul-principal);
+
+    font-size: 0.88rem;
+}
+
+.post-author span {
+
+    color: var(--texto-secundario);
+
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+
+.sample-label {
+
+    margin-left: auto;
+    padding: 6px 9px;
+
+    border-radius: 7px;
+
+    background: #edf2f4;
+
+    color: #718994;
+
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+.content-tag {
+
+    display: inline-flex;
+
+    padding: 6px 10px;
+
+    border-radius: 7px;
+
+    background: var(--turquesa-claro);
+
+    color: var(--turquesa-escuro);
+
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.post-card h3 {
+
+    margin-top: 17px;
+
+    color: var(--azul-principal);
+
+    font-size: 1.15rem;
+    font-weight: 800;
+
+    line-height: 1.45;
+}
+
+.post-card > p {
+
+    margin-top: 13px;
+
+    color: #566f7c;
+
+    font-size: 0.87rem;
+    line-height: 1.85;
+
+    overflow-wrap: anywhere;
+}
+
+.post-footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 25px;
+    padding-top: 17px;
+
+    border-top: 1px solid var(--borda-suave);
+
+    color: #8498a2;
+
+    font-size: 0.71rem;
+}
+
+
+/* ============================================================
+   16 — DISCUSSÕES E SUGESTÕES
+
+   .feature-card é um componente reaproveitável.
+
+   Cada seção utiliza a mesma estrutura visual,
+   alterando apenas a cor do símbolo.
+   ============================================================ */
+
+.feature-card {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 19px;
+
+    padding: 26px;
+
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-grande);
+
+    background: var(--branco);
+
+    box-shadow: var(--sombra-suave);
+}
+
+.feature-symbol {
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    width: 51px;
+    height: 51px;
+
+    border-radius: 16px;
+
+    font-size: 1.65rem;
+}
+
+.feature-symbol-teal {
+
+    background: #e4f7f2;
+    color: #158e80;
+}
+
+.feature-symbol-gold {
+
+    background: #fff4df;
+    color: #a97a25;
+}
+
+.feature-card h3 {
+
+    color: var(--azul-principal);
+
+    font-size: 1.02rem;
+    line-height: 1.5;
+}
+
+.feature-card p {
+
+    margin-top: 10px;
+
+    color: #627c89;
+
+    font-size: 0.85rem;
+    line-height: 1.8;
+}
+
+.feature-state {
+
+    display: inline-block;
+
+    margin-top: 17px;
+
+    color: var(--turquesa-escuro);
+
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   17 — CARTÃO DE SEGURANÇA
+
+   Espaço institucional para comunicar os requisitos
+   de credibilidade e verificação profissional.
+
+   Importante:
+   O cartão é apenas informativo.
+
+   A proteção efetiva dependerá das regras do Firestore.
+   ============================================================ */
+
+.info-card {
+
+    padding: 25px;
+
+    border: 1px solid #d7e8e6;
+    border-radius: var(--raio-grande);
+
+    background:
+        linear-gradient(
+            150deg,
+            #effaf8,
+            #ffffff
+        );
+
+    box-shadow: var(--sombra-suave);
+}
+
+.info-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 43px;
+    height: 43px;
+
+    margin-bottom: 17px;
+
+    border-radius: 13px;
+
+    background: #d9f3ed;
+    color: #16887d;
+
+    font-size: 1.5rem;
+}
+
+.info-card h2 {
+
+    color: var(--azul-principal);
+
+    font-size: 1.08rem;
+    line-height: 1.5;
+}
+
+.info-card > p {
+
+    margin-top: 12px;
+
+    color: #5d7884;
+
+    font-size: 0.84rem;
+    line-height: 1.8;
+}
+
+.info-divider {
+
+    height: 1px;
+
+    margin-top: 21px;
+
+    background: #dcebe9;
+}
+
+.info-card .info-footnote {
+
+    color: #638c90;
+
+    font-size: 0.77rem;
+}
+
+
+/* ============================================================
+   18 — ETAPAS DE DESENVOLVIMENTO
+
+   O roadmap comunica os marcos do projeto.
+
+   Estados utilizados:
+
+   .is-done = etapa concluída
+   .is-now  = etapa em andamento
+   sem classe = etapa futura
+   ============================================================ */
+
+.roadmap-card {
+
+    margin-top: 20px;
+    padding: 25px;
+
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-grande);
+
+    background: var(--branco);
+
+    box-shadow: var(--sombra-suave);
+}
+
+.roadmap-card h2 {
+
+    margin-bottom: 23px;
+
+    color: var(--azul-principal);
+
+    font-size: 1.12rem;
+    line-height: 1.45;
+}
+
+.roadmap {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 23px;
+
+    list-style: none;
+}
+
+.roadmap li {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 13px;
+}
+
+.roadmap-marker {
+
+    display: grid;
+    place-items: center;
+
+    flex-shrink: 0;
+
+    width: 29px;
+    height: 29px;
+
+    border: 1px solid #dce6e9;
+    border-radius: 50%;
+
+    background: #f1f5f6;
+
+    color: #8296a0;
+
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.roadmap li.is-done .roadmap-marker {
+
+    border-color: #c2eadd;
+
+    background: #ddf5ea;
+
+    color: #23795d;
+}
+
+.roadmap li.is-now .roadmap-marker {
+
+    border-color: var(--turquesa);
+
+    background: var(--turquesa);
+
+    color: var(--branco);
+}
+
+.roadmap li > span:last-child {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.roadmap strong {
+
+    color: var(--azul-principal);
+
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.roadmap small {
+
+    color: var(--texto-secundario);
+
+    font-size: 0.72rem;
+    line-height: 1.55;
+}
+
+.roadmap-note {
+
+    margin-top: 25px;
+    padding-top: 19px;
+
+    border-top: 1px solid var(--borda-suave);
+
+    color: #708792;
+
+    font-size: 0.77rem;
+    line-height: 1.8;
+}
+
+
+/* ============================================================
+   19 — RODAPÉ
+
+   Área institucional discreta para fechar a página.
+
+   Mantemos aparência neutra para que o conteúdo principal
+   continue recebendo maior destaque.
+   ============================================================ */
+
+.page-footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 43px;
+    padding: 24px 0 8px;
+
+    border-top: 1px solid var(--borda);
+
+    color: #8799a3;
+
+    font-size: 0.73rem;
+}
+
+
+/* ============================================================
+   20 — RESPONSIVIDADE PARA TABLETS
+
+   Abaixo de 1100px:
+   - reduzimos o menu lateral
+   - diminuímos espaçamentos
+   - simplificamos a distribuição do conteúdo
+   ============================================================ */
+
+@media (max-width: 1100px) {
+
+    :root {
+        --largura-sidebar: 230px;
+    }
+
+    .main-content {
+        padding: 0 25px 25px;
+    }
+
+    .quick-grid {
+        gap: 11px;
+    }
+
+    .quick-card {
+        padding: 15px 12px;
+        gap: 9px;
+    }
+
+    .quick-icon {
+
+        flex-basis: 38px;
+
+        width: 38px;
+        height: 38px;
+    }
+
+    .content-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .support-column {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        align-items: start;
+
+        gap: 18px;
+
+        padding-top: 0;
+        margin-top: 25px;
+    }
+
+    .roadmap-card {
+        margin-top: 0;
+    }
+}
+
+
+/* ============================================================
+   21 — RESPONSIVIDADE PARA CELULARES
+
+   Abaixo de 760px:
+
+   1. O menu lateral desaparece.
+   2. O conteúdo ocupa a tela inteira.
+   3. O cabeçalho exibe a identidade COJURIS.
+   4. O banner recebe dimensões menores.
+   5. Cartões passam a utilizar uma única coluna.
+
+   O objetivo é proporcionar uma experiência confortável
+   para navegação pelo toque.
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+    /* ESTRUTURA GERAL */
+
+    .app-shell {
+        display: block;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .main-content {
+
+        max-width: 100%;
+
+        margin: 0;
+        padding: 0 18px 25px;
+    }
+
+
+    /* CABEÇALHO MOBILE */
+
+    .topbar {
+
+        position: relative;
+
+        min-height: 73px;
+
+        margin-bottom: 18px;
+
+        gap: 12px;
+
+        border-bottom: 1px solid var(--borda);
+    }
+
+    .breadcrumb {
+        display: none;
+    }
+
+    .mobile-brand {
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .mobile-brand-symbol {
+
+        display: grid;
+        place-items: center;
+
+        width: 36px;
+        height: 36px;
+
+        border-radius: 11px;
+
+        background: var(--azul-principal);
+
+        color: #95eee1;
+
+        font-size: 1.35rem;
+    }
+
+    .mobile-brand strong {
+
+        color: var(--azul-principal);
+
+        font-size: 1.08rem;
+        font-weight: 800;
+
+        letter-spacing: 1.6px;
+    }
+
+    .topbar-back {
+
+        padding: 9px 12px;
+
+        font-size: 0.76rem;
+    }
+
+
+    /* BANNER */
+
+    .welcome {
+
+        min-height: 275px;
+
+        padding: 35px 27px;
+
+        border-radius: 20px;
+    }
+
+    .welcome h1 {
+        font-size: clamp(1.75rem, 6vw, 2.15rem);
+    }
+
+    .welcome-content > p {
+
+        margin-top: 15px;
+
+        font-size: 0.87rem;
+        line-height: 1.7;
+    }
+
+    .welcome-chip {
+
+        margin-top: 19px;
+
+        font-size: 0.7rem;
+    }
+
+
+    /* AVISO */
+
+    .preview-alert {
+
+        margin-top: 17px;
+
+        padding: 15px;
+    }
+
+
+    /* SEÇÕES */
+
+    .section {
+        margin-top: 31px;
+    }
+
+    .section-heading {
+        gap: 10px;
+    }
+
+    .section-heading h2 {
+        font-size: 1.35rem;
+    }
+
+
+    /* ACESSO RÁPIDO */
+
+    .quick-grid {
+        grid-template-columns: 1fr;
+        gap: 11px;
+    }
+
+    .quick-card {
+        min-height: 78px;
+        padding: 15px;
+    }
+
+    .quick-icon {
+
+        flex-basis: 44px;
+
+        width: 44px;
+        height: 44px;
+    }
+
+
+    /* ÁREA DE CONTEÚDOS */
+
+    .content-grid {
+        display: block;
+    }
+
+
+    /* CARTÕES DE PUBLICAÇÃO */
+
+    .post-card {
+        padding: 20px;
+        border-radius: 19px;
+    }
+
+    .post-card h3 {
+        font-size: 1.07rem;
+    }
+
+    .post-card > p {
+        font-size: 0.86rem;
+    }
+
+
+    /* DISCUSSÕES E SUGESTÕES */
+
+    .feature-card {
+
+        padding: 20px;
+
+        gap: 15px;
+
+        border-radius: 19px;
+    }
+
+
+    /* INFORMAÇÕES INSTITUCIONAIS */
+
+    .support-column {
+
+        display: block;
+
+        margin-top: 29px;
+        padding-top: 0;
+    }
+
+    .info-card,
+    .roadmap-card {
+
+        padding: 22px;
+
+        border-radius: 19px;
+    }
+
+    .roadmap-card {
+        margin-top: 17px;
+    }
+
+
+    /* RODAPÉ */
+
+    .page-footer {
+
+        margin-top: 34px;
+
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 6px;
+    }
+}
+
+
+/* ============================================================
+   22 — TELAS PEQUENAS
+
+   Celulares com largura até 380px.
+
+   Diminuímos os espaçamentos para evitar rolagem lateral.
+
+   Nenhum componente deve exigir largura maior que a tela.
+   ============================================================ */
+
+@media (max-width: 380px) {
+
+    .main-content {
+        padding-left: 13px;
+        padding-right: 13px;
+    }
+
+    .welcome {
+        padding: 29px 21px;
+    }
+
+    .welcome h1 {
+        font-size: 1.65rem;
+    }
+
+    .eyebrow {
+        font-size: 0.62rem;
+    }
+
+    .welcome-chip {
+        border-radius: 14px;
+    }
+
+    .post-card,
+    .feature-card,
+    .info-card,
+    .roadmap-card {
+        padding: 17px;
+    }
+
+    .feature-card {
+        gap: 12px;
+    }
+
+    .feature-symbol {
+
+        width: 43px;
+        height: 43px;
+
+        flex-basis: 43px;
+    }
+
+    .sample-label {
+        font-size: 0.55rem;
+    }
+}
+
+
+/* ============================================================
+   23 — ACESSIBILIDADE E PREFERÊNCIAS DO USUÁRIO
+
+   :focus-visible:
+   Destaque para navegação por teclado.
+
+   prefers-reduced-motion:
+   Respeita usuários que preferem reduzir animações.
+
+   São boas práticas para uma plataforma profissional
+   acessível a diferentes perfis de usuários.
+   ============================================================ */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+
+    outline: 3px solid
+        rgba(31, 180, 176, 0.7);
+
+    outline-offset: 4px;
+}
+
+
+/* Evita animações desnecessárias */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior: auto !important;
+
+        animation-duration: 0.01ms !important;
+
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================================
+   24 — CONTROLE VISUAL DE ACESSO À COMUNIDADE
+
+   FINALIDADE:
+   Exibir uma tela institucional enquanto o Firebase
+   verifica se o usuário possui autorização.
+
+   A tela também apresenta mensagens quando o
+   interessado ainda não pode acessar a comunidade.
+
+   IMPORTANTE:
+   A segurança efetiva dos dados deverá ser garantida
+   pelas regras do Firestore.
+   ============================================================ */
+
+.comunidade-acesso {
+
+    display: grid;
+    place-items: center;
+
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    padding: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #102d3c,
+            #174e5e,
+            #0d797e
+        );
+}
+
+.acesso-card {
+
+    width: 100%;
+    max-width: 420px;
+
+    padding: 40px 30px;
+
+    border-radius: 22px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    box-shadow:
+        0 25px 65px rgba(0, 0, 0, 0.16);
+}
+
+.acesso-simbolo {
+
+    display: grid;
+    place-items: center;
+
+    width: 62px;
+    height: 62px;
+
+    margin: 0 auto 20px;
+
+    border-radius: 18px;
+
+    background: #e5f6f4;
+
+    color: #118d8c;
+
+    font-size: 2rem;
+}
+
+.acesso-card h1 {
+
+    color: #173a4c;
+
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.acesso-card p {
+
+    margin-top: 17px;
+
+    color: #637e8a;
+
+    font-size: 0.91rem;
+    line-height: 1.7;
+}
+
+.acesso-voltar {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 25px;
+
+    padding: 12px 20px;
+
+    border: 1px solid #cce6e5;
+    border-radius: 12px;
+
+    background: #e8f7f5;
+
+    color: #127d7b;
+
+    font-size: 0.87rem;
+    font-weight: 700;
+
+    transition: background-color 0.2s ease;
+}
+
+.acesso-voltar:hover {
+    background: #d3f0ed;
+}
+
+@media (max-width: 600px) {
+
+    .acesso-card {
+        padding: 34px 24px;
+        border-radius: 19px;
+    }
+}

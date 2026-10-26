@@ -533,3 +533,55 @@ a:focus-visible {
         width: 100%;
     }
 }
+
+/* ============================================================
+   COJURIS — ACESSO À ÁREA COMUM
+
+   Apresenta a comunidade como uma funcionalidade
+   integrada ao Painel do Cooperado.
+
+   O estilo é exclusivo do cartão de acesso, evitando
+   alterações nos demais elementos do painel.
+   ============================================================ */
+
+.comunidade-link {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    text-decoration: none;
+    color: inherit;
+
+    border: 1px solid #cce7e4;
+
+    background: linear-gradient(
+        145deg,
+        #ffffff,
+        #eaf8f6
+    );
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.comunidade-link:hover {
+    transform: translateY(-3px);
+    border-color: #1fb4b0;
+
+    box-shadow:
+        0 12px 28px rgba(17, 141, 140, 0.12);
+}
+
+.comunidade-link .feature-status {
+    color: #118d8c;
+    font-weight: 800;
+}
+
+.comunidade-link:focus-visible {
+    outline: 3px solid #1fb4b0;
+    outline-offset: 3px;
+}

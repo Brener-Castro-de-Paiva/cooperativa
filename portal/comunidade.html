@@ -1,0 +1,1000 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- ==================================================
+         01 — CONFIGURAÇÕES GERAIS
+         ================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta name="theme-color" content="#123748">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta
+        name="description"
+        content="Comunidade profissional COJURIS: comunicados, discussões e sugestões."
+    >
+
+    <title>Comunidade | COJURIS</title>
+
+    <!-- ESTILOS EXCLUSIVOS DA COMUNIDADE -->
+    <link rel="stylesheet" href="./css/comunidade.css">
+
+</head>
+
+<body class="comunidade-page">
+
+    <!-- ==================================================
+         02 — TELA DE VERIFICAÇÃO DE ACESSO
+
+         Exibida enquanto o Firebase verifica a sessão.
+
+         O JavaScript poderá:
+         - liberar a comunidade;
+         - informar ausência de autorização;
+         - redirecionar usuários não autenticados.
+         ================================================== -->
+
+    <section
+        id="comunidade-acesso"
+        class="comunidade-acesso"
+        role="status"
+        aria-live="polite"
+    >
+
+        <div class="acesso-card">
+
+            <span
+                class="acesso-simbolo"
+                aria-hidden="true"
+            >✦</span>
+
+            <h1>COJURIS</h1>
+
+            <p id="comunidade-mensagem">
+                Verificando seu acesso à comunidade...
+            </p>
+
+            <a
+                href="./painel.html"
+                class="acesso-voltar"
+            >
+                Voltar ao meu painel
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         03 — ESTRUTURA PRINCIPAL DA COMUNIDADE
+
+         Inicialmente oculta pelo atributo hidden.
+
+         O comunidade.js remove esse bloqueio visual
+         somente após verificar a autorização.
+
+         ATENÇÃO:
+         Este bloqueio visual não substitui as regras
+         de segurança do Firestore.
+         ================================================== -->
+
+    <div
+        class="app-shell"
+        id="comunidade-app"
+        hidden
+    >
+
+        <!-- ==============================================
+             04 — MENU LATERAL
+             ============================================== -->
+
+        <aside
+            class="sidebar"
+            aria-label="Navegação da comunidade"
+        >
+
+            <!-- IDENTIDADE INSTITUCIONAL -->
+
+            <a
+                class="brand"
+                href="./painel.html"
+                aria-label="COJURIS — voltar ao painel"
+            >
+
+                <span
+                    class="brand-mark"
+                    aria-hidden="true"
+                >✦</span>
+
+                <span class="brand-copy">
+                    <strong>COJURIS</strong>
+                    <small>REDE PROFISSIONAL</small>
+                </span>
+
+            </a>
+
+
+            <!-- IDENTIFICAÇÃO DO MENU -->
+
+            <div class="sidebar-heading">
+                ESPAÇO DO COOPERADO
+            </div>
+
+
+            <!-- LINKS DE NAVEGAÇÃO -->
+
+            <nav
+                class="side-nav"
+                aria-label="Seções da comunidade"
+            >
+
+                <a
+                    href="#visao-geral"
+                    class="side-link is-current"
+                    aria-current="location"
+                >
+                    <span
+                        class="nav-icon"
+                        aria-hidden="true"
+                    >⌂</span>
+
+                    <span>Visão geral</span>
+                </a>
+
+                <a
+                    href="#comunicados"
+                    class="side-link"
+                >
+                    <span
+                        class="nav-icon"
+                        aria-hidden="true"
+                    >◈</span>
+
+                    <span>Comunicados</span>
+                </a>
+
+                <a
+                    href="#discussoes"
+                    class="side-link"
+                >
+                    <span
+                        class="nav-icon"
+                        aria-hidden="true"
+                    >◇</span>
+
+                    <span>Discussões</span>
+                </a>
+
+                <a
+                    href="#sugestoes"
+                    class="side-link"
+                >
+                    <span
+                        class="nav-icon"
+                        aria-hidden="true"
+                    >✧</span>
+
+                    <span>Sugestões</span>
+                </a>
+
+            </nav>
+
+
+            <!-- ESPAÇAMENTO DO MENU -->
+
+            <div class="sidebar-spacer"></div>
+
+
+            <!-- BLOCO INSTITUCIONAL -->
+
+            <div class="sidebar-note">
+
+                <span
+                    class="sidebar-note-symbol"
+                    aria-hidden="true"
+                >✳</span>
+
+                <strong>
+                    Construída em conjunto.
+                </strong>
+
+                <p>
+                    Um ambiente para fortalecer conexões,
+                    compartilhar ideias e acompanhar os
+                    próximos passos da COJURIS.
+                </p>
+
+            </div>
+
+
+            <!-- RETORNO AO PAINEL -->
+
+            <a
+                class="sidebar-back"
+                href="./painel.html"
+            >
+                ← Voltar ao meu painel
+            </a>
+
+        </aside>
+
+
+
+        <!-- ==============================================
+             05 — CONTEÚDO PRINCIPAL
+             ============================================== -->
+
+        <main
+            class="main-content"
+            id="visao-geral"
+        >
+
+
+            <!-- ==========================================
+                 06 — CABEÇALHO SUPERIOR
+                 ========================================== -->
+
+            <header class="topbar">
+
+                <!-- IDENTIDADE PARA CELULARES -->
+
+                <a
+                    class="mobile-brand"
+                    href="./painel.html"
+                    aria-label="COJURIS — voltar ao painel"
+                >
+
+                    <span
+                        class="mobile-brand-symbol"
+                        aria-hidden="true"
+                    >✦</span>
+
+                    <strong>COJURIS</strong>
+
+                </a>
+
+
+                <!-- LOCALIZAÇÃO DA PÁGINA -->
+
+                <div
+                    class="breadcrumb"
+                    aria-label="Localização"
+                >
+
+                    <span>Portal do Cooperado</span>
+
+                    <span
+                        class="breadcrumb-sep"
+                        aria-hidden="true"
+                    >/</span>
+
+                    <strong>Comunidade</strong>
+
+                </div>
+
+
+                <!-- BOTÃO DE RETORNO -->
+
+                <a
+                    class="topbar-back"
+                    href="./painel.html"
+                >
+                    Meu painel
+                    <span aria-hidden="true">↗</span>
+                </a>
+
+            </header>
+
+
+
+            <!-- ==========================================
+                 07 — APRESENTAÇÃO DA COMUNIDADE
+                 ========================================== -->
+
+            <section
+                class="welcome"
+                aria-labelledby="welcome-title"
+            >
+
+                <!-- ELEMENTOS DECORATIVOS -->
+
+                <div
+                    class="welcome-decor welcome-decor-one"
+                    aria-hidden="true"
+                ></div>
+
+                <div
+                    class="welcome-decor welcome-decor-two"
+                    aria-hidden="true"
+                ></div>
+
+
+                <!-- TEXTO PRINCIPAL -->
+
+                <div class="welcome-content">
+
+                    <span class="eyebrow">
+
+                        <span
+                            class="eyebrow-dot"
+                            aria-hidden="true"
+                        ></span>
+
+                        COMUNIDADE COJURIS
+
+                    </span>
+
+
+                    <h1 id="welcome-title">
+
+                        Grandes conexões.
+
+                        <br>
+
+                        <em>Novas possibilidades.</em>
+
+                    </h1>
+
+
+                    <p>
+                        Um espaço pensado para aproximar
+                        profissionais, compartilhar conhecimento
+                        e construir o futuro da nossa rede.
+                    </p>
+
+
+                    <span class="welcome-chip">
+                        ✦ Construindo uma rede jurídica colaborativa
+                    </span>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ==========================================
+                 08 — AVISO DE DESENVOLVIMENTO
+
+                 Removeremos este aviso quando a comunidade
+                 começar a exibir dados reais.
+                 ========================================== -->
+
+            <div
+                class="preview-alert"
+                role="note"
+            >
+
+                <span
+                    class="preview-icon"
+                    aria-hidden="true"
+                >ⓘ</span>
+
+                <p>
+
+                    <strong>Prévia da Área Comum.</strong>
+
+                    Estamos desenvolvendo este espaço.
+                    Os exemplos abaixo demonstram o visual;
+                    publicações, comentários e sugestões
+                    ainda não estão disponíveis.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- ==========================================
+                 09 — CARTÕES DE ACESSO RÁPIDO
+                 ========================================== -->
+
+            <section
+                class="section quick-section"
+                aria-labelledby="quick-title"
+            >
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="section-overline">
+                            PARTICIPE DA EVOLUÇÃO
+                        </p>
+
+                        <h2 id="quick-title">
+                            Seu espaço na COJURIS
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="quick-grid">
+
+
+                    <!-- COMUNICADOS -->
+
+                    <a
+                        href="#comunicados"
+                        class="quick-card"
+                    >
+
+                        <span
+                            class="quick-icon quick-icon-blue"
+                            aria-hidden="true"
+                        >◈</span>
+
+                        <span class="quick-copy">
+
+                            <strong>Comunicados</strong>
+
+                            <small>
+                                Novidades e informações oficiais
+                            </small>
+
+                        </span>
+
+                        <span
+                            class="quick-arrow"
+                            aria-hidden="true"
+                        >↗</span>
+
+                    </a>
+
+
+                    <!-- DISCUSSÕES -->
+
+                    <a
+                        href="#discussoes"
+                        class="quick-card"
+                    >
+
+                        <span
+                            class="quick-icon quick-icon-green"
+                            aria-hidden="true"
+                        >◇</span>
+
+                        <span class="quick-copy">
+
+                            <strong>Discussões</strong>
+
+                            <small>
+                                Compartilhamento de experiências
+                            </small>
+
+                        </span>
+
+                        <span
+                            class="quick-arrow"
+                            aria-hidden="true"
+                        >↗</span>
+
+                    </a>
+
+
+                    <!-- SUGESTÕES -->
+
+                    <a
+                        href="#sugestoes"
+                        class="quick-card"
+                    >
+
+                        <span
+                            class="quick-icon quick-icon-gold"
+                            aria-hidden="true"
+                        >✧</span>
+
+                        <span class="quick-copy">
+
+                            <strong>Sugestões</strong>
+
+                            <small>
+                                Ideias para aperfeiçoar a rede
+                            </small>
+
+                        </span>
+
+                        <span
+                            class="quick-arrow"
+                            aria-hidden="true"
+                        >↗</span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ==========================================
+                 10 — DISTRIBUIÇÃO DO CONTEÚDO
+                 ========================================== -->
+
+            <div class="content-grid">
+
+
+                <!-- COLUNA DE PUBLICAÇÕES -->
+
+                <div class="feed-column">
+
+
+                    <!-- ==================================
+                         10.1 — COMUNICADOS
+                         ================================== -->
+
+                    <section
+                        class="section"
+                        id="comunicados"
+                        aria-labelledby="comunicados-title"
+                    >
+
+                        <div class="section-heading">
+
+                            <div>
+
+                                <p class="section-overline">
+                                    INFORMAÇÕES INSTITUCIONAIS
+                                </p>
+
+                                <h2 id="comunicados-title">
+                                    Comunicados
+                                </h2>
+
+                            </div>
+
+                            <span class="section-label">
+                                Em preparação
+                            </span>
+
+                        </div>
+
+
+                        <!-- PUBLICAÇÃO DEMONSTRATIVA -->
+
+                        <article class="post-card">
+
+                            <div class="post-header">
+
+                                <span
+                                    class="post-avatar"
+                                    aria-hidden="true"
+                                >✦</span>
+
+                                <div class="post-author">
+
+                                    <strong>
+                                        Equipe COJURIS
+                                    </strong>
+
+                                    <span>
+                                        Exemplo de comunicado institucional
+                                    </span>
+
+                                </div>
+
+                                <span class="sample-label">
+                                    EXEMPLO
+                                </span>
+
+                            </div>
+
+
+                            <span class="content-tag">
+                                Institucional
+                            </span>
+
+
+                            <h3>
+                                Um novo espaço para construir
+                                nossa comunidade
+                            </h3>
+
+
+                            <p>
+                                A Área Comum reunirá novidades
+                                da plataforma, informações da
+                                administração e oportunidades
+                                de participação.
+
+                                A proposta é manter todos
+                                informados com organização
+                                e transparência.
+                            </p>
+
+
+                            <div class="post-footer">
+
+                                <span>
+                                    Publicações oficiais em desenvolvimento
+                                </span>
+
+                                <span aria-hidden="true">✦</span>
+
+                            </div>
+
+                        </article>
+
+                    </section>
+
+
+
+                    <!-- ==================================
+                         10.2 — DISCUSSÕES
+                         ================================== -->
+
+                    <section
+                        class="section"
+                        id="discussoes"
+                        aria-labelledby="discussoes-title"
+                    >
+
+                        <div class="section-heading">
+
+                            <div>
+
+                                <p class="section-overline">
+                                    TROCA DE CONHECIMENTO
+                                </p>
+
+                                <h2 id="discussoes-title">
+                                    Discussões e comentários
+                                </h2>
+
+                            </div>
+
+                            <span class="section-label">
+                                Em preparação
+                            </span>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div
+                                class="feature-symbol feature-symbol-teal"
+                                aria-hidden="true"
+                            >◇</div>
+
+                            <div>
+
+                                <h3>
+                                    Conversas profissionais
+                                    com propósito
+                                </h3>
+
+                                <p>
+                                    Em uma próxima etapa,
+                                    participantes autorizados
+                                    poderão comentar comunicados
+                                    e trocar experiências em um
+                                    ambiente moderado e respeitoso.
+                                </p>
+
+                                <span class="feature-state">
+                                    Comentários ainda indisponíveis
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- ==================================
+                         10.3 — SUGESTÕES
+                         ================================== -->
+
+                    <section
+                        class="section"
+                        id="sugestoes"
+                        aria-labelledby="sugestoes-title"
+                    >
+
+                        <div class="section-heading">
+
+                            <div>
+
+                                <p class="section-overline">
+                                    SUA VOZ NA REDE
+                                </p>
+
+                                <h2 id="sugestoes-title">
+                                    Sugestões
+                                </h2>
+
+                            </div>
+
+                            <span class="section-label">
+                                Em preparação
+                            </span>
+
+                        </div>
+
+
+                        <div class="feature-card">
+
+                            <div
+                                class="feature-symbol feature-symbol-gold"
+                                aria-hidden="true"
+                            >✧</div>
+
+                            <div>
+
+                                <h3>
+                                    Boas ideias merecem espaço
+                                </h3>
+
+                                <p>
+                                    Este será o canal para apresentar
+                                    propostas de melhoria, contribuir
+                                    para novas funcionalidades e
+                                    participar da evolução da COJURIS.
+                                </p>
+
+                                <span class="feature-state">
+                                    Envio de sugestões em desenvolvimento
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+
+                <!-- ======================================
+                     11 — COLUNA INSTITUCIONAL
+                     ====================================== -->
+
+                <aside
+                    class="support-column"
+                    aria-label="Informações sobre a comunidade"
+                >
+
+
+                    <!-- SEGURANÇA PROFISSIONAL -->
+
+                    <section class="info-card">
+
+                        <span
+                            class="info-icon"
+                            aria-hidden="true"
+                        >✦</span>
+
+                        <h2>
+                            Uma comunidade de confiança
+                        </h2>
+
+                        <p>
+                            O acesso às futuras funcionalidades
+                            profissionais dependerá de aprovação
+                            e verificação da condição de advogado.
+                        </p>
+
+                        <div class="info-divider"></div>
+
+                        <p class="info-footnote">
+                            A autodeclaração no cadastro
+                            não constitui verificação profissional.
+                        </p>
+
+                    </section>
+
+
+
+                    <!-- ==================================
+                         11.1 — PLANEJAMENTO DA COJURIS
+                         ================================== -->
+
+                    <section class="roadmap-card">
+
+                        <p class="section-overline">
+                            NOSSO HORIZONTE
+                        </p>
+
+                        <h2>
+                            O futuro da COJURIS
+                        </h2>
+
+
+                        <ol class="roadmap">
+
+
+                            <!-- FASE 1 -->
+
+                            <li class="is-done">
+
+                                <span
+                                    class="roadmap-marker"
+                                    aria-hidden="true"
+                                >✓</span>
+
+                                <span>
+
+                                    <strong>
+                                        Cadastro simplificado
+                                    </strong>
+
+                                    <small>
+                                        Implementação inicial concluída
+                                    </small>
+
+                                </span>
+
+                            </li>
+
+
+                            <!-- FASE 2 -->
+
+                            <li class="is-now">
+
+                                <span
+                                    class="roadmap-marker"
+                                    aria-hidden="true"
+                                >2</span>
+
+                                <span>
+
+                                    <strong>
+                                        Comunidade profissional
+                                    </strong>
+
+                                    <small>
+                                        Em desenvolvimento
+                                    </small>
+
+                                </span>
+
+                            </li>
+
+
+                            <!-- FASE 3 -->
+
+                            <li>
+
+                                <span
+                                    class="roadmap-marker"
+                                    aria-hidden="true"
+                                >3</span>
+
+                                <span>
+
+                                    <strong>
+                                        Perfis e colaboração
+                                    </strong>
+
+                                    <small>
+                                        Próximas etapas
+                                    </small>
+
+                                </span>
+
+                            </li>
+
+
+                            <!-- FASE 4 -->
+
+                            <li>
+
+                                <span
+                                    class="roadmap-marker"
+                                    aria-hidden="true"
+                                >4</span>
+
+                                <span>
+
+                                    <strong>
+                                        Consolidação da rede
+                                    </strong>
+
+                                    <small>
+                                        Crescimento sustentável
+                                    </small>
+
+                                </span>
+
+                            </li>
+
+                        </ol>
+
+
+                        <p class="roadmap-note">
+                            A futura área de clientes será
+                            avaliada em etapa posterior,
+                            considerando a meta de
+                            1.000 cooperados verificados,
+                            a segurança da plataforma
+                            e a conformidade jurídica.
+                        </p>
+
+                    </section>
+
+                </aside>
+
+            </div>
+
+
+
+            <!-- ==========================================
+                 12 — RODAPÉ INSTITUCIONAL
+                 ========================================== -->
+
+            <footer class="page-footer">
+
+                <span>
+                    © COJURIS · Comunidade profissional
+                </span>
+
+                <span>
+                    Colaboração, confiança e transparência.
+                </span>
+
+            </footer>
+
+
+        </main>
+
+    </div>
+
+
+    <!-- ==================================================
+         13 — DIAGNÓSTICO DO AMBIENTE
+
+         O Firebase utiliza módulos JavaScript.
+
+         Ao abrir diretamente por file://, o navegador
+         pode impedir o carregamento desses módulos.
+
+         O uso do Live Server evita esse problema.
+         ================================================== -->
+
+    <script>
+        if (window.location.protocol === "file:") {
+
+            const mensagem = document.getElementById(
+                "comunidade-mensagem"
+            );
+
+            mensagem.textContent =
+                "Abra esta página pelo Live Server " +
+                "do VS Code para verificar sua sessão " +
+                "e acessar a comunidade.";
+        }
+    </script>
+
+
+    <!-- ==================================================
+         14 — AUTENTICAÇÃO FIREBASE
+
+         O módulo controla a liberação visual da página.
+
+         Não executa ainda publicações ou comentários.
+         ================================================== -->
+
+    <script
+        type="module"
+        src="./js/comunidade.js">
+    </script>
+
+</body>
+
+</html>

@@ -388,3 +388,795 @@ body.admin-page {
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ============================================================
+   COJURIS — ESTILOS ADMINISTRATIVOS
+
+   ARQUIVO: portal/css/admin.css
+
+   Este arquivo complementa portal.css.
+
+   01 — Variáveis visuais
+   02 — Estrutura geral
+   03 — Cabeçalho
+   04 — Área administrativa
+   05 — Indicadores
+   06 — Pesquisa e ferramentas
+   07 — Seleção e exclusão
+   08 — Cartões dos interessados
+   09 — Ações administrativas
+   10 — Controle de autorização
+   11 — Responsividade
+   12 — Acessibilidade
+   ============================================================ */
+
+
+/* ============================================================
+   01 — IDENTIDADE VISUAL
+
+   Paleta compatível com a comunidade e o portal.
+   ============================================================ */
+
+body.admin-page {
+
+    --admin-azul: #173a4c;
+    --admin-escuro: #102d3c;
+
+    --admin-turquesa: #1fb4b0;
+    --admin-turquesa-escuro: #118d8c;
+
+    --admin-fundo: #f3f7f9;
+    --admin-branco: #ffffff;
+
+    --admin-borda: #dfe9ed;
+    --admin-texto: #203d4c;
+    --admin-suave: #687f8c;
+
+    --admin-sombra:
+        0 12px 32px rgba(19, 49, 63, 0.07);
+
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    padding: 34px 20px;
+
+    background: var(--admin-fundo);
+    color: var(--admin-texto);
+}
+
+
+/* ============================================================
+   02 — ESTRUTURA PRINCIPAL
+   ============================================================ */
+
+.admin-page .admin-container {
+
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+}
+
+.admin-page [hidden] {
+    display: none !important;
+}
+
+
+/* ============================================================
+   03 — CABEÇALHO
+   ============================================================ */
+
+.admin-page .admin-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 32px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 22px;
+
+    background: var(--admin-branco);
+
+    box-shadow: var(--admin-sombra);
+}
+
+.admin-page .admin-header h1 {
+
+    margin: 8px 0;
+
+    color: var(--admin-azul);
+
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.admin-page .admin-subtitle {
+
+    color: var(--admin-turquesa-escuro);
+
+    font-size: 0.75rem;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+.admin-page .admin-header p {
+
+    line-height: 1.65;
+}
+
+.admin-page .admin-navegacao {
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-page .admin-navegacao .btn-form {
+    width: auto;
+    min-width: 160px;
+}
+
+
+/* ============================================================
+   04 — ÁREA DE GESTÃO
+   ============================================================ */
+
+.admin-page .admin-section {
+
+    margin-top: 22px;
+    padding: 32px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 22px;
+
+    background: var(--admin-branco);
+
+    box-shadow: var(--admin-sombra);
+}
+
+.admin-page .admin-section h2 {
+
+    margin: 7px 0;
+
+    color: var(--admin-azul);
+
+    font-size: 1.45rem;
+}
+
+.admin-descricao {
+
+    color: var(--admin-suave);
+
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.admin-page .admin-mensagem {
+
+    margin: 20px 0;
+
+    color: var(--admin-suave);
+
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   05 — INDICADORES
+
+   Exibem um resumo dos registros carregados.
+
+   A fonte dos números é admin.js.
+   ============================================================ */
+
+.admin-indicadores {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin: 24px 0;
+}
+
+.indicador-card {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 11px;
+
+    padding: 20px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 16px;
+
+    background: #f7fbfc;
+}
+
+.indicador-card span {
+
+    color: var(--admin-suave);
+
+    font-size: 0.79rem;
+    font-weight: 700;
+}
+
+.indicador-card strong {
+
+    color: var(--admin-azul);
+
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   06 — PESQUISA E FERRAMENTAS
+   ============================================================ */
+
+.admin-page .admin-ferramentas {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 15px;
+
+    margin-bottom: 18px;
+}
+
+.admin-filtros {
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+    gap: 10px;
+
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-filtros input,
+.admin-filtros select {
+
+    min-height: 45px;
+
+    padding: 11px 13px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 11px;
+
+    background: #f8fbfc;
+
+    color: var(--admin-texto);
+
+    font-size: 0.84rem;
+}
+
+.admin-filtros input {
+
+    flex: 1;
+    min-width: 190px;
+}
+
+.admin-filtros select {
+    max-width: 230px;
+}
+
+.admin-botoes {
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-page .btn-limpar-tela,
+.admin-page .btn-recarregar-lista {
+
+    min-height: 45px;
+
+    padding: 11px 15px;
+
+    border-radius: 11px;
+
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   07 — SELEÇÃO E EXCLUSÃO
+
+   Os checkboxes possuem dimensões próprias.
+
+   Não devem receber as regras de campos de texto.
+   ============================================================ */
+
+.admin-selecao {
+
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+    gap: 14px;
+
+    padding: 15px 17px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 14px;
+
+    background: #f7fafb;
+
+    margin-bottom: 13px;
+}
+
+.admin-selecionar-todos {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 10px;
+
+    color: var(--admin-texto);
+
+    font-size: 0.85rem;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.admin-page input[type="checkbox"] {
+
+    appearance: auto;
+    -webkit-appearance: checkbox;
+
+    flex-shrink: 0;
+
+    width: 20px;
+    height: 20px;
+
+    min-width: 20px;
+    min-height: 20px;
+
+    margin: 0;
+    padding: 0;
+
+    accent-color: var(--admin-turquesa-escuro);
+
+    cursor: pointer;
+}
+
+.contador-selecao {
+
+    color: var(--admin-suave);
+
+    font-size: 0.8rem;
+}
+
+.btn-excluir-selecionado {
+
+    min-height: 43px;
+
+    margin-left: auto;
+    padding: 11px 16px;
+
+    border: 1px solid #e4c3c7;
+    border-radius: 11px;
+
+    background: #fae7e9;
+    color: #963b46;
+
+    font-weight: 800;
+    font-size: 0.83rem;
+
+    cursor: pointer;
+}
+
+.btn-excluir-selecionado:hover:not(:disabled) {
+    background: #f4d8dc;
+}
+
+.btn-excluir-selecionado:disabled {
+
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.admin-aviso-exclusao {
+
+    margin-bottom: 22px;
+
+    color: var(--admin-suave);
+
+    font-size: 0.76rem;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   08 — CARTÕES DOS INTERESSADOS
+   ============================================================ */
+
+.admin-page .admin-lista {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+
+    gap: 16px;
+}
+
+.admin-page .admin-card {
+
+    min-width: 0;
+
+    padding: 23px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 18px;
+
+    background: var(--admin-branco);
+
+    box-shadow:
+        0 5px 18px rgba(19, 49, 63, 0.04);
+}
+
+.admin-card-cabecalho {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 11px;
+
+    margin-bottom: 15px;
+}
+
+.admin-card-selecao {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 9px;
+
+    width: fit-content;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+
+    color: var(--admin-suave);
+
+    cursor: pointer;
+}
+
+.admin-page .admin-card h3 {
+
+    margin: 0;
+
+    color: var(--admin-azul);
+
+    font-size: 1.08rem;
+    line-height: 1.45;
+}
+
+.admin-page .admin-card p {
+
+    margin: 9px 0;
+
+    color: #526c79;
+
+    font-size: 0.84rem;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+.admin-page .admin-card .admin-verificacao {
+
+    margin-top: 14px;
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    font-size: 0.79rem;
+    font-weight: 800;
+}
+
+.admin-verificacao.verificada {
+
+    background: #e4f7ed;
+    color: #176b48;
+}
+
+.admin-verificacao.nao-verificada {
+
+    background: #fff4df;
+    color: #976b24;
+}
+
+.admin-vazio {
+
+    grid-column: 1 / -1;
+
+    padding: 30px 18px;
+
+    border: 1px dashed var(--admin-borda);
+    border-radius: 15px;
+
+    color: var(--admin-suave);
+    text-align: center;
+}
+
+
+/* ============================================================
+   09 — BOTÕES DE AÇÃO
+   ============================================================ */
+
+.admin-page .admin-acoes {
+
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.admin-page .admin-acoes button {
+
+    flex: 1 1 125px;
+
+    min-height: 44px;
+
+    border-radius: 10px;
+
+    font-size: 0.83rem;
+    font-weight: 800;
+}
+
+.btn-verificar {
+
+    padding: 11px 14px;
+
+    border: 1px solid #b8e1dc;
+
+    background: #dcf5f1;
+
+    color: #147e75;
+}
+
+.btn-verificar:hover:not(:disabled) {
+    background: #c9eee7;
+}
+
+.admin-page button:disabled {
+
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   10 — TELA DE AUTORIZAÇÃO
+   ============================================================ */
+
+.admin-acesso {
+
+    display: grid;
+    place-items: center;
+
+    min-height: 320px;
+
+    padding: 30px 15px;
+}
+
+.admin-acesso-card {
+
+    width: 100%;
+    max-width: 430px;
+
+    padding: 35px 28px;
+
+    border: 1px solid var(--admin-borda);
+    border-radius: 20px;
+
+    background: var(--admin-branco);
+
+    box-shadow: var(--admin-sombra);
+
+    text-align: center;
+}
+
+.admin-acesso-card > span {
+
+    display: block;
+
+    color: var(--admin-turquesa-escuro);
+
+    font-size: 2rem;
+}
+
+.admin-acesso-card h2 {
+
+    margin: 12px 0;
+
+    color: var(--admin-azul);
+
+    font-size: 1.5rem;
+}
+
+.admin-acesso-card p {
+
+    margin: 15px 0;
+
+    color: var(--admin-suave);
+    line-height: 1.7;
+}
+
+.admin-acesso-card a {
+
+    display: inline-block;
+
+    margin-top: 12px;
+    padding: 12px 18px;
+
+    border: 1px solid #cce6e5;
+    border-radius: 11px;
+
+    background: #e8f7f5;
+
+    color: #127d7b;
+
+    font-weight: 700;
+    text-decoration: none;
+}
+
+
+/* ============================================================
+   11 — RESPONSIVIDADE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .admin-indicadores {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-page .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-page .admin-ferramentas {
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 600px) {
+
+    body.admin-page {
+        padding: 16px 12px;
+    }
+
+    .admin-page .admin-header,
+    .admin-page .admin-section {
+
+        padding: 21px 17px;
+
+        border-radius: 18px;
+    }
+
+    .admin-page .admin-navegacao {
+
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .admin-page .admin-navegacao .btn-form,
+    .admin-page .admin-navegacao .btn-area-cooperado {
+
+        width: 100%;
+        min-width: 0;
+
+        padding: 11px 8px;
+
+        font-size: 0.78rem;
+    }
+
+    .admin-indicadores {
+        gap: 9px;
+    }
+
+    .indicador-card {
+        padding: 15px;
+    }
+
+    .indicador-card strong {
+        font-size: 1.65rem;
+    }
+
+    .admin-filtros,
+    .admin-botoes {
+        width: 100%;
+    }
+
+    .admin-filtros input,
+    .admin-filtros select {
+        width: 100%;
+        max-width: none;
+    }
+
+    .admin-botoes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-selecao {
+        align-items: flex-start;
+    }
+
+    .btn-excluir-selecionado {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .admin-page .admin-lista {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ============================================================
+   12 — ACESSIBILIDADE
+   ============================================================ */
+
+.admin-page button:focus-visible,
+.admin-page a:focus-visible,
+.admin-page input:focus-visible,
+.admin-page select:focus-visible {
+
+    outline: 3px solid rgba(31, 180, 176, 0.65);
+    outline-offset: 3px;
+}
+
+.sr-only {
+
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .admin-page *,
+    .admin-page *::before,
+    .admin-page *::after {
+
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
