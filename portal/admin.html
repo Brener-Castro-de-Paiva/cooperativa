@@ -59,9 +59,21 @@
             </div>
 
 
-            <!-- NAVEGAÇÃO -->
+        
+            <!-- ==================================================
+                NAVEGAÇÃO DO PAINEL ADMINISTRATIVO
+
+                01 — Área do Cooperado
+                02 — Gerenciamento de comunicados
+                03 — Encerramento de sessão
+
+                Os identificadores existentes são preservados
+                para garantir a compatibilidade com admin.js.
+                ================================================== -->
 
             <div class="admin-navegacao">
+
+                <!-- 01 — ÁREA DO COOPERADO -->
 
                 <a
                     href="./painel.html"
@@ -70,6 +82,20 @@
                     <span aria-hidden="true">◉</span>
                     Área do Cooperado
                 </a>
+
+
+                <!-- 02 — GERENCIAMENTO DE COMUNICADOS -->
+
+                <a
+                    href="./comunicados.html"
+                    class="btn-area-cooperado"
+                >
+                    <span aria-hidden="true">◈</span>
+                    Gerenciar comunicados
+                </a>
+
+
+                <!-- 03 — ENCERRAR SESSÃO -->
 
                 <button
                     id="admin-sair"
@@ -81,6 +107,7 @@
                 </button>
 
             </div>
+
 
         </header>
 

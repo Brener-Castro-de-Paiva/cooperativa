@@ -1,0 +1,520 @@
+
+/* ============================================================
+   COJURIS — COMUNICADOS OFICIAIS
+
+   ARQUIVO: portal/css/comunicados.css
+
+   01 — Variáveis e reset
+   02 — Autorização
+   03 — Estrutura
+   04 — Cabeçalho
+   05 — Perfis
+   06 — Formulário
+   07 — Comunicados
+   08 — Botões
+   09 — Rodapé
+   10 — Responsividade
+   ============================================================ */
+
+
+/* ============================================================
+   01 — CONFIGURAÇÕES GERAIS
+   ============================================================ */
+
+:root {
+    --azul: #173a4c;
+    --azul-escuro: #102d3c;
+    --turquesa: #1fb4b0;
+    --turquesa-escuro: #127f7d;
+
+    --fundo: #f3f7f9;
+    --branco: #ffffff;
+    --borda: #dce8ed;
+
+    --texto: #1c3948;
+    --muted: #647d8b;
+
+    --sombra: 0 12px 32px rgba(15, 45, 60, .07);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background: var(--fundo);
+    color: var(--texto);
+
+    font-family:
+        Inter, "Segoe UI", Arial, sans-serif;
+
+    line-height: 1.6;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+}
+
+
+/* ============================================================
+   02 — TELA DE AUTORIZAÇÃO
+   ============================================================ */
+
+.tela-acesso {
+    display: grid;
+    place-items: center;
+
+    min-height: 100vh;
+    padding: 20px;
+
+    background: linear-gradient(
+        145deg,
+        #102d3c,
+        #174b5b,
+        #12837f
+    );
+}
+
+.acesso-card {
+    width: 100%;
+    max-width: 420px;
+
+    padding: 40px 30px;
+    border-radius: 22px;
+
+    background: var(--branco);
+    text-align: center;
+}
+
+.logo-simbolo {
+    color: var(--turquesa-escuro);
+    font-size: 2.3rem;
+}
+
+.acesso-card h1 {
+    color: var(--azul);
+    letter-spacing: 2px;
+}
+
+.acesso-card p {
+    color: var(--muted);
+}
+
+.acesso-card a {
+    display: inline-block;
+    margin-top: 15px;
+
+    padding: 11px 17px;
+    border-radius: 10px;
+
+    background: #e7f6f4;
+    color: var(--turquesa-escuro);
+
+    text-decoration: none;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   03 — ESTRUTURA PRINCIPAL
+   ============================================================ */
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 22px;
+}
+
+
+/* ============================================================
+   04 — CABEÇALHO
+   ============================================================ */
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    padding: 34px;
+    border-radius: 22px;
+
+    color: var(--branco);
+
+    background: linear-gradient(
+        115deg,
+        #102d3c,
+        #205366
+    );
+}
+
+.marca {
+    color: #59d8cf;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.subtitulo {
+    margin: 0;
+    font-size: .69rem;
+    letter-spacing: 2px;
+}
+
+.identidade h1 {
+    margin: 17px 0 8px;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+.descricao {
+    max-width: 530px;
+    color: #d5e6ec;
+}
+
+.navegacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.navegacao a {
+    padding: 11px 15px;
+
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 11px;
+
+    text-decoration: none;
+    font-weight: 700;
+    font-size: .84rem;
+}
+
+.navegacao a:hover {
+    background: rgba(255,255,255,.12);
+}
+
+
+/* ============================================================
+   05 — IDENTIFICAÇÃO DO ACESSO
+   ============================================================ */
+
+.faixa-acesso {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    margin: 20px 0;
+    padding: 13px 18px;
+
+    border: 1px solid var(--borda);
+    border-radius: 13px;
+
+    background: var(--branco);
+
+    color: var(--muted);
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   06 — FORMULÁRIO ADMINISTRATIVO
+   ============================================================ */
+
+.painel-publicacao,
+.secao-comunicados {
+    margin: 20px 0;
+    padding: 28px;
+
+    border: 1px solid var(--borda);
+    border-radius: 20px;
+
+    background: var(--branco);
+    box-shadow: var(--sombra);
+}
+
+.rotulo {
+    margin: 0;
+
+    color: var(--turquesa-escuro);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+}
+
+.cabecalho-secao h2,
+.cabecalho-listagem h2 {
+    margin: 8px 0;
+    color: var(--azul);
+}
+
+.cabecalho-secao > p:last-child {
+    color: var(--muted);
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    margin: 18px 0;
+}
+
+.campo label {
+    color: var(--azul);
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+    padding: 13px 15px;
+
+    border: 1px solid #cbdfe6;
+    border-radius: 11px;
+
+    background: #f9fcfd;
+    color: var(--texto);
+}
+
+.campo textarea {
+    min-height: 170px;
+    resize: vertical;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    outline: 2px solid var(--turquesa);
+    outline-offset: 2px;
+}
+
+
+/* ============================================================
+   07 — LISTAGEM DE COMUNICADOS
+   ============================================================ */
+
+.cabecalho-listagem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.mensagem-listagem {
+    color: var(--muted);
+    font-size: .85rem;
+}
+
+.lista-comunicados {
+    display: grid;
+    gap: 16px;
+
+    margin-top: 17px;
+}
+
+.cartao-comunicado {
+    padding: 25px;
+
+    border: 1px solid var(--borda);
+    border-radius: 17px;
+
+    background: var(--branco);
+}
+
+.cartao-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cartao-identificacao {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--azul);
+}
+
+.marca-publicacao {
+    display: grid;
+    place-items: center;
+
+    width: 35px;
+    height: 35px;
+
+    border-radius: 10px;
+
+    background: #def4f1;
+    color: var(--turquesa-escuro);
+}
+
+.data-publicacao {
+    color: var(--muted);
+    font-size: .77rem;
+}
+
+.titulo-comunicado {
+    margin: 19px 0 10px;
+
+    color: var(--azul);
+    font-size: 1.15rem;
+}
+
+.conteudo-comunicado {
+    color: #4c6775;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.acoes-comunicado {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 23px;
+    padding-top: 17px;
+
+    border-top: 1px solid var(--borda);
+}
+
+
+/* ============================================================
+   08 — BOTÕES
+   ============================================================ */
+
+.acoes-formulario {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.botao-primario,
+.botao-secundario,
+.botao-excluir {
+    min-height: 44px;
+
+    padding: 11px 17px;
+    border-radius: 11px;
+
+    font-size: .84rem;
+    font-weight: 800;
+}
+
+.botao-primario {
+    border: 1px solid var(--turquesa-escuro);
+
+    background: var(--turquesa-escuro);
+    color: white;
+}
+
+.botao-secundario {
+    border: 1px solid #d0e3e6;
+
+    background: #edf7f7;
+    color: #166e70;
+}
+
+.botao-excluir {
+    border: 1px solid #eac7cd;
+
+    background: #fff1f2;
+    color: #a34450;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.botao-carregar {
+    display: block;
+    margin: 20px auto 0;
+}
+
+
+/* ============================================================
+   09 — RODAPÉ
+   ============================================================ */
+
+.rodape {
+    display: flex;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-top: 35px;
+    padding: 20px 5px;
+
+    color: var(--muted);
+    font-size: .78rem;
+}
+
+
+/* ============================================================
+   10 — RESPONSIVIDADE
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+    .container {
+        padding: 15px 12px;
+    }
+
+    .cabecalho {
+        flex-direction: column;
+        align-items: stretch;
+
+        padding: 25px 21px;
+    }
+
+    .painel-publicacao,
+    .secao-comunicados {
+        padding: 20px 16px;
+    }
+
+    .navegacao a {
+        flex: 1;
+        text-align: center;
+    }
+
+    .acoes-formulario button {
+        flex: 1 1 100%;
+    }
+
+    .cartao-comunicado {
+        padding: 19px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}

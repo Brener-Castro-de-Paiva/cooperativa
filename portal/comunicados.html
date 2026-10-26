@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- ==========================================
+         01 — CONFIGURAÇÕES DA PÁGINA
+         ========================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta name="theme-color" content="#102d3c">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta
+        name="description"
+        content="Comunicados oficiais da comunidade COJURIS."
+    >
+
+    <title>Comunicados | COJURIS</title>
+
+    <link rel="stylesheet" href="./css/comunicados.css">
+</head>
+
+<body>
+
+    <!-- ==========================================
+         02 — VERIFICAÇÃO DE ACESSO
+         ========================================== -->
+
+    <section id="tela-acesso" class="tela-acesso">
+
+        <div class="acesso-card">
+
+            <div class="logo-simbolo">✦</div>
+
+            <h1>COJURIS</h1>
+
+            <p id="mensagem-acesso" role="status">
+                Verificando sua autorização...
+            </p>
+
+            <a href="./painel.html">
+                Voltar ao meu painel
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         03 — CONTEÚDO PROTEGIDO
+
+         O JavaScript libera esta área somente
+         para usuários autorizados.
+         ========================================== -->
+
+    <main id="aplicacao" class="container" hidden>
+
+        <!-- CABEÇALHO -->
+
+        <header class="cabecalho">
+
+            <div class="identidade">
+
+                <span class="marca">✦ COJURIS</span>
+
+                <p class="subtitulo">
+                    REDE PROFISSIONAL
+                </p>
+
+                <h1>Comunicados</h1>
+
+                <p class="descricao">
+                    Informações oficiais e atualizações
+                    institucionais da comunidade.
+                </p>
+
+            </div>
+
+            <nav
+                class="navegacao"
+                aria-label="Navegação principal"
+            >
+
+                <a href="./comunidade.html">
+                    Comunidade
+                </a>
+
+                <a href="./painel.html">
+                    Meu painel
+                </a>
+
+                <a
+                    href="./admin.html"
+                    id="link-administracao"
+                    hidden
+                >
+                    Administração
+                </a>
+
+            </nav>
+
+        </header>
+
+
+        <!-- ======================================
+             04 — IDENTIFICAÇÃO DAS PERMISSÕES
+             ====================================== -->
+
+        <div class="faixa-acesso">
+
+            <span id="perfil-acesso">
+                Comunidade COJURIS
+            </span>
+
+            <span id="quantidade-comunicados">
+                Comunicados oficiais
+            </span>
+
+        </div>
+
+
+        <!-- ======================================
+             05 — FORMULÁRIO ADMINISTRATIVO
+
+             Somente administradores autorizados
+             poderão visualizar e utilizar esta seção.
+             ====================================== -->
+
+        <section
+            id="area-publicacao"
+            class="painel-publicacao"
+            aria-labelledby="titulo-publicacao"
+            hidden
+        >
+
+            <div class="cabecalho-secao">
+
+                <p class="rotulo">
+                    ADMINISTRAÇÃO
+                </p>
+
+                <h2 id="titulo-publicacao">
+                    Publicar comunicado
+                </h2>
+
+                <p>
+                    Compartilhe informações institucionais
+                    com os participantes da COJURIS.
+                </p>
+
+            </div>
+
+
+            <form id="form-comunicado">
+
+                <div class="campo">
+
+                    <label for="titulo-comunicado">
+                        Título do comunicado
+                    </label>
+
+                    <input
+                        id="titulo-comunicado"
+                        name="titulo"
+                        type="text"
+                        minlength="5"
+                        maxlength="150"
+                        placeholder="Informe o título"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="conteudo-comunicado">
+                        Conteúdo
+                    </label>
+
+                    <textarea
+                        id="conteudo-comunicado"
+                        name="conteudo"
+                        minlength="10"
+                        maxlength="10000"
+                        rows="7"
+                        placeholder="Escreva o comunicado institucional"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <div class="acoes-formulario">
+
+                    <button
+                        id="btn-publicar"
+                        class="botao-primario"
+                        type="submit"
+                    >
+                        Publicar comunicado
+                    </button>
+
+                    <button
+                        class="botao-secundario"
+                        type="reset"
+                    >
+                        Limpar campos
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- ======================================
+             06 — LISTAGEM DOS COMUNICADOS
+             ====================================== -->
+
+        <section
+            class="secao-comunicados"
+            aria-labelledby="titulo-listagem"
+        >
+
+            <div class="cabecalho-listagem">
+
+                <div>
+
+                    <p class="rotulo">
+                        INFORMAÇÕES INSTITUCIONAIS
+                    </p>
+
+                    <h2 id="titulo-listagem">
+                        Publicações oficiais
+                    </h2>
+
+                </div>
+
+                <button
+                    id="btn-atualizar"
+                    type="button"
+                    class="botao-secundario"
+                    disabled
+                >
+                    Atualizar
+                </button>
+
+            </div>
+
+            <p
+                id="mensagem-listagem"
+                class="mensagem-listagem"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+            <div
+                id="lista-comunicados"
+                class="lista-comunicados"
+            ></div>
+
+            <button
+                id="btn-carregar-mais"
+                type="button"
+                class="botao-secundario botao-carregar"
+                hidden
+            >
+                Carregar mais comunicados
+            </button>
+
+        </section>
+
+
+        <!-- RODAPÉ -->
+
+        <footer class="rodape">
+            <span>© COJURIS · Comunidade profissional</span>
+            <span>Ética, colaboração e confiança.</span>
+        </footer>
+
+    </main>
+
+
+    <!-- ==========================================
+         07 — INTEGRAÇÃO FIREBASE
+         ========================================== -->
+
+    <script
+        type="module"
+        src="./js/comunicados.js"
+    ></script>
+
+</body>
+
+</html>
