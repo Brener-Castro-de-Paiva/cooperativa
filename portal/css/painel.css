@@ -155,6 +155,7 @@ body.cooperado-page {
     line-height: 1.2;
     letter-spacing: -0.8px;
     overflow-wrap: anywhere;
+    text-transform: capitalize; /* deixa a 1ª letra de cada palavra maiúscula */
 }
 
 .status-chip {
