@@ -3,25 +3,28 @@
    COJURIS — NOTIFICAÇÕES INTERNAS
    Arquivo: portal/css/notificacoes.css
 
-   Interface:
-   - Sino discreto no cabeçalho
+   DESIGN:
+   - Sino pequeno e discreto
    - Contador turquesa
-   - Painel suspenso
-   - Lista compacta de comunicados
-   - Hierarquia tipográfica refinada
-   - Responsividade
+   - Janela suspensa
+   - Lista minimalista
+   - Título e data em linhas separadas
+   - Botão × nos itens visualizados
+   - Layout responsivo
 
-   Este arquivo não modifica permissões nem dados.
+   Não modifica dados nem permissões.
    ============================================================ */
 
 
-/* 01 — BASE */
+/* ============================================================
+   01 — CONFIGURAÇÃO GERAL
+   ============================================================ */
 
 .cojuris-notificacoes {
-    --notif-azul: #173a4c;
-    --notif-muted: #7b8f9a;
-    --notif-teal: #139b95;
-    --notif-border: #e7eef1;
+    --notif-principal: #173a4c;
+    --notif-secundaria: #708793;
+    --notif-destaque: #159c96;
+    --notif-borda: #e8eef1;
 
     position: relative;
     display: inline-flex;
@@ -29,21 +32,26 @@
     flex-shrink: 0;
     z-index: 100;
 
+    margin: 0;
+    padding: 0;
+
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
     font-size: 12px;
     line-height: 1.45;
 }
 
-/* Sino fora de um cabeçalho conhecido */
+
+/* Sino fora de um cabeçalho reconhecido */
 
 .cojuris-notificacoes-flutuantes {
     position: fixed;
-    top: 16px;
+    top: 18px;
     right: 20px;
     z-index: 1500;
 }
 
-/* Sino dentro do cabeçalho */
+
+/* Sino no cabeçalho */
 
 .cojuris-notificacoes-integradas {
     position: relative;
@@ -52,7 +60,9 @@
 }
 
 
-/* 02 — BOTÃO DO SINO */
+/* ============================================================
+   02 — SINO
+   ============================================================ */
 
 .cojuris-notificacoes .cojuris-sino {
     position: relative;
@@ -72,7 +82,7 @@
     border-radius: 11px;
 
     background: #ffffff;
-    color: var(--notif-azul);
+    color: var(--notif-principal);
 
     box-shadow: none;
 
@@ -80,8 +90,8 @@
     appearance: none;
 
     transition:
-        background-color .2s ease,
-        border-color .2s ease;
+        background-color 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .cojuris-notificacoes .cojuris-sino:hover {
@@ -93,11 +103,12 @@
     display: block;
     width: 19px;
     height: 19px;
-    stroke: currentColor;
 }
 
 
-/* 03 — CONTADOR NUMÉRICO */
+/* ============================================================
+   03 — CONTADOR
+   ============================================================ */
 
 .cojuris-notificacoes .cojuris-contador {
     position: absolute;
@@ -109,15 +120,16 @@
     justify-content: center;
 
     box-sizing: border-box;
+
     min-width: 18px;
     height: 18px;
     padding: 0 4px;
 
-    border: 2px solid #fff;
+    border: 2px solid #ffffff;
     border-radius: 999px;
 
-    background: var(--notif-teal);
-    color: #fff;
+    background: var(--notif-destaque);
+    color: #ffffff;
 
     font-family: inherit;
     font-size: 10px;
@@ -126,11 +138,9 @@
 }
 
 
-/* 04 — PAINEL SUSPENSO
-
-   O JavaScript calcula top, left e width.
-   O painel não desloca os elementos do cabeçalho.
-*/
+/* ============================================================
+   04 — PAINEL SUSPENSO
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacoes-painel {
@@ -138,6 +148,7 @@
     z-index: 2100;
 
     display: block;
+
     box-sizing: border-box;
 
     width: 350px;
@@ -150,34 +161,35 @@
     overflow-x: hidden;
     overflow-y: auto;
 
-    border: 1px solid #e0e9ed;
-    border-radius: 14px;
+    border: 1px solid #e1e9ed;
+    border-radius: 15px;
 
     background: #ffffff;
-    color: var(--notif-azul);
+    color: var(--notif-principal);
 
     box-shadow:
-        0 16px 44px rgba(16, 45, 60, .13);
+        0 14px 38px rgba(16, 45, 60, 0.13);
 
     text-align: left;
 }
 
 
-/* 05 — CABEÇALHO DO PAINEL */
+/* ============================================================
+   05 — CABEÇALHO DO PAINEL
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacoes-cabecalho {
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: space-between;
 
     gap: 10px;
 
     margin: 0;
-    padding: 13px 15px;
+    padding: 14px 16px 12px;
 
-    border-bottom: 1px solid var(--notif-border);
+    border-bottom: 1px solid var(--notif-borda);
 }
 
 .cojuris-notificacoes
@@ -188,10 +200,13 @@
     color: #102d3c;
 
     font-family: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 650;
     line-height: 1.35;
 }
+
+
+/* Botão que fecha a janela inteira */
 
 .cojuris-notificacoes
 .cojuris-notificacoes-fechar {
@@ -202,14 +217,14 @@
     width: 26px;
     height: 26px;
 
-    padding: 0;
     margin: 0;
+    padding: 0;
 
-    border: 0;
+    border: none;
     border-radius: 7px;
 
     background: transparent;
-    color: #8498a2;
+    color: #8296a0;
 
     font-family: inherit;
     font-size: 19px;
@@ -221,23 +236,25 @@
 
 .cojuris-notificacoes
 .cojuris-notificacoes-fechar:hover {
-    background: #f2f6f7;
-    color: #173a4c;
+    background: #f1f5f6;
+    color: var(--notif-principal);
 }
 
 
-/* 06 — TEXTO DE RESUMO */
+/* ============================================================
+   06 — MENSAGEM RESUMIDA
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacoes-mensagem {
     display: block;
 
     margin: 0;
-    padding: 10px 15px;
+    padding: 10px 16px;
 
     border-bottom: 1px solid #f0f3f5;
 
-    color: var(--notif-muted);
+    color: var(--notif-secundaria);
 
     font-family: inherit;
     font-size: 11px;
@@ -246,7 +263,9 @@
 }
 
 
-/* 07 — LISTA VERTICAL */
+/* ============================================================
+   07 — LISTAGEM
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacoes-lista {
@@ -255,6 +274,7 @@
     align-items: stretch;
 
     width: 100%;
+
     margin: 0;
     padding: 0;
 
@@ -262,9 +282,57 @@
 }
 
 
-/* 08 — LINHA DE COMUNICADO */
+/* ============================================================
+   08 — LINHA COMPLETA
+
+   Um item possui dois botões independentes:
+   - Abrir comunicado
+   - Dispensar notificação
+   ============================================================ */
 
 .cojuris-notificacoes
+.cojuris-notificacao-linha {
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    box-sizing: border-box;
+
+    width: 100%;
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    border-bottom: 1px solid var(--notif-borda);
+
+    background: #ffffff;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao-linha:last-child {
+    border-bottom: none;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao-linha.nao-lida {
+    background: #f7fbfa;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao-linha:hover {
+    background: #f5faf9;
+}
+
+
+/* ============================================================
+   09 — BOTÃO PARA ABRIR O COMUNICADO
+   ============================================================ */
+
+.cojuris-notificacoes
+.cojuris-notificacao-linha
 .cojuris-notificacao {
     position: relative;
 
@@ -273,29 +341,32 @@
     align-items: stretch;
     justify-content: center;
 
-    gap: 4px;
+    flex: 1 1 auto;
+
+    gap: 3px;
+
+    min-width: 0;
+    min-height: 64px;
+    width: auto;
 
     box-sizing: border-box;
 
-    width: 100%;
-    min-height: 62px;
-
     margin: 0;
-    padding: 12px 15px 12px 29px;
+    padding: 12px 6px 12px 29px;
 
     border: 0;
-    border-bottom: 1px solid var(--notif-border);
     border-radius: 0;
 
-    background: #ffffff;
-    color: var(--notif-azul);
+    background: transparent;
+    color: var(--notif-principal);
 
     box-shadow: none;
 
     font-family: inherit;
     font-size: 12px;
     font-weight: 400;
-    line-height: 1.45;
+    line-height: 1.4;
+
     text-align: left;
     text-transform: none;
     letter-spacing: normal;
@@ -305,32 +376,25 @@
     appearance: none;
 }
 
-.cojuris-notificacoes
-.cojuris-notificacao:last-child {
-    border-bottom: 0;
-}
 
-.cojuris-notificacoes
-.cojuris-notificacao:hover:not(:disabled) {
-    background: #f5faf9;
-}
-
-
-/* 09 — LINHA SUPERIOR */
+/* ============================================================
+   10 — CATEGORIA E STATUS
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacao-topo {
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: flex-end;
 
     width: 100%;
+
     margin: 0;
     padding: 0;
 }
 
-/* A categoria é redundante na lista compacta */
+
+/* A categoria é dispensável na lista compacta */
 
 .cojuris-notificacoes
 .cojuris-notificacao-categoria {
@@ -346,9 +410,10 @@
 
     border: 0;
     border-radius: 0;
+
     background: transparent;
 
-    color: var(--notif-teal);
+    color: var(--notif-destaque);
 
     font-family: inherit;
     font-size: 10px;
@@ -357,17 +422,20 @@
 }
 
 
-/* 10 — TÍTULO */
+/* ============================================================
+   11 — TÍTULO
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacao-titulo {
     display: block;
 
     width: 100%;
+
     margin: 0;
     padding: 0;
 
-    color: #193d4f;
+    color: #173a4c;
 
     font-family: inherit;
     font-size: 12px;
@@ -378,74 +446,134 @@
 }
 
 
-/* 11 — DATA */
+/* ============================================================
+   12 — DATA
+   ============================================================ */
 
 .cojuris-notificacoes
 .cojuris-notificacao-data {
     display: block;
 
     width: 100%;
+
     margin: 0;
     padding: 0;
 
-    color: var(--notif-muted);
+    color: #8295a0;
 
     font-family: inherit;
     font-size: 10px;
     font-weight: 400;
-    line-height: 1.45;
+    line-height: 1.5;
 }
 
 
-/* 12 — NOVO E VISUALIZADO */
+/* ============================================================
+   13 — NÃO LIDO
+
+   Pequeno indicador turquesa à esquerda.
+   ============================================================ */
 
 .cojuris-notificacoes
-.cojuris-notificacao.nao-lida {
-    background: #f7fbfa;
-}
-
-.cojuris-notificacoes
-.cojuris-notificacao.nao-lida::before {
+.cojuris-notificacao-linha.nao-lida::before {
     content: "";
 
     position: absolute;
+
     top: 24px;
     left: 15px;
 
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
 
     border-radius: 50%;
-    background: var(--notif-teal);
+
+    background: var(--notif-destaque);
 }
 
 .cojuris-notificacoes
-.cojuris-notificacao.lida {
-    background: #ffffff;
-}
-
-.cojuris-notificacoes
-.cojuris-notificacao.lida
+.cojuris-notificacao-linha.lida
 .cojuris-notificacao-estado {
     display: none;
 }
 
 
-/* 13 — INTERAÇÃO E ACESSIBILIDADE */
+/* ============================================================
+   14 — BOTÃO × INDIVIDUAL
+
+   Aparece somente em itens visualizados.
+   O JavaScript decide quando criá-lo.
+   ============================================================ */
 
 .cojuris-notificacoes
-.cojuris-notificacao:disabled {
-    opacity: .6;
+.cojuris-notificacao-dispensar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 28px;
+
+    width: 28px;
+    height: 28px;
+
+    margin: 0 11px 0 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 7px;
+
+    background: transparent;
+    color: #91a1a9;
+
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1;
+
+    cursor: pointer;
+    appearance: none;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao-dispensar:hover:not(:disabled) {
+    background: #eaf1f3;
+    color: #173a4c;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao-dispensar:disabled {
+    opacity: 0.45;
     cursor: wait;
 }
 
+
+/* ============================================================
+   15 — ERROS E ACESSIBILIDADE
+   ============================================================ */
+
 .cojuris-notificacoes button:focus-visible {
-    outline: 2px solid var(--notif-teal);
+    outline: 2px solid var(--notif-destaque);
     outline-offset: -2px;
 }
 
+.cojuris-notificacoes
+.cojuris-notificacao:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
 
-/* 14 — ELEMENTOS OCULTOS */
+
+/* ============================================================
+   16 — ELEMENTOS OCULTOS
+
+   Regra fundamental:
+   protege a visibilidade do componente e
+   permite fechar a janela corretamente.
+   ============================================================ */
 
 .cojuris-notificacoes[hidden],
 .cojuris-notificacoes [hidden] {
@@ -453,7 +581,9 @@
 }
 
 
-/* 15 — CELULARES */
+/* ============================================================
+   17 — TELAS MENORES
+   ============================================================ */
 
 @media (max-width: 760px) {
 
@@ -470,19 +600,32 @@
     .cojuris-notificacoes
     .cojuris-notificacoes-painel {
         max-width: calc(100vw - 20px);
+        border-radius: 13px;
     }
 
     .cojuris-notificacoes
+    .cojuris-notificacao-linha
     .cojuris-notificacao {
         padding-top: 11px;
         padding-bottom: 11px;
     }
+
+    .cojuris-notificacoes
+    .cojuris-notificacao-dispensar {
+        flex-basis: 30px;
+        width: 30px;
+        height: 30px;
+        margin-right: 8px;
+    }
 }
 
 
-/* 16 — ANIMAÇÕES REDUZIDAS */
+/* ============================================================
+   18 — REDUÇÃO DE MOVIMENTO
+   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
+
     .cojuris-notificacoes * {
         transition: none !important;
         animation: none !important;

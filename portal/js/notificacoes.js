@@ -1,42 +1,34 @@
 
 /* ============================================================
-   COJURIS — SISTEMA DE NOTIFICAÇÕES INTERNAS
+   COJURIS — NOTIFICAÇÕES INTERNAS
+   Arquivo: portal/js/notificacoes.js
 
-   ARQUIVO: portal/js/notificacoes.js
+   FUNCIONALIDADES:
+   01 — Firebase e configuração
+   02 — Estado individual da sessão
+   03 — Construção do sino e painel
+   04 — Posicionamento no cabeçalho
+   05 — Autorização
+   06 — Contador de não lidos
+   07 — Registro de leitura
+   08 — Dispensa individual de notificações
+   09 — Lista visual
+   10 — Observadores em tempo real
+   11 — Controle de sessão
+   12 — Acessibilidade e eventos
 
-   FUNCIONALIDADES PRESERVADAS:
-   - Autenticação pelo Firebase Authentication
-   - Controle de acesso por perfil
-   - Sino integrado ao cabeçalho
-   - Contador individual de comunicados não lidos
-   - Atualização em tempo real
-   - Histórico individual de leitura
-   - Navegação para os comunicados
-   - Encerramento de consultas ao trocar de sessão
-
-   MELHORIAS:
-   - Estrutura visual organizada
-   - Dropdown elegante e responsivo
-   - Posicionamento correto da janela
-   - Mensagens claras e profissionais
-   - Separação completa entre JavaScript e CSS
-   - Tratamento de falhas nas consultas
-
-   SEGURANÇA:
-   Os registros são protegidos pelas regras
-   do Firestore. Esconder elementos no navegador
-   não substitui a autorização no banco.
+   IMPORTANTE:
+   - Dispensar não exclui comunicados.
+   - O administrador continua com gestão separada.
+   - O Firestore valida todas as operações.
    ============================================================ */
 
 
 // ============================================================
-// 01 — IMPORTAÇÕES DO FIREBASE
+// 01 — FIREBASE
 // ============================================================
 
-import {
-    auth,
-    db
-} from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 
 import {
     onAuthStateChanged
@@ -51,6 +43,7 @@ import {
     orderBy,
     limit,
     setDoc,
+    updateDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
@@ -58,9 +51,8 @@ import {
 // ============================================================
 // 02 — CONFIGURAÇÕES
 //
-// A consulta limita-se aos 20 comunicados mais
-// recentes. O contador representa esse conjunto,
-// não necessariamente todo o histórico.
+// O contador representa os 20 comunicados
+// mais recentes, não todo o acervo histórico.
 // ============================================================
 
 const LIMITE_COMUNICADOS = 20;
@@ -79,6 +71,8 @@ let comunicados = [];
 
 let idsLidos = new Set();
 
+let idsDispensados = new Set();
+
 let cancelarComunicados = null;
 
 let cancelarLeituras = null;
@@ -94,11 +88,16 @@ let erroComunicados = false;
 let erroLeituras = false;
 
 
+// Evita duas operações simultâneas no mesmo item.
+
+const operacoesEmAndamento = new Set();
+
+
 // ============================================================
-// 04 — CRIAÇÃO SEGURA DOS ELEMENTOS
+// 04 — FUNÇÃO SEGURA DE CRIAÇÃO DE ELEMENTOS
 //
-// O texto obtido do Firestore será inserido por
-// textContent, sem interpretação como HTML.
+// Dados recebidos do Firebase são inseridos
+// com textContent, nunca como HTML executável.
 // ============================================================
 
 function criarElemento(
@@ -122,7 +121,7 @@ function criarElemento(
 
 
 // ============================================================
-// 05 — CONSTRUÇÃO DO COMPONENTE
+// 05 — CONSTRUÇÃO DA INTERFACE
 // ============================================================
 
 const componente = criarElemento(
@@ -131,11 +130,6 @@ const componente = criarElemento(
 );
 
 componente.hidden = true;
-
-componente.setAttribute(
-    "aria-label",
-    "Notificações da COJURIS"
-);
 
 
 // ------------------------------------------------------------
@@ -162,11 +156,13 @@ sino.setAttribute(
 );
 
 
-// Ícone institucional, sem dependência de fontes
-// externas ou imagens adicionais.
+// Ícone SVG estático da própria aplicação.
+
+const namespaceSvg =
+    "http://www.w3.org/2000/svg";
 
 const iconeSino = document.createElementNS(
-    "http://www.w3.org/2000/svg",
+    namespaceSvg,
     "svg"
 );
 
@@ -175,48 +171,17 @@ iconeSino.setAttribute(
     "0 0 24 24"
 );
 
-iconeSino.setAttribute(
-    "width",
-    "21"
-);
-
-iconeSino.setAttribute(
-    "height",
-    "21"
-);
-
-iconeSino.setAttribute(
-    "fill",
-    "none"
-);
-
-iconeSino.setAttribute(
-    "stroke",
-    "currentColor"
-);
-
-iconeSino.setAttribute(
-    "stroke-width",
-    "1.8"
-);
-
-iconeSino.setAttribute(
-    "stroke-linecap",
-    "round"
-);
-
-iconeSino.setAttribute(
-    "stroke-linejoin",
-    "round"
-);
-
-iconeSino.setAttribute(
-    "aria-hidden",
-    "true"
-);
+iconeSino.setAttribute("width", "21");
+iconeSino.setAttribute("height", "21");
+iconeSino.setAttribute("fill", "none");
+iconeSino.setAttribute("stroke", "currentColor");
+iconeSino.setAttribute("stroke-width", "1.8");
+iconeSino.setAttribute("stroke-linecap", "round");
+iconeSino.setAttribute("stroke-linejoin", "round");
+iconeSino.setAttribute("aria-hidden", "true");
 
 const caminhoSino = document.createElementNS(
-    "http://www.w3.org/2000/svg",
+    namespaceSvg,
     "path"
 );
 
@@ -226,7 +191,7 @@ caminhoSino.setAttribute(
 );
 
 const baseSino = document.createElementNS(
-    "http://www.w3.org/2000/svg",
+    namespaceSvg,
     "path"
 );
 
@@ -265,7 +230,7 @@ sino.append(
 
 
 // ------------------------------------------------------------
-// 05.3 — PAINEL SUSPENSO
+// 05.3 — PAINEL
 // ------------------------------------------------------------
 
 const painel = criarElemento(
@@ -289,7 +254,7 @@ sino.setAttribute(
 
 
 // ------------------------------------------------------------
-// 05.4 — CABEÇALHO DO PAINEL
+// 05.4 — CABEÇALHO
 // ------------------------------------------------------------
 
 const cabecalho = criarElemento(
@@ -325,7 +290,7 @@ cabecalho.append(
 
 
 // ------------------------------------------------------------
-// 05.5 — MENSAGEM DE STATUS
+// 05.5 — MENSAGEM E LISTA
 // ------------------------------------------------------------
 
 const mensagem = criarElemento(
@@ -334,30 +299,13 @@ const mensagem = criarElemento(
     "Consultando seus comunicados..."
 );
 
-mensagem.setAttribute(
-    "role",
-    "status"
-);
-
-mensagem.setAttribute(
-    "aria-live",
-    "polite"
-);
-
-
-// ------------------------------------------------------------
-// 05.6 — LISTAGEM
-// ------------------------------------------------------------
+mensagem.setAttribute("role", "status");
+mensagem.setAttribute("aria-live", "polite");
 
 const lista = criarElemento(
     "div",
     "cojuris-notificacoes-lista"
 );
-
-
-// ------------------------------------------------------------
-// 05.7 — MONTAGEM
-// ------------------------------------------------------------
 
 painel.append(
     cabecalho,
@@ -374,16 +322,13 @@ componente.append(
 // ============================================================
 // 06 — POSICIONAMENTO DO SINO
 //
-// Procuramos primeiro o cabeçalho da comunidade.
-// Em seguida, cabeçalhos conhecidos do painel.
-//
-// Se não houver local compatível, o componente
-// fica fixado no canto superior direito.
+// Primeiro procura ações do cabeçalho.
+// Se não localizar, utiliza posição fixa.
 // ============================================================
 
 function posicionarSino() {
 
-    const destinos = [
+    const seletores = [
         ".comunidade-topbar-acoes",
         ".painel-topbar-acoes",
         ".topbar-acoes",
@@ -392,15 +337,12 @@ function posicionarSino() {
 
     let destino = null;
 
-    for (const seletor of destinos) {
+    for (const seletor of seletores) {
 
         destino = document.querySelector(seletor);
 
-        if (destino) {
-            break;
-        }
+        if (destino) break;
     }
-
 
     if (destino) {
 
@@ -418,26 +360,16 @@ function posicionarSino() {
 
         document.body.appendChild(componente);
     }
-
 }
 
 posicionarSino();
 
 
 // ============================================================
-// 07 — VALIDAÇÃO DO ACESSO
+// 07 — AUTORIZAÇÃO
 //
-// Administradores ativos:
-//   autorizados.
-//
-// Interessados pendentes ou aprovados:
-//   autorizados.
-//
-// Rejeitados e cadastros inexistentes:
-//   não autorizados.
-//
-// O Firebase continua responsável pela segurança
-// efetiva das consultas.
+// Admin ativo, interessado pendente ou aprovado.
+// Rejeitados e usuários sem cadastro são bloqueados.
 // ============================================================
 
 async function usuarioAutorizado(usuario) {
@@ -456,7 +388,6 @@ async function usuarioAutorizado(usuario) {
     ) {
         return true;
     }
-
 
     const referenciaInteressado = doc(
         db,
@@ -480,7 +411,7 @@ async function usuarioAutorizado(usuario) {
 
 
 // ============================================================
-// 08 — DATA DA PUBLICAÇÃO
+// 08 — FORMATAÇÃO DA DATA
 // ============================================================
 
 function formatarData(timestamp) {
@@ -506,23 +437,23 @@ function formatarData(timestamp) {
 
 
 // ============================================================
-// 09 — QUANTIDADE DE NÃO LIDOS
+// 09 — CONTADOR DE COMUNICADOS NÃO LIDOS
+//
+// Notificações dispensadas não são contabilizadas.
 // ============================================================
 
 function contarNaoLidos() {
 
-    return comunicados.filter(
-        comunicado => !idsLidos.has(comunicado.id)
-    ).length;
+    return comunicados.filter(comunicado => {
+
+        return (
+            !idsLidos.has(comunicado.id) &&
+            !idsDispensados.has(comunicado.id)
+        );
+
+    }).length;
 }
 
-
-// ============================================================
-// 10 — ATUALIZAÇÃO DO CONTADOR
-//
-// O sino permanece visível para usuários autorizados
-// mesmo quando o contador for igual a zero.
-// ============================================================
 
 function atualizarContador() {
 
@@ -543,7 +474,6 @@ function atualizarContador() {
         return;
     }
 
-
     const quantidade = contarNaoLidos();
 
     contador.textContent =
@@ -553,56 +483,35 @@ function atualizarContador() {
 
     contador.hidden = quantidade === 0;
 
-
-    if (quantidade === 0) {
-
-        sino.setAttribute(
-            "aria-label",
-            "Notificações — nenhum comunicado não lido"
-        );
-
-    } else if (quantidade === 1) {
-
-        sino.setAttribute(
-            "aria-label",
-            "Notificações — 1 comunicado não lido"
-        );
-
-    } else {
-
-        sino.setAttribute(
-            "aria-label",
-            `Notificações — ${quantidade} comunicados não lidos`
-        );
-    }
+    sino.setAttribute(
+        "aria-label",
+        quantidade === 0
+            ? "Nenhum comunicado não lido"
+            : quantidade === 1
+                ? "1 comunicado não lido"
+                : `${quantidade} comunicados não lidos`
+    );
 }
 
 
 // ============================================================
-// 11 — REGISTRO INDIVIDUAL DE LEITURA
+// 10 — REGISTRO DE LEITURA
 //
-// Caminho:
-//
-// leituras_comunicados/{uid}/itens/{comunicadoId}
-//
-// Utilizamos serverTimestamp para registrar a data
-// conforme as regras atuais do Firestore.
+// Cria um documento individual, preservando
+// o histórico após recarregar a página.
 // ============================================================
 
 async function registrarLeitura(comunicadoId) {
 
-    if (!usuarioAtual) {
-        return false;
-    }
+    if (!usuarioAtual) return false;
 
     if (idsLidos.has(comunicadoId)) {
         return true;
     }
 
-
     const uid = usuarioAtual.uid;
 
-    const sessaoDaOperacao = versaoSessao;
+    const sessaoAtual = versaoSessao;
 
     const referencia = doc(
         db,
@@ -611,7 +520,6 @@ async function registrarLeitura(comunicadoId) {
         "itens",
         comunicadoId
     );
-
 
     try {
 
@@ -622,18 +530,13 @@ async function registrarLeitura(comunicadoId) {
             }
         );
 
-
-        // Não reutilizar resultados de uma sessão
-        // que já tenha sido encerrada.
-
         if (
-            sessaoDaOperacao !== versaoSessao ||
+            sessaoAtual !== versaoSessao ||
             !usuarioAtual ||
             usuarioAtual.uid !== uid
         ) {
             return false;
         }
-
 
         idsLidos.add(comunicadoId);
 
@@ -644,12 +547,15 @@ async function registrarLeitura(comunicadoId) {
     } catch (erro) {
 
         console.error(
-            "COJURIS — Registro de leitura:",
-            erro.code || erro.message
+            "COJURIS — Erro ao registrar leitura:",
+            erro
         );
 
-        mensagem.textContent =
-            "Não foi possível registrar a leitura. Tente novamente.";
+        if (sessaoAtual === versaoSessao) {
+
+            mensagem.textContent =
+                "Não foi possível registrar a leitura.";
+        }
 
         return false;
     }
@@ -657,20 +563,105 @@ async function registrarLeitura(comunicadoId) {
 
 
 // ============================================================
-// 12 — CRIAR CARTÃO DE NOTIFICAÇÃO
+// 11 — DISPENSAR NOTIFICAÇÃO
 //
-// Ordem visual:
-// 1. Identificação institucional e status
-// 2. Título
-// 3. Data da publicação
+// Somente um comunicado já visualizado poderá
+// ser retirado da lista pessoal.
 //
-// Preserva o conteúdo original do comunicado,
-// mas mostra apenas as informações essenciais.
+// updateDoc altera apenas dispensadoEm.
+// Não exclui o comunicado nem modifica lidoEm.
+// ============================================================
+
+async function dispensarNotificacao(comunicadoId) {
+
+    if (!usuarioAtual) return false;
+
+    if (!idsLidos.has(comunicadoId)) {
+        return false;
+    }
+
+    if (idsDispensados.has(comunicadoId)) {
+        return true;
+    }
+
+    const uid = usuarioAtual.uid;
+
+    const sessaoAtual = versaoSessao;
+
+    const referencia = doc(
+        db,
+        "leituras_comunicados",
+        uid,
+        "itens",
+        comunicadoId
+    );
+
+    try {
+
+        await updateDoc(
+            referencia,
+            {
+                dispensadoEm: serverTimestamp()
+            }
+        );
+
+        if (
+            sessaoAtual !== versaoSessao ||
+            !usuarioAtual ||
+            usuarioAtual.uid !== uid
+        ) {
+            return false;
+        }
+
+        idsDispensados.add(comunicadoId);
+
+        renderizar();
+
+        return true;
+
+    } catch (erro) {
+
+        console.error(
+            "COJURIS — Erro ao dispensar notificação:",
+            erro
+        );
+
+        if (sessaoAtual === versaoSessao) {
+
+            mensagem.textContent =
+                "Não foi possível retirar a notificação.";
+        }
+
+        return false;
+    }
+}
+
+
+// ============================================================
+// 12 — CRIAÇÃO DA LINHA DE NOTIFICAÇÃO
+//
+// Estrutura sem botões aninhados:
+//
+// linha
+//   ├── botão para abrir comunicado
+//   └── botão × para dispensar (somente lidos)
 // ============================================================
 
 function criarCartao(comunicado) {
 
     const lido = idsLidos.has(comunicado.id);
+
+    const linha = criarElemento(
+        "div",
+        lido
+            ? "cojuris-notificacao-linha lida"
+            : "cojuris-notificacao-linha nao-lida"
+    );
+
+
+    // --------------------------------------------------------
+    // 12.1 — BOTÃO DE ABERTURA
+    // --------------------------------------------------------
 
     const cartao = criarElemento(
         "button",
@@ -681,9 +672,11 @@ function criarCartao(comunicado) {
 
     cartao.type = "button";
 
+    cartao.title = "Abrir comunicado";
+
 
     // --------------------------------------------------------
-    // 12.1 — CATEGORIA E STATUS
+    // 12.2 — CATEGORIA E ESTADO
     // --------------------------------------------------------
 
     const topo = criarElemento(
@@ -697,7 +690,7 @@ function criarCartao(comunicado) {
         "COMUNICADO OFICIAL"
     );
 
-    const status = criarElemento(
+    const estado = criarElemento(
         "span",
         "cojuris-notificacao-estado",
         lido ? "Visualizado" : "Novo"
@@ -705,12 +698,12 @@ function criarCartao(comunicado) {
 
     topo.append(
         categoria,
-        status
+        estado
     );
 
 
     // --------------------------------------------------------
-    // 12.2 — TÍTULO
+    // 12.3 — TÍTULO E DATA
     // --------------------------------------------------------
 
     const titulo = criarElemento(
@@ -719,21 +712,11 @@ function criarCartao(comunicado) {
         comunicado.titulo || "Comunicado"
     );
 
-
-    // --------------------------------------------------------
-    // 12.3 — DATA
-    // --------------------------------------------------------
-
     const data = criarElemento(
         "small",
         "cojuris-notificacao-data",
         formatarData(comunicado.publicadoEm)
     );
-
-
-    // --------------------------------------------------------
-    // 12.4 — MONTAGEM
-    // --------------------------------------------------------
 
     cartao.append(
         topo,
@@ -743,42 +726,136 @@ function criarCartao(comunicado) {
 
 
     // --------------------------------------------------------
-    // 12.5 — ABERTURA E REGISTRO DE LEITURA
+    // 12.4 — ABERTURA DO COMUNICADO
     // --------------------------------------------------------
 
     cartao.addEventListener(
         "click",
         async () => {
 
-            if (cartao.disabled) {
+            const chaveOperacao =
+                `ler:${comunicado.id}`;
+
+            if (
+                operacoesEmAndamento.has(chaveOperacao)
+            ) {
                 return;
             }
 
+            operacoesEmAndamento.add(chaveOperacao);
+
             cartao.disabled = true;
 
-            const registrado = await registrarLeitura(
-                comunicado.id
-            );
+            try {
 
-            if (registrado) {
+                const registrado = await registrarLeitura(
+                    comunicado.id
+                );
 
-                window.location.href =
-                    DESTINO_COMUNICADOS;
+                if (registrado) {
 
-            } else {
+                    window.location.href =
+                        DESTINO_COMUNICADOS;
 
-                cartao.disabled = false;
+                } else if (cartao.isConnected) {
+
+                    cartao.disabled = false;
+                }
+
+            } finally {
+
+                operacoesEmAndamento.delete(
+                    chaveOperacao
+                );
             }
         }
     );
 
+    linha.appendChild(cartao);
 
-    return cartao;
+
+    // --------------------------------------------------------
+    // 12.5 — BOTÃO × PARA COMUNICADOS VISUALIZADOS
+    //
+    // Fica fora do botão de abertura.
+    // --------------------------------------------------------
+
+    if (lido) {
+
+        const dispensar = criarElemento(
+            "button",
+            "cojuris-notificacao-dispensar",
+            "×"
+        );
+
+        dispensar.type = "button";
+
+        dispensar.title =
+            "Retirar da minha lista";
+
+        dispensar.setAttribute(
+            "aria-label",
+            `Dispensar notificação: ${
+                comunicado.titulo || "Comunicado"
+            }`
+        );
+
+        dispensar.addEventListener(
+            "click",
+            async evento => {
+
+                evento.stopPropagation();
+
+                const chaveOperacao =
+                    `dispensar:${comunicado.id}`;
+
+                if (
+                    operacoesEmAndamento.has(chaveOperacao)
+                ) {
+                    return;
+                }
+
+                operacoesEmAndamento.add(
+                    chaveOperacao
+                );
+
+                dispensar.disabled = true;
+
+                try {
+
+                    const removido =
+                        await dispensarNotificacao(
+                            comunicado.id
+                        );
+
+                    if (
+                        !removido &&
+                        dispensar.isConnected
+                    ) {
+                        dispensar.disabled = false;
+                    }
+
+                } finally {
+
+                    operacoesEmAndamento.delete(
+                        chaveOperacao
+                    );
+                }
+            }
+        );
+
+        linha.appendChild(dispensar);
+    }
+
+    return linha;
 }
 
 
 // ============================================================
-// 13 — RENDERIZAR NOTIFICAÇÕES
+// 13 — RENDERIZAÇÃO DA LISTA
+//
+// Comunicado dispensado não volta a ser mostrado
+// quando o Firestore atualiza os observadores.
 // ============================================================
 
 function renderizar() {
@@ -789,21 +866,20 @@ function renderizar() {
 
 
     // --------------------------------------------------------
-    // 13.1 — ERROS DE CONSULTA
+    // 13.1 — ERRO DE CONSULTA
     // --------------------------------------------------------
 
     if (erroComunicados || erroLeituras) {
 
         mensagem.textContent =
-            "Não foi possível atualizar suas notificações. " +
-            "Recarregue a página para tentar novamente.";
+            "Não foi possível atualizar suas notificações.";
 
         return;
     }
 
 
     // --------------------------------------------------------
-    // 13.2 — CARREGAMENTO
+    // 13.2 — AGUARDANDO DADOS
     // --------------------------------------------------------
 
     if (
@@ -819,20 +895,44 @@ function renderizar() {
 
 
     // --------------------------------------------------------
-    // 13.3 — SEM PUBLICAÇÕES
+    // 13.3 — NENHUM COMUNICADO PUBLICADO
     // --------------------------------------------------------
 
     if (comunicados.length === 0) {
 
         mensagem.textContent =
-            "Nenhum comunicado publicado até o momento.";
+            "Nenhum comunicado publicado.";
 
         return;
     }
 
 
     // --------------------------------------------------------
-    // 13.4 — TEXTO INFORMATIVO
+    // 13.4 — FILTRAR OS DISPENSADOS
+    // --------------------------------------------------------
+
+    const visiveis = comunicados.filter(
+        comunicado => (
+            !idsDispensados.has(comunicado.id)
+        )
+    );
+
+
+    // --------------------------------------------------------
+    // 13.5 — LISTA COMPLETAMENTE LIMPA
+    // --------------------------------------------------------
+
+    if (visiveis.length === 0) {
+
+        mensagem.textContent =
+            "Sua lista de notificações está limpa.";
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // 13.6 — RESUMO
     // --------------------------------------------------------
 
     const quantidade = contarNaoLidos();
@@ -855,13 +955,13 @@ function renderizar() {
 
 
     // --------------------------------------------------------
-    // 13.5 — CRIAR A LISTA
+    // 13.7 — MONTAR AS LINHAS
     // --------------------------------------------------------
 
     const fragmento =
         document.createDocumentFragment();
 
-    for (const comunicado of comunicados) {
+    for (const comunicado of visiveis) {
 
         fragmento.appendChild(
             criarCartao(comunicado)
@@ -873,19 +973,16 @@ function renderizar() {
 
 
 // ============================================================
-// 14 — CONSULTA EM TEMPO REAL
+// 14 — OBSERVADORES EM TEMPO REAL
 //
-// onSnapshot acompanha:
-// - publicações novas;
-// - exclusões de comunicados;
-// - leituras registradas pelo titular.
-//
-// Quando os dois conjuntos estiverem disponíveis,
-// o contador será calculado corretamente.
+// Consulta os 20 comunicados mais recentes
+// e os registros individuais do usuário.
 // ============================================================
 
-function iniciarObservadores(usuario, sessaoAtual) {
-
+function iniciarObservadores(
+    usuario,
+    sessaoAtual
+) {
 
     // --------------------------------------------------------
     // 14.1 — COMUNICADOS
@@ -897,14 +994,15 @@ function iniciarObservadores(usuario, sessaoAtual) {
         limit(LIMITE_COMUNICADOS)
     );
 
-
     cancelarComunicados = onSnapshot(
 
         consulta,
 
         resultado => {
 
-            if (sessaoAtual !== versaoSessao) {
+            if (
+                sessaoAtual !== versaoSessao
+            ) {
                 return;
             }
 
@@ -915,22 +1013,23 @@ function iniciarObservadores(usuario, sessaoAtual) {
                 })
             );
 
-            erroComunicados = false;
-
             comunicadosCarregados = true;
+            erroComunicados = false;
 
             renderizar();
         },
 
         erro => {
 
-            if (sessaoAtual !== versaoSessao) {
+            if (
+                sessaoAtual !== versaoSessao
+            ) {
                 return;
             }
 
             console.error(
                 "COJURIS — Consulta de comunicados:",
-                erro.code || erro.message
+                erro
             );
 
             erroComunicados = true;
@@ -941,7 +1040,7 @@ function iniciarObservadores(usuario, sessaoAtual) {
 
 
     // --------------------------------------------------------
-    // 14.2 — LEITURAS DO USUÁRIO
+    // 14.2 — LEITURAS E DISPENSAS INDIVIDUAIS
     // --------------------------------------------------------
 
     const referenciaLeituras = collection(
@@ -951,39 +1050,60 @@ function iniciarObservadores(usuario, sessaoAtual) {
         "itens"
     );
 
-
     cancelarLeituras = onSnapshot(
 
         referenciaLeituras,
 
         resultado => {
 
-            if (sessaoAtual !== versaoSessao) {
+            if (
+                sessaoAtual !== versaoSessao
+            ) {
                 return;
             }
 
-            idsLidos = new Set(
-                resultado.docs.map(
-                    documento => documento.id
-                )
-            );
+            const novosLidos = new Set();
 
-            erroLeituras = false;
+            const novosDispensados = new Set();
+
+            resultado.docs.forEach(documento => {
+
+                const dados = documento.data();
+
+                if (dados.lidoEm) {
+
+                    novosLidos.add(documento.id);
+                }
+
+                if (dados.dispensadoEm) {
+
+                    novosDispensados.add(
+                        documento.id
+                    );
+                }
+            });
+
+            idsLidos = novosLidos;
+
+            idsDispensados = novosDispensados;
 
             leiturasCarregadas = true;
+            erroLeituras = false;
 
             renderizar();
         },
 
         erro => {
 
-            if (sessaoAtual !== versaoSessao) {
+            if (
+                sessaoAtual !== versaoSessao
+            ) {
                 return;
             }
 
             console.error(
-                "COJURIS — Consulta das leituras:",
-                erro.code || erro.message
+                "COJURIS — Consulta de leituras:",
+                erro
             );
 
             erroLeituras = true;
@@ -995,10 +1115,7 @@ function iniciarObservadores(usuario, sessaoAtual) {
 
 
 // ============================================================
-// 15 — ENCERRAMENTO DOS OBSERVADORES
-//
-// Previne consultas antigas após logout
-// ou troca de usuário.
+// 15 — ENCERRAR CONSULTAS DA SESSÃO
 // ============================================================
 
 function encerrarObservadores() {
@@ -1006,77 +1123,93 @@ function encerrarObservadores() {
     if (cancelarComunicados) {
 
         cancelarComunicados();
-
         cancelarComunicados = null;
     }
 
     if (cancelarLeituras) {
 
         cancelarLeituras();
-
         cancelarLeituras = null;
     }
 }
 
 
 // ============================================================
-// 16 — ABRIR E FECHAR O PAINEL
+// 16 — POSICIONAMENTO DO PAINEL
 //
-// A janela utiliza posicionamento fixo e calcula
-// a posição do sino na tela.
-//
-// Isso reduz problemas de corte por contêineres
-// e mantém o painel próximo ao cabeçalho.
+// A janela não desloca o conteúdo da comunidade.
 // ============================================================
 
 function posicionarPainel() {
 
-    const retangulo = sino.getBoundingClientRect();
-
-    const larguraPainel = Math.min(
-        360,
-        window.innerWidth - 24
-    );
+    const retangulo =
+        sino.getBoundingClientRect();
 
     const margem = 12;
+
+    const largura = Math.min(
+        360,
+        Math.max(
+            240,
+            window.innerWidth - 2 * margem
+        )
+    );
 
     const esquerda = Math.max(
         margem,
         Math.min(
-            retangulo.right - larguraPainel,
-            window.innerWidth - larguraPainel - margem
+            retangulo.right - largura,
+            window.innerWidth - largura - margem
         )
     );
 
-    let topo = retangulo.bottom + 12;
+    const espacoAbaixo =
+        window.innerHeight - retangulo.bottom - margem;
 
-    // Se o espaço disponível abaixo do sino for
-    // insuficiente, o painel será apresentado acima,
-    // sempre que houver espaço.
+    const espacoAcima =
+        retangulo.top - margem;
 
-    const alturaEstimada = 420;
+    const abrirAcima =
+        espacoAbaixo < 240 &&
+        espacoAcima > espacoAbaixo;
 
-    if (
-        topo + alturaEstimada > window.innerHeight &&
-        retangulo.top > alturaEstimada
-    ) {
-
-        topo = Math.max(
-            margem,
-            retangulo.top - alturaEstimada - 12
-        );
-    }
+    const alturaMaxima = Math.max(
+        120,
+        Math.min(
+            460,
+            abrirAcima
+                ? espacoAcima - 12
+                : espacoAbaixo - 12
+        )
+    );
 
     painel.style.left = `${esquerda}px`;
 
-    painel.style.top = `${topo}px`;
-
-    painel.style.width = `${larguraPainel}px`;
+    painel.style.width = `${largura}px`;
 
     painel.style.maxHeight =
-        `${Math.max(180, window.innerHeight - topo - margem)}px`;
+        `${alturaMaxima}px`;
+
+    if (abrirAcima) {
+
+        painel.style.top = "auto";
+
+        painel.style.bottom =
+            `${window.innerHeight - retangulo.top + 12}px`;
+
+    } else {
+
+        painel.style.bottom = "auto";
+
+        painel.style.top =
+            `${retangulo.bottom + 12}px`;
+    }
 }
 
+
+// ============================================================
+// 17 — ABERTURA E FECHAMENTO
+// ============================================================
 
 function alternarPainel(abrir) {
 
@@ -1101,10 +1234,7 @@ function alternarPainel(abrir) {
 
 
 // ============================================================
-// 17 — AUTENTICAÇÃO
-//
-// O sino só aparece depois que o Firebase confirma
-// que o usuário pode consultar os comunicados.
+// 18 — AUTENTICAÇÃO E TROCA DE SESSÃO
 // ============================================================
 
 onAuthStateChanged(
@@ -1119,14 +1249,15 @@ onAuthStateChanged(
 
         encerrarObservadores();
 
-
-        // Limpa os dados da sessão anterior.
-
         usuarioAtual = null;
 
         comunicados = [];
 
         idsLidos = new Set();
+
+        idsDispensados = new Set();
+
+        operacoesEmAndamento.clear();
 
         comunicadosCarregados = false;
 
@@ -1136,33 +1267,30 @@ onAuthStateChanged(
 
         erroLeituras = false;
 
-        componente.hidden = true;
-
         alternarPainel(false);
 
-        contador.hidden = true;
+        componente.hidden = true;
 
+        contador.hidden = true;
 
         if (!usuario) {
             return;
         }
 
-
         try {
 
-            const autorizado = await usuarioAutorizado(
-                usuario
-            );
+            const autorizado =
+                await usuarioAutorizado(usuario);
 
-
-            if (sessaoAtual !== versaoSessao) {
+            if (
+                sessaoAtual !== versaoSessao
+            ) {
                 return;
             }
 
             if (!autorizado) {
                 return;
             }
-
 
             usuarioAtual = usuario;
 
@@ -1175,13 +1303,15 @@ onAuthStateChanged(
 
         } catch (erro) {
 
-            if (sessaoAtual !== versaoSessao) {
+            if (
+                sessaoAtual !== versaoSessao
+            ) {
                 return;
             }
 
             console.error(
-                "COJURIS — Verificação de acesso:",
-                erro.code || erro.message
+                "COJURIS — Autorização:",
+                erro
             );
 
             componente.hidden = true;
@@ -1191,41 +1321,39 @@ onAuthStateChanged(
 
 
 // ============================================================
-// 18 — EVENTOS DA INTERFACE
+// 19 — EVENTOS DA INTERFACE
 // ============================================================
 
-
-// Abre e fecha o painel ao clicar no sino.
+// Abrir e fechar o painel.
 
 sino.addEventListener(
     "click",
-    () => {
-
-        alternarPainel(painel.hidden);
-    }
+    () => alternarPainel(painel.hidden)
 );
 
 
-// Fecha a janela pelo botão próprio.
+// Fechar pelo × do cabeçalho.
 
 fechar.addEventListener(
     "click",
     () => {
 
         alternarPainel(false);
-
         sino.focus();
     }
 );
 
 
-// Fecha pelo teclado.
+// Fechar pelo teclado.
 
 document.addEventListener(
     "keydown",
     evento => {
 
-        if (evento.key === "Escape" && !painel.hidden) {
+        if (
+            evento.key === "Escape" &&
+            !painel.hidden
+        ) {
 
             alternarPainel(false);
 
@@ -1235,7 +1363,7 @@ document.addEventListener(
 );
 
 
-// Fecha quando o usuário clica fora.
+// Fechar ao clicar fora.
 
 document.addEventListener(
     "click",
@@ -1252,7 +1380,7 @@ document.addEventListener(
 );
 
 
-// Reposiciona a janela quando o tamanho da tela muda.
+// Ajustar em mudança de tamanho de tela.
 
 window.addEventListener(
     "resize",
@@ -1265,7 +1393,7 @@ window.addEventListener(
 );
 
 
-// Reposiciona o painel ao rolar a página.
+// Ajustar após rolagem.
 
 window.addEventListener(
     "scroll",
