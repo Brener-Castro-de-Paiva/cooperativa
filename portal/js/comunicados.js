@@ -15,8 +15,17 @@
    09 — Exclusão
    10 — Eventos
 
-   A segurança efetiva é aplicada também
-   nas regras do Firestore.
+   IMPLEMENTAÇÃO ADICIONAL:
+   11 — Sincronização de comunicados dispensados
+
+   SEGURANÇA:
+   As regras do Firestore continuam responsáveis
+   pela autorização das operações.
+
+   IMPORTANTE:
+   - A área administrativa mantém a visão completa.
+   - A dispensa individual não exclui comunicados.
+   - Publicação e exclusão administrativa preservadas.
    ============================================================ */
 
 
@@ -41,7 +50,8 @@ import {
     orderBy,
     limit,
     startAfter,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
@@ -49,10 +59,17 @@ import {
 // 02 — ELEMENTOS HTML
 // ============================================================
 
-const telaAcesso = document.getElementById("tela-acesso");
-const mensagemAcesso = document.getElementById("mensagem-acesso");
+const telaAcesso = document.getElementById(
+    "tela-acesso"
+);
 
-const aplicacao = document.getElementById("aplicacao");
+const mensagemAcesso = document.getElementById(
+    "mensagem-acesso"
+);
+
+const aplicacao = document.getElementById(
+    "aplicacao"
+);
 
 const areaPublicacao = document.getElementById(
     "area-publicacao"
@@ -62,7 +79,9 @@ const linkAdministracao = document.getElementById(
     "link-administracao"
 );
 
-const perfilAcesso = document.getElementById("perfil-acesso");
+const perfilAcesso = document.getElementById(
+    "perfil-acesso"
+);
 
 const quantidade = document.getElementById(
     "quantidade-comunicados"
@@ -80,7 +99,9 @@ const campoConteudo = document.getElementById(
     "conteudo-comunicado"
 );
 
-const btnPublicar = document.getElementById("btn-publicar");
+const btnPublicar = document.getElementById(
+    "btn-publicar"
+);
 
 const btnAtualizar = document.getElementById(
     "btn-atualizar"
@@ -90,7 +111,9 @@ const btnCarregarMais = document.getElementById(
     "btn-carregar-mais"
 );
 
-const lista = document.getElementById("lista-comunicados");
+const lista = document.getElementById(
+    "lista-comunicados"
+);
 
 const mensagemLista = document.getElementById(
     "mensagem-listagem"
@@ -116,6 +139,26 @@ let carregando = false;
 let publicando = false;
 
 let totalExibido = 0;
+
+
+// ============================================================
+// 03.1 — NOVO ESTADO DE DISPENSAS
+//
+// Não interfere no gerenciamento administrativo.
+//
+// Os interessados possuem listas individuais,
+// com base no campo dispensadoEm.
+// ============================================================
+
+let idsDispensados = new Set();
+
+let cancelarObservadorDispensas = null;
+
+let versaoSessao = 0;
+
+let versaoListagem = 0;
+
+let dispensasCarregadas = false;
 
 
 // ============================================================
@@ -159,6 +202,7 @@ function liberarInterface(perfil) {
 
 
 function mostrarMensagem(texto) {
+
     mensagemLista.textContent = texto;
 }
 
@@ -204,6 +248,7 @@ async function verificarAdmin(usuario) {
 async function consultarPerfil(usuario) {
 
     if (await verificarAdmin(usuario)) {
+
         return "administrador";
     }
 
@@ -216,12 +261,14 @@ async function consultarPerfil(usuario) {
     const resultado = await getDoc(referencia);
 
     if (!resultado.exists()) {
+
         return "sem_cadastro";
     }
 
     const dados = resultado.data();
 
     if (dados.status === "rejeitado") {
+
         return "rejeitado";
     }
 
@@ -229,6 +276,7 @@ async function consultarPerfil(usuario) {
         dados.status === "aprovado" &&
         dados.verificacaoProfissional === "verificada"
     ) {
+
         return "participante";
     }
 
@@ -236,10 +284,158 @@ async function consultarPerfil(usuario) {
         dados.status === "pendente" ||
         dados.status === "aprovado"
     ) {
+
         return "leitor";
     }
 
     return "sem_permissao";
+}
+
+
+// ============================================================
+// 11 — DISPENSAS INDIVIDUAIS
+//
+// NOVA IMPLEMENTAÇÃO
+//
+// O observador consulta exclusivamente:
+//
+// leituras_comunicados/{uid}/itens
+//
+// O campo dispensadoEm informa quais publicações
+// devem ficar ocultas para esse usuário.
+//
+// Nenhuma operação modifica a coleção comunicados.
+// ============================================================
+
+function sincronizarCartoesDispensados() {
+
+    // Na página administrativa, o acervo completo
+    // continua disponível para o administrador.
+
+    if (perfilAtual === "administrador") {
+        return;
+    }
+
+    const cartoes = lista.querySelectorAll(
+        "[data-comunicado-id]"
+    );
+
+    let removidos = 0;
+
+    cartoes.forEach(cartao => {
+
+        if (
+            idsDispensados.has(
+                cartao.dataset.comunicadoId
+            )
+        ) {
+
+            cartao.remove();
+
+            removidos++;
+        }
+    });
+
+    if (removidos > 0) {
+
+        totalExibido = Math.max(
+            0,
+            totalExibido - removidos
+        );
+
+        atualizarQuantidade();
+
+        if (!carregando) {
+
+            mostrarMensagem(
+                totalExibido === 0
+                    ? "Nenhum comunicado na sua lista."
+                    : "Lista de comunicados atualizada."
+            );
+        }
+    }
+}
+
+
+// ------------------------------------------------------------
+// CONSULTA INICIAL E SINCRONIZAÇÃO EM TEMPO REAL
+//
+// A primeira consulta ocorre antes da listagem
+// para evitar apresentar conteúdo já dispensado.
+// ------------------------------------------------------------
+
+function acompanharDispensas(usuario, sessaoAtual) {
+
+    return new Promise((resolver, rejeitar) => {
+
+        let primeiraResposta = true;
+
+        const referencia = collection(
+            db,
+            "leituras_comunicados",
+            usuario.uid,
+            "itens"
+        );
+
+        cancelarObservadorDispensas = onSnapshot(
+
+            referencia,
+
+            resultado => {
+
+                if (sessaoAtual !== versaoSessao) {
+                    return;
+                }
+
+                idsDispensados = new Set(
+                    resultado.docs
+                        .filter(documento =>
+                            documento.data().dispensadoEm != null
+                        )
+                        .map(documento => documento.id)
+                );
+
+                dispensasCarregadas = true;
+
+                sincronizarCartoesDispensados();
+
+                if (primeiraResposta) {
+
+                    primeiraResposta = false;
+
+                    resolver();
+                }
+            },
+
+            erro => {
+
+                if (sessaoAtual !== versaoSessao) {
+                    return;
+                }
+
+                console.error(
+                    "COJURIS — Dispensas pessoais:",
+                    erro.code || erro.message
+                );
+
+                dispensasCarregadas = false;
+
+                if (primeiraResposta) {
+
+                    primeiraResposta = false;
+
+                    rejeitar(erro);
+
+                } else {
+
+                    mostrarMensagem(
+                        "Não foi possível sincronizar os " +
+                        "comunicados dispensados."
+                    );
+                }
+            }
+        );
+    });
 }
 
 
@@ -251,7 +447,28 @@ onAuthStateChanged(
 
     auth,
 
-    async (usuario) => {
+    async usuario => {
+
+        versaoSessao++;
+
+        const sessaoAtual = versaoSessao;
+
+        // Encerra o observador do usuário anterior.
+
+        if (cancelarObservadorDispensas) {
+
+            cancelarObservadorDispensas();
+
+            cancelarObservadorDispensas = null;
+        }
+
+        idsDispensados = new Set();
+
+        dispensasCarregadas = false;
+
+        versaoListagem++;
+
+        carregando = false;
 
         // Oculta imediatamente dados de uma sessão anterior.
 
@@ -262,23 +479,33 @@ onAuthStateChanged(
         lista.replaceChildren();
 
         perfilAtual = null;
+
         usuarioAtual = null;
 
         ultimoDocumento = null;
+
         terminouListagem = false;
+
         totalExibido = 0;
 
         if (!usuario) {
 
             window.location.replace("./index.html");
+
             return;
         }
 
-        mostrarBloqueio("Verificando sua autorização...");
+        mostrarBloqueio(
+            "Verificando sua autorização..."
+        );
 
         try {
 
             const perfil = await consultarPerfil(usuario);
+
+            if (sessaoAtual !== versaoSessao) {
+                return;
+            }
 
             if (
                 perfil !== "administrador" &&
@@ -298,9 +525,35 @@ onAuthStateChanged(
 
             liberarInterface(perfil);
 
+            // Administradores continuam com a
+            // visualização integral nesta página.
+            //
+            // Para leitores e participantes, aguardamos
+            // a lista de dispensas antes de renderizar.
+
+            if (perfil !== "administrador") {
+
+                await acompanharDispensas(
+                    usuario,
+                    sessaoAtual
+                );
+
+                if (sessaoAtual !== versaoSessao) {
+                    return;
+                }
+
+            } else {
+
+                dispensasCarregadas = true;
+            }
+
             await carregarComunicados(true);
 
         } catch (erro) {
+
+            if (sessaoAtual !== versaoSessao) {
+                return;
+            }
 
             console.error(
                 "Erro de acesso:",
@@ -308,14 +561,18 @@ onAuthStateChanged(
             );
 
             mostrarBloqueio(
-                "Não foi possível verificar seu acesso."
+                "Não foi possível verificar seu acesso " +
+                "ou sincronizar seus comunicados."
             );
         }
     },
 
-    (erro) => {
+    erro => {
 
-        console.error("Autenticação:", erro);
+        console.error(
+            "Autenticação:",
+            erro
+        );
 
         mostrarBloqueio(
             "Não foi possível verificar sua sessão."
@@ -333,6 +590,8 @@ onAuthStateChanged(
 //
 // Campos:
 // titulo, conteudo, autorUid, publicadoEm
+//
+// IMPLEMENTAÇÃO ORIGINAL PRESERVADA.
 // ============================================================
 
 async function publicarComunicado(evento) {
@@ -344,6 +603,7 @@ async function publicarComunicado(evento) {
         !usuarioAtual ||
         publicando
     ) {
+
         return;
     }
 
@@ -351,7 +611,10 @@ async function publicarComunicado(evento) {
 
     const conteudo = campoConteudo.value.trim();
 
-    if (titulo.length < 5 || titulo.length > 150) {
+    if (
+        titulo.length < 5 ||
+        titulo.length > 150
+    ) {
 
         mostrarMensagem(
             "O título deve conter entre 5 e 150 caracteres."
@@ -377,6 +640,7 @@ async function publicarComunicado(evento) {
             "Confirma a publicação deste comunicado?"
         )
     ) {
+
         return;
     }
 
@@ -384,7 +648,9 @@ async function publicarComunicado(evento) {
 
     btnPublicar.disabled = true;
 
-    mostrarMensagem("Publicando comunicado...");
+    mostrarMensagem(
+        "Publicando comunicado..."
+    );
 
     try {
 
@@ -432,16 +698,29 @@ async function publicarComunicado(evento) {
 // Consulta os comunicados mais recentes primeiro.
 //
 // Carrega somente 10 documentos por vez.
+//
+// NOVO:
+// Os dispensados são ignorados apenas na listagem
+// pessoal de leitores e participantes.
+//
+// O cursor continua usando o resultado bruto da
+// consulta, preservando a paginação.
 // ============================================================
 
 async function carregarComunicados(reiniciar = false) {
 
     if (
         !perfilAtual ||
-        carregando
+        carregando ||
+        !dispensasCarregadas
     ) {
+
         return;
     }
+
+    const sessaoDaConsulta = versaoSessao;
+
+    const requisicaoAtual = ++versaoListagem;
 
     carregando = true;
 
@@ -462,7 +741,9 @@ async function carregarComunicados(reiniciar = false) {
         atualizarQuantidade();
     }
 
-    mostrarMensagem("Carregando comunicados...");
+    mostrarMensagem(
+        "Carregando comunicados..."
+    );
 
     try {
 
@@ -493,7 +774,26 @@ async function carregarComunicados(reiniciar = false) {
 
         const resultado = await getDocs(consulta);
 
-        resultado.forEach((documento) => {
+        if (
+            sessaoDaConsulta !== versaoSessao ||
+            requisicaoAtual !== versaoListagem
+        ) {
+            return;
+        }
+
+        resultado.forEach(documento => {
+
+            // NOVO:
+            // Oculta apenas os comunicados dispensados
+            // por este leitor ou participante.
+
+            if (
+                perfilAtual !== "administrador" &&
+                idsDispensados.has(documento.id)
+            ) {
+
+                return;
+            }
 
             lista.appendChild(
                 criarCartao(documento)
@@ -504,6 +804,9 @@ async function carregarComunicados(reiniciar = false) {
 
         atualizarQuantidade();
 
+        // O cursor considera TODOS os documentos,
+        // incluindo os que foram dispensados.
+
         if (!resultado.empty) {
 
             ultimoDocumento =
@@ -513,13 +816,18 @@ async function carregarComunicados(reiniciar = false) {
         terminouListagem =
             resultado.size < TAMANHO_PAGINA;
 
-        btnCarregarMais.hidden =
-            terminouListagem || totalExibido === 0;
+        // O botão pode continuar visível mesmo
+        // quando a página atual não apresenta cartões.
+
+        btnCarregarMais.hidden = terminouListagem;
 
         if (totalExibido === 0) {
 
             mostrarMensagem(
-                "Nenhum comunicado publicado."
+                terminouListagem
+                    ? "Nenhum comunicado na sua lista."
+                    : "Nenhum comunicado exibido nesta página. " +
+                      "Você pode carregar mais."
             );
 
         } else {
@@ -530,6 +838,13 @@ async function carregarComunicados(reiniciar = false) {
         }
 
     } catch (erro) {
+
+        if (
+            sessaoDaConsulta !== versaoSessao ||
+            requisicaoAtual !== versaoListagem
+        ) {
+            return;
+        }
 
         console.error(
             "Erro ao consultar comunicados:",
@@ -542,11 +857,18 @@ async function carregarComunicados(reiniciar = false) {
 
     } finally {
 
-        carregando = false;
+        if (
+            sessaoDaConsulta === versaoSessao &&
+            requisicaoAtual === versaoListagem
+        ) {
 
-        btnAtualizar.disabled = false;
+            carregando = false;
 
-        btnCarregarMais.disabled = false;
+            btnAtualizar.disabled = false;
+
+            btnCarregarMais.disabled =
+                terminouListagem;
+        }
     }
 }
 
@@ -563,10 +885,12 @@ function elemento(tag, classe, texto) {
     const novo = document.createElement(tag);
 
     if (classe) {
+
         novo.className = classe;
     }
 
     if (texto !== undefined) {
+
         novo.textContent = String(texto);
     }
 
@@ -580,7 +904,11 @@ function elemento(tag, classe, texto) {
 
 function formatarData(timestamp) {
 
-    if (!timestamp || !timestamp.toDate) {
+    if (
+        !timestamp ||
+        !timestamp.toDate
+    ) {
+
         return "Publicação institucional";
     }
 
@@ -596,6 +924,8 @@ function formatarData(timestamp) {
 
 // ============================================================
 // 12 — CRIAR CARTÃO DE COMUNICADO
+//
+// Classes e conteúdo visual preservados.
 // ============================================================
 
 function criarCartao(documento) {
@@ -606,6 +936,11 @@ function criarCartao(documento) {
         "article",
         "cartao-comunicado"
     );
+
+    // NOVO:
+    // Identificação individual para a sincronização.
+
+    cartao.dataset.comunicadoId = documento.id;
 
     const cabecalho = elemento(
         "div",
@@ -618,8 +953,16 @@ function criarCartao(documento) {
     );
 
     identificacao.append(
-        elemento("span", "marca-publicacao", "✦"),
-        elemento("strong", "", "COJURIS")
+        elemento(
+            "span",
+            "marca-publicacao",
+            "✦"
+        ),
+        elemento(
+            "strong",
+            "",
+            "COJURIS"
+        )
     );
 
     const data = elemento(
@@ -634,8 +977,10 @@ function criarCartao(documento) {
             dados.publicadoEm.toDate().toISOString();
     }
 
-    cabecalho.append(identificacao, data);
-
+    cabecalho.append(
+        identificacao,
+        data
+    );
 
     const titulo = elemento(
         "h3",
@@ -649,8 +994,11 @@ function criarCartao(documento) {
         dados.conteudo || ""
     );
 
-    cartao.append(cabecalho, titulo, conteudo);
-
+    cartao.append(
+        cabecalho,
+        titulo,
+        conteudo
+    );
 
     // Apenas administradores visualizam exclusão.
 
@@ -693,14 +1041,21 @@ function criarCartao(documento) {
 // A exclusão exige confirmação explícita.
 //
 // Não é permitida para leitores e participantes.
+//
+// IMPLEMENTAÇÃO ORIGINAL PRESERVADA.
 // ============================================================
 
-async function excluirComunicado(id, titulo, botao) {
+async function excluirComunicado(
+    id,
+    titulo,
+    botao
+) {
 
     if (
         perfilAtual !== "administrador" ||
         !usuarioAtual
     ) {
+
         return;
     }
 
@@ -711,6 +1066,7 @@ async function excluirComunicado(id, titulo, botao) {
     );
 
     if (confirmacao !== "EXCLUIR") {
+
         return;
     }
 
@@ -746,6 +1102,8 @@ async function excluirComunicado(id, titulo, botao) {
 
 // ============================================================
 // 14 — EVENTOS
+//
+// Preserva os eventos originais da página.
 // ============================================================
 
 formulario.addEventListener(
@@ -753,18 +1111,17 @@ formulario.addEventListener(
     publicarComunicado
 );
 
-
 btnAtualizar.addEventListener(
     "click",
     () => carregarComunicados(true)
 );
-
 
 btnCarregarMais.addEventListener(
     "click",
     () => {
 
         if (!terminouListagem) {
+
             carregarComunicados(false);
         }
     }

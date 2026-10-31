@@ -16,11 +16,18 @@
    10 — Consulta paginada ao Firestore
    11 — Autenticação
    12 — Eventos
+   13 — Sincronização das notificações dispensadas
 
    A coleção "comunicados" é compartilhada com
    portal/comunicados.html.
 
    A página da comunidade faz somente leituras.
+
+   IMPLEMENTAÇÃO ADICIONAL:
+   Os comunicados dispensados no sino deixam de
+   aparecer para o usuário autenticado.
+
+   Nenhum comunicado é excluído do Firebase.
    ============================================================ */
 
 
@@ -42,7 +49,8 @@ import {
     query,
     orderBy,
     limit,
-    startAfter
+    startAfter,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
@@ -114,6 +122,29 @@ let totalExibido = 0;
 
 let versaoSessao = 0;
 
+// Identifica a requisição de listagem mais recente.
+let versaoListagem = 0;
+
+
+// ============================================================
+// 03.1 — NOTIFICAÇÕES DISPENSADAS
+//
+// NOVA IMPLEMENTAÇÃO
+//
+// Caminho:
+// leituras_comunicados/{uid}/itens/{comunicadoId}
+//
+// Somente os registros com dispensadoEm são ocultados.
+//
+// Não há exclusão ou alteração do comunicado original.
+// ============================================================
+
+let idsDispensados = new Set();
+
+let cancelarObservadorDispensas = null;
+
+let dispensasCarregadas = false;
+
 
 // ============================================================
 // 04 — APRESENTAÇÃO E CONTROLE DE ACESSO
@@ -177,6 +208,28 @@ function liberarPagina(perfil) {
 
 
 // ============================================================
+// 04.1 — ATUALIZAR CONTADOR VISUAL
+// ============================================================
+
+function atualizarQuantidadeComunicados() {
+
+    if (totalExibido === 0) {
+
+        mensagemComunicados.textContent =
+            terminouListagem
+                ? "Não há comunicados na sua lista."
+                : "Nenhum comunicado exibido nesta página. " +
+                  "Você pode carregar mais.";
+
+        return;
+    }
+
+    mensagemComunicados.textContent =
+        `${totalExibido} comunicado(s) exibido(s).`;
+}
+
+
+// ============================================================
 // 05 — IDENTIFICAÇÃO ADMINISTRATIVA
 //
 // Consulta somente o documento do usuário
@@ -223,7 +276,6 @@ async function identificarPerfil(usuario) {
         return "administrador";
     }
 
-
     const referencia = doc(
         db,
         "interessados",
@@ -237,15 +289,12 @@ async function identificarPerfil(usuario) {
         return "sem_cadastro";
     }
 
-
     const dados = resultado.data();
-
 
     if (dados.status === "rejeitado") {
 
         return "rejeitado";
     }
-
 
     if (
         dados.status === "aprovado" &&
@@ -255,7 +304,6 @@ async function identificarPerfil(usuario) {
         return "participante";
     }
 
-
     if (
         dados.status === "pendente" ||
         dados.status === "aprovado"
@@ -263,7 +311,6 @@ async function identificarPerfil(usuario) {
 
         return "leitor";
     }
-
 
     return "sem_permissao";
 }
@@ -302,7 +349,10 @@ function criarElemento(tag, classe, texto) {
 
 function formatarData(timestamp) {
 
-    if (!timestamp || typeof timestamp.toDate !== "function") {
+    if (
+        !timestamp ||
+        typeof timestamp.toDate !== "function"
+    ) {
 
         return "Comunicado institucional";
     }
@@ -347,6 +397,11 @@ function criarCartaoComunicado(documento) {
         "post-card"
     );
 
+    // NOVO:
+    // Permite localizar o cartão quando sua
+    // notificação for dispensada no sino.
+
+    cartao.dataset.comunicadoId = documento.id;
 
     // --------------------------------------------
     // 09.2 — CABEÇALHO
@@ -364,7 +419,6 @@ function criarCartaoComunicado(documento) {
     );
 
     avatar.setAttribute("aria-hidden", "true");
-
 
     const identificacao = criarElemento(
         "div",
@@ -406,7 +460,6 @@ function criarCartaoComunicado(documento) {
         identificacao
     );
 
-
     // --------------------------------------------
     // 09.3 — IDENTIFICAÇÃO INSTITUCIONAL
     // --------------------------------------------
@@ -416,7 +469,6 @@ function criarCartaoComunicado(documento) {
         "content-tag",
         "Institucional"
     );
-
 
     // --------------------------------------------
     // 09.4 — TÍTULO E CONTEÚDO
@@ -433,7 +485,6 @@ function criarCartaoComunicado(documento) {
         "comunidade-post-conteudo",
         dados.conteudo || ""
     );
-
 
     // --------------------------------------------
     // 09.5 — RODAPÉ
@@ -463,7 +514,6 @@ function criarCartaoComunicado(documento) {
         simbolo
     );
 
-
     // --------------------------------------------
     // 09.6 — MONTAGEM FINAL
     // --------------------------------------------
@@ -490,16 +540,26 @@ function criarCartaoComunicado(documento) {
 // por comunicados.html.
 //
 // Carregamos cinco documentos por consulta.
+//
+// IMPORTANTE:
+// O cursor considera TODOS os documentos retornados,
+// inclusive os que foram dispensados pelo usuário.
 // ============================================================
 
 async function carregarComunicados(reiniciar = false) {
 
-    if (!perfilAtual || carregando) {
+    if (
+        !perfilAtual ||
+        carregando ||
+        !dispensasCarregadas
+    ) {
 
         return;
     }
 
     const sessaoDaConsulta = versaoSessao;
+
+    const requisicaoAtual = ++versaoListagem;
 
     carregando = true;
 
@@ -507,16 +567,13 @@ async function carregarComunicados(reiniciar = false) {
 
     btnCarregarMais.disabled = true;
 
-
     if (reiniciar) {
 
         limparComunicados();
     }
 
-
     mensagemComunicados.textContent =
         "Carregando comunicados...";
-
 
     try {
 
@@ -526,7 +583,6 @@ async function carregarComunicados(reiniciar = false) {
         );
 
         let consulta;
-
 
         // --------------------------------------------
         // 10.1 — PRIMEIRA PÁGINA OU PÁGINA SEGUINTE
@@ -550,31 +606,36 @@ async function carregarComunicados(reiniciar = false) {
             );
         }
 
-
         // --------------------------------------------
         // 10.2 — CONSULTA REAL
         // --------------------------------------------
 
         const resultado = await getDocs(consulta);
 
-
-        // Caso a sessão tenha mudado durante a consulta,
-        // não mostramos resultados da sessão anterior.
-
-        if (sessaoDaConsulta !== versaoSessao) {
+        if (
+            sessaoDaConsulta !== versaoSessao ||
+            requisicaoAtual !== versaoListagem
+        ) {
 
             return;
         }
 
-
         // --------------------------------------------
         // 10.3 — INSERÇÃO DOS CARTÕES
+        //
+        // NOVO:
+        // Não mostra os IDs que já possuem
+        // dispensadoEm no histórico pessoal.
         // --------------------------------------------
 
         const fragmento =
             document.createDocumentFragment();
 
-        resultado.forEach((documento) => {
+        resultado.forEach(documento => {
+
+            if (idsDispensados.has(documento.id)) {
+                return;
+            }
 
             fragmento.appendChild(
                 criarCartaoComunicado(documento)
@@ -585,9 +646,13 @@ async function carregarComunicados(reiniciar = false) {
 
         listaComunicados.appendChild(fragmento);
 
-
         // --------------------------------------------
         // 10.4 — CURSOR DE PAGINAÇÃO
+        //
+        // Preserva a paginação original.
+        //
+        // Não utiliza a quantidade de cartões visíveis
+        // para decidir se existem mais páginas.
         // --------------------------------------------
 
         if (!resultado.empty) {
@@ -599,28 +664,20 @@ async function carregarComunicados(reiniciar = false) {
         terminouListagem =
             resultado.size < TAMANHO_PAGINA;
 
-        btnCarregarMais.hidden =
-            terminouListagem || totalExibido === 0;
-
+        btnCarregarMais.hidden = terminouListagem;
 
         // --------------------------------------------
         // 10.5 — MENSAGEM AO USUÁRIO
         // --------------------------------------------
 
-        if (totalExibido === 0) {
-
-            mensagemComunicados.textContent =
-                "Não há comunicados publicados.";
-
-        } else {
-
-            mensagemComunicados.textContent =
-                `${totalExibido} comunicado(s) exibido(s).`;
-        }
+        atualizarQuantidadeComunicados();
 
     } catch (erro) {
 
-        if (sessaoDaConsulta !== versaoSessao) {
+        if (
+            sessaoDaConsulta !== versaoSessao ||
+            requisicaoAtual !== versaoListagem
+        ) {
 
             return;
         }
@@ -636,9 +693,12 @@ async function carregarComunicados(reiniciar = false) {
 
     } finally {
 
-        carregando = false;
+        if (
+            sessaoDaConsulta === versaoSessao &&
+            requisicaoAtual === versaoListagem
+        ) {
 
-        if (sessaoDaConsulta === versaoSessao) {
+            carregando = false;
 
             btnAtualizar.disabled = false;
 
@@ -646,6 +706,132 @@ async function carregarComunicados(reiniciar = false) {
                 terminouListagem;
         }
     }
+}
+
+
+// ============================================================
+// 13 — SINCRONIZAÇÃO DAS DISPENSAS
+//
+// NOVA IMPLEMENTAÇÃO
+//
+// Observa os documentos individuais do usuário.
+//
+// Quando o sino registra dispensadoEm,
+// o cartão correspondente desaparece da comunidade.
+//
+// Não altera os comunicados originais.
+// ============================================================
+
+function sincronizarCartoesDispensados() {
+
+    const cartoes = listaComunicados.querySelectorAll(
+        "[data-comunicado-id]"
+    );
+
+    let houveRemocao = false;
+
+    cartoes.forEach(cartao => {
+
+        const id = cartao.dataset.comunicadoId;
+
+        if (idsDispensados.has(id)) {
+
+            cartao.remove();
+
+            totalExibido = Math.max(
+                0,
+                totalExibido - 1
+            );
+
+            houveRemocao = true;
+        }
+    });
+
+    if (houveRemocao && !carregando) {
+        atualizarQuantidadeComunicados();
+    }
+}
+
+
+// ------------------------------------------------------------
+// PRIMEIRA CONSULTA E ATUALIZAÇÕES EM TEMPO REAL
+//
+// A primeira resposta precisa chegar antes da
+// primeira listagem para evitar que comunicados
+// dispensados apareçam temporariamente.
+// ------------------------------------------------------------
+
+function acompanharDispensas(usuario, sessaoAtual) {
+
+    return new Promise((resolver, rejeitar) => {
+
+        let primeiraResposta = true;
+
+        const referencia = collection(
+            db,
+            "leituras_comunicados",
+            usuario.uid,
+            "itens"
+        );
+
+        cancelarObservadorDispensas = onSnapshot(
+
+            referencia,
+
+            resultado => {
+
+                if (sessaoAtual !== versaoSessao) {
+                    return;
+                }
+
+                idsDispensados = new Set(
+                    resultado.docs
+                        .filter(documento =>
+                            documento.data().dispensadoEm != null
+                        )
+                        .map(documento => documento.id)
+                );
+
+                dispensasCarregadas = true;
+
+                sincronizarCartoesDispensados();
+
+                if (primeiraResposta) {
+
+                    primeiraResposta = false;
+
+                    resolver();
+                }
+            },
+
+            erro => {
+
+                if (sessaoAtual !== versaoSessao) {
+                    return;
+                }
+
+                console.error(
+                    "COJURIS — Consulta de dispensas:",
+                    erro.code || erro.message
+                );
+
+                dispensasCarregadas = false;
+
+                if (primeiraResposta) {
+
+                    primeiraResposta = false;
+
+                    rejeitar(erro);
+
+                } else {
+
+                    mensagemComunicados.textContent =
+                        "Não foi possível sincronizar as " +
+                        "notificações dispensadas.";
+                }
+            }
+        );
+    });
 }
 
 
@@ -666,9 +852,26 @@ onAuthStateChanged(
 
     auth,
 
-    async (usuario) => {
+    async usuario => {
 
         versaoSessao++;
+
+        // Encerrar consultas da sessão anterior.
+
+        if (cancelarObservadorDispensas) {
+
+            cancelarObservadorDispensas();
+
+            cancelarObservadorDispensas = null;
+        }
+
+        idsDispensados = new Set();
+
+        dispensasCarregadas = false;
+
+        versaoListagem++;
+
+        carregando = false;
 
         perfilAtual = null;
 
@@ -680,7 +883,6 @@ onAuthStateChanged(
 
         limparComunicados();
 
-
         if (!usuario) {
 
             window.location.replace("./index.html");
@@ -688,14 +890,11 @@ onAuthStateChanged(
             return;
         }
 
-
         mostrarMensagemAcesso(
             "Verificando sua autorização..."
         );
 
-
         const sessaoAtual = versaoSessao;
-
 
         try {
 
@@ -703,12 +902,9 @@ onAuthStateChanged(
                 usuario
             );
 
-
             if (sessaoAtual !== versaoSessao) {
-
                 return;
             }
-
 
             if (
                 perfil === "administrador" ||
@@ -718,11 +914,23 @@ onAuthStateChanged(
 
                 liberarPagina(perfil);
 
+                // NOVO:
+                // Consultar as dispensas individuais
+                // antes da primeira página.
+
+                await acompanharDispensas(
+                    usuario,
+                    sessaoAtual
+                );
+
+                if (sessaoAtual !== versaoSessao) {
+                    return;
+                }
+
                 await carregarComunicados(true);
 
                 return;
             }
-
 
             const mensagens = {
 
@@ -738,7 +946,6 @@ onAuthStateChanged(
                     "Não foi possível autorizar seu acesso."
             };
 
-
             mostrarMensagemAcesso(
                 mensagens[perfil] ||
                 "Acesso não autorizado."
@@ -747,23 +954,23 @@ onAuthStateChanged(
         } catch (erro) {
 
             if (sessaoAtual !== versaoSessao) {
-
                 return;
             }
 
             console.error(
-                "COJURIS — Autorização:",
+                "COJURIS — Autorização ou dispensas:",
                 erro.code || erro.message
             );
 
             mostrarMensagemAcesso(
-                "Não foi possível verificar suas permissões. " +
+                "Não foi possível verificar suas permissões " +
+                "ou sincronizar os comunicados. " +
                 "Confira sua conexão e tente novamente."
             );
         }
     },
 
-    (erro) => {
+    erro => {
 
         console.error(
             "COJURIS — Autenticação:",
@@ -783,18 +990,24 @@ onAuthStateChanged(
 
 // Atualiza a listagem a partir do Firestore.
 
-btnAtualizar.addEventListener("click", async () => {
+btnAtualizar.addEventListener(
+    "click",
+    async () => {
 
-    await carregarComunicados(true);
-});
+        await carregarComunicados(true);
+    }
+);
 
 
 // Carrega a próxima página da listagem.
 
-btnCarregarMais.addEventListener("click", async () => {
+btnCarregarMais.addEventListener(
+    "click",
+    async () => {
 
-    if (!terminouListagem) {
+        if (!terminouListagem) {
 
-        await carregarComunicados(false);
+            await carregarComunicados(false);
+        }
     }
-});
+);
