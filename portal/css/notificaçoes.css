@@ -1,0 +1,490 @@
+
+/* ============================================================
+   COJURIS — NOTIFICAÇÕES INTERNAS
+   Arquivo: portal/css/notificacoes.css
+
+   Interface:
+   - Sino discreto no cabeçalho
+   - Contador turquesa
+   - Painel suspenso
+   - Lista compacta de comunicados
+   - Hierarquia tipográfica refinada
+   - Responsividade
+
+   Este arquivo não modifica permissões nem dados.
+   ============================================================ */
+
+
+/* 01 — BASE */
+
+.cojuris-notificacoes {
+    --notif-azul: #173a4c;
+    --notif-muted: #7b8f9a;
+    --notif-teal: #139b95;
+    --notif-border: #e7eef1;
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    z-index: 100;
+
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+/* Sino fora de um cabeçalho conhecido */
+
+.cojuris-notificacoes-flutuantes {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 1500;
+}
+
+/* Sino dentro do cabeçalho */
+
+.cojuris-notificacoes-integradas {
+    position: relative;
+    top: auto;
+    right: auto;
+}
+
+
+/* 02 — BOTÃO DO SINO */
+
+.cojuris-notificacoes .cojuris-sino {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid #dfe9ed;
+    border-radius: 11px;
+
+    background: #ffffff;
+    color: var(--notif-azul);
+
+    box-shadow: none;
+
+    cursor: pointer;
+    appearance: none;
+
+    transition:
+        background-color .2s ease,
+        border-color .2s ease;
+}
+
+.cojuris-notificacoes .cojuris-sino:hover {
+    background: #f4faf9;
+    border-color: #b5ded9;
+}
+
+.cojuris-notificacoes .cojuris-sino svg {
+    display: block;
+    width: 19px;
+    height: 19px;
+    stroke: currentColor;
+}
+
+
+/* 03 — CONTADOR NUMÉRICO */
+
+.cojuris-notificacoes .cojuris-contador {
+    position: absolute;
+    top: -5px;
+    right: -6px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+
+    border: 2px solid #fff;
+    border-radius: 999px;
+
+    background: var(--notif-teal);
+    color: #fff;
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+
+/* 04 — PAINEL SUSPENSO
+
+   O JavaScript calcula top, left e width.
+   O painel não desloca os elementos do cabeçalho.
+*/
+
+.cojuris-notificacoes
+.cojuris-notificacoes-painel {
+    position: fixed;
+    z-index: 2100;
+
+    display: block;
+    box-sizing: border-box;
+
+    width: 350px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 30px);
+
+    margin: 0;
+    padding: 0;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    border: 1px solid #e0e9ed;
+    border-radius: 14px;
+
+    background: #ffffff;
+    color: var(--notif-azul);
+
+    box-shadow:
+        0 16px 44px rgba(16, 45, 60, .13);
+
+    text-align: left;
+}
+
+
+/* 05 — CABEÇALHO DO PAINEL */
+
+.cojuris-notificacoes
+.cojuris-notificacoes-cabecalho {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin: 0;
+    padding: 13px 15px;
+
+    border-bottom: 1px solid var(--notif-border);
+}
+
+.cojuris-notificacoes
+.cojuris-notificacoes-cabecalho h2 {
+    margin: 0;
+    padding: 0;
+
+    color: #102d3c;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacoes-fechar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 26px;
+    height: 26px;
+
+    padding: 0;
+    margin: 0;
+
+    border: 0;
+    border-radius: 7px;
+
+    background: transparent;
+    color: #8498a2;
+
+    font-family: inherit;
+    font-size: 19px;
+    line-height: 1;
+
+    cursor: pointer;
+    appearance: none;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacoes-fechar:hover {
+    background: #f2f6f7;
+    color: #173a4c;
+}
+
+
+/* 06 — TEXTO DE RESUMO */
+
+.cojuris-notificacoes
+.cojuris-notificacoes-mensagem {
+    display: block;
+
+    margin: 0;
+    padding: 10px 15px;
+
+    border-bottom: 1px solid #f0f3f5;
+
+    color: var(--notif-muted);
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+
+/* 07 — LISTA VERTICAL */
+
+.cojuris-notificacoes
+.cojuris-notificacoes-lista {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    gap: 0;
+}
+
+
+/* 08 — LINHA DE COMUNICADO */
+
+.cojuris-notificacoes
+.cojuris-notificacao {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+
+    gap: 4px;
+
+    box-sizing: border-box;
+
+    width: 100%;
+    min-height: 62px;
+
+    margin: 0;
+    padding: 12px 15px 12px 29px;
+
+    border: 0;
+    border-bottom: 1px solid var(--notif-border);
+    border-radius: 0;
+
+    background: #ffffff;
+    color: var(--notif-azul);
+
+    box-shadow: none;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.45;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+    white-space: normal;
+
+    cursor: pointer;
+    appearance: none;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao:last-child {
+    border-bottom: 0;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao:hover:not(:disabled) {
+    background: #f5faf9;
+}
+
+
+/* 09 — LINHA SUPERIOR */
+
+.cojuris-notificacoes
+.cojuris-notificacao-topo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* A categoria é redundante na lista compacta */
+
+.cojuris-notificacoes
+.cojuris-notificacao-categoria {
+    display: none;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao-estado {
+    display: inline-block;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+
+    color: var(--notif-teal);
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.2;
+}
+
+
+/* 10 — TÍTULO */
+
+.cojuris-notificacoes
+.cojuris-notificacao-titulo {
+    display: block;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    color: #193d4f;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* 11 — DATA */
+
+.cojuris-notificacoes
+.cojuris-notificacao-data {
+    display: block;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    color: var(--notif-muted);
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.45;
+}
+
+
+/* 12 — NOVO E VISUALIZADO */
+
+.cojuris-notificacoes
+.cojuris-notificacao.nao-lida {
+    background: #f7fbfa;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao.nao-lida::before {
+    content: "";
+
+    position: absolute;
+    top: 24px;
+    left: 15px;
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+    background: var(--notif-teal);
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao.lida {
+    background: #ffffff;
+}
+
+.cojuris-notificacoes
+.cojuris-notificacao.lida
+.cojuris-notificacao-estado {
+    display: none;
+}
+
+
+/* 13 — INTERAÇÃO E ACESSIBILIDADE */
+
+.cojuris-notificacoes
+.cojuris-notificacao:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.cojuris-notificacoes button:focus-visible {
+    outline: 2px solid var(--notif-teal);
+    outline-offset: -2px;
+}
+
+
+/* 14 — ELEMENTOS OCULTOS */
+
+.cojuris-notificacoes[hidden],
+.cojuris-notificacoes [hidden] {
+    display: none !important;
+}
+
+
+/* 15 — CELULARES */
+
+@media (max-width: 760px) {
+
+    .cojuris-notificacoes-flutuantes {
+        top: 10px;
+        right: 12px;
+    }
+
+    .cojuris-notificacoes .cojuris-sino {
+        width: 38px;
+        height: 38px;
+    }
+
+    .cojuris-notificacoes
+    .cojuris-notificacoes-painel {
+        max-width: calc(100vw - 20px);
+    }
+
+    .cojuris-notificacoes
+    .cojuris-notificacao {
+        padding-top: 11px;
+        padding-bottom: 11px;
+    }
+}
+
+
+/* 16 — ANIMAÇÕES REDUZIDAS */
+
+@media (prefers-reduced-motion: reduce) {
+    .cojuris-notificacoes * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
