@@ -17,17 +17,32 @@
    11 — Autenticação
    12 — Eventos
    13 — Sincronização das notificações dispensadas
+   14 — Dispensa individual diretamente pelo card
 
    A coleção "comunicados" é compartilhada com
    portal/comunicados.html.
 
-   A página da comunidade faz somente leituras.
+   FUNCIONALIDADES PRESERVADAS:
+   - Autenticação Firebase
+   - Controle de acesso
+   - Perfis administrativos
+   - Visualização de comunicados
+   - Paginação
+   - Identidade visual original
+   - Atualização de comunicados
+   - Sincronização com notificações do sino
 
-   IMPLEMENTAÇÃO ADICIONAL:
-   Os comunicados dispensados no sino deixam de
-   aparecer para o usuário autenticado.
+   NOVA FUNCIONALIDADE:
+   - Botão × individual em cada card
+   - Confirmação antes de dispensar
+   - Registro de leitura quando necessário
+   - Registro individual de dispensadoEm
+   - Atualização automática do sino
 
-   Nenhum comunicado é excluído do Firebase.
+   SEGURANÇA:
+   Nenhum comunicado original será excluído.
+   As regras do Firestore continuam responsáveis
+   por validar as operações.
    ============================================================ */
 
 
@@ -50,7 +65,10 @@ import {
     orderBy,
     limit,
     startAfter,
-    onSnapshot
+    onSnapshot,
+    setDoc,
+    updateDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
@@ -109,6 +127,8 @@ const TAMANHO_PAGINA = 5;
 
 let perfilAtual = null;
 
+let usuarioAtual = null;
+
 let ultimoDocumento = null;
 
 let carregando = false;
@@ -117,33 +137,44 @@ let terminouListagem = false;
 
 let totalExibido = 0;
 
-// Usado para ignorar respostas de consultas anteriores
-// quando ocorre alteração da sessão ou atualização.
+// Impede que respostas de sessões anteriores
+// sejam apresentadas ao usuário atual.
 
 let versaoSessao = 0;
 
-// Identifica a requisição de listagem mais recente.
+// Identifica a consulta de listagem mais recente.
+
 let versaoListagem = 0;
 
 
 // ============================================================
 // 03.1 — NOTIFICAÇÕES DISPENSADAS
 //
-// NOVA IMPLEMENTAÇÃO
-//
 // Caminho:
+//
 // leituras_comunicados/{uid}/itens/{comunicadoId}
 //
-// Somente os registros com dispensadoEm são ocultados.
+// Os registros com dispensadoEm ficam ocultos.
 //
-// Não há exclusão ou alteração do comunicado original.
+// Nenhuma informação é excluída do comunicado.
 // ============================================================
 
 let idsDispensados = new Set();
 
+let idsLidos = new Set();
+
 let cancelarObservadorDispensas = null;
 
 let dispensasCarregadas = false;
+
+
+// ============================================================
+// 03.2 — CONTROLE DAS OPERAÇÕES
+//
+// Evita cliques repetidos no mesmo botão.
+// ============================================================
+
+const dispensasEmAndamento = new Set();
 
 
 // ============================================================
@@ -372,7 +403,7 @@ function formatarData(timestamp) {
 // ============================================================
 // 09 — CRIAÇÃO DO CARTÃO DE COMUNICADO
 //
-// Mantemos as classes que já existem no CSS:
+// Mantemos as classes originais do CSS:
 //
 // post-card
 // post-header
@@ -382,6 +413,9 @@ function formatarData(timestamp) {
 // post-footer
 //
 // Dessa forma, conservamos o design original.
+//
+// NOVO:
+// Incluímos somente o botão × de dispensa.
 // ============================================================
 
 function criarCartaoComunicado(documento) {
@@ -397,11 +431,14 @@ function criarCartaoComunicado(documento) {
         "post-card"
     );
 
-    // NOVO:
-    // Permite localizar o cartão quando sua
-    // notificação for dispensada no sino.
+    // Identificação utilizada na sincronização.
 
     cartao.dataset.comunicadoId = documento.id;
+
+    // Permite posicionar o botão ×
+    // sem alterar o layout dos demais elementos.
+
+    cartao.style.position = "relative";
 
     // --------------------------------------------
     // 09.2 — CABEÇALHO
@@ -515,7 +552,7 @@ function criarCartaoComunicado(documento) {
     );
 
     // --------------------------------------------
-    // 09.6 — MONTAGEM FINAL
+    // 09.6 — MONTAGEM ORIGINAL
     // --------------------------------------------
 
     cartao.append(
@@ -525,6 +562,111 @@ function criarCartaoComunicado(documento) {
         conteudo,
         rodape
     );
+
+    // --------------------------------------------
+    // 09.7 — NOVO BOTÃO DE DISPENSA INDIVIDUAL
+    //
+    // A exclusão é apenas visual e pessoal.
+    //
+    // Não utiliza deleteDoc().
+    // --------------------------------------------
+
+    const botaoDispensar = criarElemento(
+        "button",
+        "comunidade-dispensar-comunicado",
+        "×"
+    );
+
+    botaoDispensar.type = "button";
+
+    botaoDispensar.title =
+        "Retirar comunicado da minha lista";
+
+    botaoDispensar.setAttribute(
+        "aria-label",
+        `Retirar comunicado da minha lista: ${
+            dados.titulo || "Comunicado"
+        }`
+    );
+
+    // Estilo pontual do novo botão.
+    // Não substitui o CSS da comunidade.
+
+    Object.assign(
+        botaoDispensar.style,
+        {
+            position: "absolute",
+            top: "18px",
+            right: "20px",
+
+            width: "30px",
+            height: "30px",
+
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+
+            margin: "0",
+            padding: "0",
+
+            border: "1px solid #e1e9ed",
+            borderRadius: "8px",
+
+            background: "#ffffff",
+            color: "#8196a1",
+
+            fontFamily: "inherit",
+            fontSize: "19px",
+            fontWeight: "400",
+            lineHeight: "1",
+
+            cursor: "pointer",
+            zIndex: "2"
+        }
+    );
+
+    botaoDispensar.addEventListener(
+        "mouseenter",
+        () => {
+
+            if (!botaoDispensar.disabled) {
+
+                botaoDispensar.style.background =
+                    "#eef7f6";
+
+                botaoDispensar.style.color =
+                    "#173a4c";
+            }
+        }
+    );
+
+    botaoDispensar.addEventListener(
+        "mouseleave",
+        () => {
+
+            botaoDispensar.style.background =
+                "#ffffff";
+
+            botaoDispensar.style.color =
+                "#8196a1";
+        }
+    );
+
+    botaoDispensar.addEventListener(
+        "click",
+        async evento => {
+
+            evento.stopPropagation();
+
+            await dispensarComunicadoDoCard(
+                documento.id,
+                dados.titulo || "Comunicado",
+                botaoDispensar
+            );
+        }
+    );
+
+    cartao.appendChild(botaoDispensar);
 
     return cartao;
 }
@@ -623,9 +765,7 @@ async function carregarComunicados(reiniciar = false) {
         // --------------------------------------------
         // 10.3 — INSERÇÃO DOS CARTÕES
         //
-        // NOVO:
-        // Não mostra os IDs que já possuem
-        // dispensadoEm no histórico pessoal.
+        // Não mostra comunicados dispensados.
         // --------------------------------------------
 
         const fragmento =
@@ -649,10 +789,8 @@ async function carregarComunicados(reiniciar = false) {
         // --------------------------------------------
         // 10.4 — CURSOR DE PAGINAÇÃO
         //
-        // Preserva a paginação original.
-        //
-        // Não utiliza a quantidade de cartões visíveis
-        // para decidir se existem mais páginas.
+        // Considera todos os documentos consultados,
+        // mesmo os ocultos pessoalmente.
         // --------------------------------------------
 
         if (!resultado.empty) {
@@ -712,12 +850,10 @@ async function carregarComunicados(reiniciar = false) {
 // ============================================================
 // 13 — SINCRONIZAÇÃO DAS DISPENSAS
 //
-// NOVA IMPLEMENTAÇÃO
-//
 // Observa os documentos individuais do usuário.
 //
-// Quando o sino registra dispensadoEm,
-// o cartão correspondente desaparece da comunidade.
+// Quando o sino ou o card registra dispensadoEm,
+// o comunicado correspondente desaparece.
 //
 // Não altera os comunicados originais.
 // ============================================================
@@ -748,6 +884,7 @@ function sincronizarCartoesDispensados() {
     });
 
     if (houveRemocao && !carregando) {
+
         atualizarQuantidadeComunicados();
     }
 }
@@ -757,8 +894,8 @@ function sincronizarCartoesDispensados() {
 // PRIMEIRA CONSULTA E ATUALIZAÇÕES EM TEMPO REAL
 //
 // A primeira resposta precisa chegar antes da
-// primeira listagem para evitar que comunicados
-// dispensados apareçam temporariamente.
+// primeira listagem para evitar mostrar cartões
+// que já foram dispensados.
 // ------------------------------------------------------------
 
 function acompanharDispensas(usuario, sessaoAtual) {
@@ -783,6 +920,18 @@ function acompanharDispensas(usuario, sessaoAtual) {
                 if (sessaoAtual !== versaoSessao) {
                     return;
                 }
+
+                // Registra IDs já visualizados.
+
+                idsLidos = new Set(
+                    resultado.docs
+                        .filter(documento =>
+                            documento.data().lidoEm != null
+                        )
+                        .map(documento => documento.id)
+                );
+
+                // Registra IDs dispensados.
 
                 idsDispensados = new Set(
                     resultado.docs
@@ -836,6 +985,242 @@ function acompanharDispensas(usuario, sessaoAtual) {
 
 
 // ============================================================
+// 14 — DISPENSAR COMUNICADO DIRETAMENTE PELO CARD
+//
+// NOVA FUNCIONALIDADE
+//
+// ETAPAS:
+// 1. Confirmação do usuário;
+// 2. Verificação da sessão;
+// 3. Registro de lidoEm, quando necessário;
+// 4. Registro de dispensadoEm;
+// 5. Ocultação automática pelo observador.
+//
+// A operação nunca exclui documentos da
+// coleção comunicados.
+// ============================================================
+
+async function dispensarComunicadoDoCard(
+    comunicadoId,
+    tituloComunicado,
+    botao
+) {
+
+    // --------------------------------------------------------
+    // 14.1 — VALIDAÇÕES INICIAIS
+    // --------------------------------------------------------
+
+    if (
+        !usuarioAtual ||
+        !perfilAtual ||
+        !dispensasCarregadas
+    ) {
+
+        return;
+    }
+
+    if (idsDispensados.has(comunicadoId)) {
+        return;
+    }
+
+    if (dispensasEmAndamento.has(comunicadoId)) {
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 14.2 — CONFIRMAÇÃO
+    //
+    // Explica que a ação é individual e não definitiva.
+    // --------------------------------------------------------
+
+    const confirmado = window.confirm(
+        `Retirar o comunicado da sua lista?\n\n` +
+        `${tituloComunicado}\n\n` +
+        `O comunicado continuará disponível ` +
+        `para os demais participantes e para ` +
+        `a administração da COJURIS.`
+    );
+
+    if (!confirmado) {
+        return;
+    }
+
+    // --------------------------------------------------------
+    // 14.3 — PROTEÇÃO CONTRA CLIQUES REPETIDOS
+    // --------------------------------------------------------
+
+    dispensasEmAndamento.add(comunicadoId);
+
+    botao.disabled = true;
+
+    botao.style.opacity = "0.45";
+
+    botao.style.cursor = "wait";
+
+    const uid = usuarioAtual.uid;
+
+    const sessaoDaOperacao = versaoSessao;
+
+    const referencia = doc(
+        db,
+        "leituras_comunicados",
+        uid,
+        "itens",
+        comunicadoId
+    );
+
+    try {
+
+        // ----------------------------------------------------
+        // 14.4 — CONSULTAR O REGISTRO EXISTENTE
+        //
+        // O Firestore é consultado antes da escrita
+        // para evitar sobrescrever uma leitura anterior.
+        // ----------------------------------------------------
+
+        const registroAtual = await getDoc(
+            referencia
+        );
+
+        if (
+            sessaoDaOperacao !== versaoSessao ||
+            !usuarioAtual ||
+            usuarioAtual.uid !== uid
+        ) {
+
+            return;
+        }
+
+        // ----------------------------------------------------
+        // 14.5 — PRIMEIRA VISUALIZAÇÃO
+        //
+        // Se ainda não existe um documento de leitura,
+        // cria exclusivamente o campo lidoEm.
+        //
+        // Isso é compatível com as regras atuais.
+        // ----------------------------------------------------
+
+        if (!registroAtual.exists()) {
+
+            await setDoc(
+                referencia,
+                {
+                    lidoEm: serverTimestamp()
+                }
+            );
+
+        } else {
+
+            const dadosAtuais = registroAtual.data();
+
+            // Se a notificação já estiver dispensada
+            // em outra aba, não repetimos a gravação.
+
+            if (dadosAtuais.dispensadoEm) {
+
+                idsDispensados.add(comunicadoId);
+
+                sincronizarCartoesDispensados();
+
+                return;
+            }
+
+            // A permissão atual não permite atualizar
+            // livremente o campo lidoEm.
+
+            if (!dadosAtuais.lidoEm) {
+
+                throw new Error(
+                    "Registro de leitura sem lidoEm."
+                );
+            }
+        }
+
+        // ----------------------------------------------------
+        // 14.6 — VERIFICAÇÃO DA SESSÃO
+        // ----------------------------------------------------
+
+        if (
+            sessaoDaOperacao !== versaoSessao ||
+            !usuarioAtual ||
+            usuarioAtual.uid !== uid
+        ) {
+
+            return;
+        }
+
+        // ----------------------------------------------------
+        // 14.7 — DISPENSA INDIVIDUAL
+        //
+        // updateDoc altera somente dispensadoEm.
+        //
+        // lidoEm permanece preservado.
+        // ----------------------------------------------------
+
+        await updateDoc(
+            referencia,
+            {
+                dispensadoEm: serverTimestamp()
+            }
+        );
+
+        // ----------------------------------------------------
+        // 14.8 — RESULTADO
+        // ----------------------------------------------------
+
+        if (
+            sessaoDaOperacao !== versaoSessao ||
+            !usuarioAtual ||
+            usuarioAtual.uid !== uid
+        ) {
+
+            return;
+        }
+
+        idsLidos.add(comunicadoId);
+
+        idsDispensados.add(comunicadoId);
+
+        // O observador onSnapshot também receberá
+        // a atualização e sincronizará a listagem.
+
+        sincronizarCartoesDispensados();
+
+    } catch (erro) {
+
+        console.error(
+            "COJURIS — Erro ao dispensar comunicado:",
+            erro.code || erro.message
+        );
+
+        if (sessaoDaOperacao === versaoSessao) {
+
+            window.alert(
+                "Não foi possível retirar o comunicado " +
+                "da sua lista.\n\n" +
+                "Tente novamente."
+            );
+        }
+
+    } finally {
+
+        dispensasEmAndamento.delete(
+            comunicadoId
+        );
+
+        if (botao.isConnected) {
+
+            botao.disabled = false;
+
+            botao.style.opacity = "1";
+
+            botao.style.cursor = "pointer";
+        }
+    }
+}
+
+
+// ============================================================
 // 11 — OBSERVADOR DE AUTENTICAÇÃO
 //
 // Mantém o mesmo controle de segurança anterior.
@@ -856,7 +1241,9 @@ onAuthStateChanged(
 
         versaoSessao++;
 
-        // Encerrar consultas da sessão anterior.
+        // ----------------------------------------------------
+        // 11.1 — ENCERRAMENTO DA SESSÃO ANTERIOR
+        // ----------------------------------------------------
 
         if (cancelarObservadorDispensas) {
 
@@ -867,13 +1254,19 @@ onAuthStateChanged(
 
         idsDispensados = new Set();
 
+        idsLidos = new Set();
+
         dispensasCarregadas = false;
+
+        dispensasEmAndamento.clear();
 
         versaoListagem++;
 
         carregando = false;
 
         perfilAtual = null;
+
+        usuarioAtual = null;
 
         aplicativo.hidden = true;
 
@@ -912,11 +1305,12 @@ onAuthStateChanged(
                 perfil === "leitor"
             ) {
 
+                usuarioAtual = usuario;
+
                 liberarPagina(perfil);
 
-                // NOVO:
-                // Consultar as dispensas individuais
-                // antes da primeira página.
+                // Consulta as leituras e dispensas
+                // antes de apresentar a primeira página.
 
                 await acompanharDispensas(
                     usuario,
