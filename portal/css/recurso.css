@@ -1,0 +1,589 @@
+
+/* ============================================================
+   COJURIS — REFINAMENTO VISUAL DOS COMENTÁRIOS
+
+   ARQUIVO: portal/css/recursos.css
+
+   Este bloco complementa os estilos existentes.
+
+   Não altera:
+   - autenticação;
+   - JavaScript;
+   - regras do Firebase;
+   - estrutura de comunicados;
+   - sistema de notificações.
+
+   Todas as regras são limitadas ao componente
+   .cj-comentarios para evitar interferências
+   em outras partes da plataforma.
+   ============================================================ */
+
+
+/* ============================================================
+   01 — CONTAINER DOS COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios {
+
+    width: 100%;
+    min-width: 0;
+
+    margin-top: 18px;
+    padding-top: 16px;
+
+    border-top: 1px solid #e4ecef;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color: #173a4c;
+}
+
+
+/* ============================================================
+   02 — BOTÃO ABRIR/FECHAR COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios .cj-comentarios-alternar {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-height: 40px;
+
+    padding: 9px 15px;
+
+    border: 1px solid #cce5e4;
+    border-radius: 12px;
+
+    background: #edf8f7;
+    color: #117c7b;
+
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.3;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.cj-comentarios .cj-comentarios-alternar::before {
+
+    content: "💬";
+
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+
+.cj-comentarios .cj-comentarios-alternar:hover {
+
+    background: #e2f3f1;
+    border-color: #9ad5cf;
+
+    color: #0e6665;
+}
+
+
+.cj-comentarios
+.cj-comentarios-alternar[aria-expanded="true"] {
+
+    background: #173a4c;
+    color: #ffffff;
+
+    border-color: #173a4c;
+}
+
+
+.cj-comentarios .cj-comentarios-alternar:focus-visible {
+
+    outline: 3px solid #1fb4b0;
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   03 — CORPO DA ÁREA DE COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios .cj-comentarios-corpo {
+
+    width: 100%;
+
+    margin-top: 17px;
+    padding-top: 5px;
+}
+
+
+.cj-comentarios .cj-comentarios-corpo[hidden] {
+
+    display: none !important;
+}
+
+
+/* ============================================================
+   04 — LISTAGEM DOS COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios .cj-comentarios-lista {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+
+/* ============================================================
+   05 — CADA COMENTÁRIO
+   ============================================================ */
+
+.cj-comentarios .cj-comentario {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+
+/* ============================================================
+   06 — AVATAR INSTITUCIONAL
+   ============================================================ */
+
+.cj-comentarios .cj-avatar {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 12px;
+
+    background: #173a4c;
+    color: #a1eee5;
+
+    font-size: 1.05rem;
+    font-weight: 700;
+
+    box-shadow:
+        0 3px 9px rgba(23, 58, 76, 0.10);
+}
+
+
+/* ============================================================
+   07 — BALÃO DE COMENTÁRIO
+   ============================================================ */
+
+.cj-comentarios .cj-comentario-conteudo {
+
+    flex: 1;
+    min-width: 0;
+
+    padding: 14px 16px;
+
+    background: #f5f9fa;
+
+    border: 1px solid #e0ebee;
+    border-radius: 5px 15px 15px 15px;
+
+    box-shadow:
+        0 4px 12px rgba(23, 58, 76, 0.025);
+}
+
+
+/* ============================================================
+   08 — IDENTIFICAÇÃO E DATA
+   ============================================================ */
+
+.cj-comentarios .cj-comentario-topo {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 6px 12px;
+
+    margin-bottom: 8px;
+}
+
+
+.cj-comentarios .cj-comentario-topo strong {
+
+    color: #173a4c;
+
+    font-size: 0.84rem;
+    font-weight: 700;
+
+    letter-spacing: 0.1px;
+}
+
+
+.cj-comentarios .cj-data {
+
+    color: #7c929e;
+
+    font-size: 0.73rem;
+    font-weight: 400;
+}
+
+
+/* ============================================================
+   09 — TEXTO DO COMENTÁRIO
+   ============================================================ */
+
+.cj-comentarios .cj-comentario-texto {
+
+    margin: 0;
+
+    color: #415d6b;
+
+    font-size: 0.88rem;
+    line-height: 1.75;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   10 — FORMULÁRIO DE PUBLICAÇÃO
+   ============================================================ */
+
+.cj-comentarios .cj-comentario-form {
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 12px;
+
+    width: 100%;
+
+    margin-top: 19px;
+    padding: 16px;
+
+    border: 1px solid #e1ebee;
+    border-radius: 15px;
+
+    background: #fbfdfd;
+}
+
+
+.cj-comentarios .cj-comentario-form[hidden] {
+
+    display: none !important;
+}
+
+
+/* ============================================================
+   11 — CAMPO PARA ESCREVER COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios .cj-comentario-form .cj-campo {
+
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+
+    min-height: 105px;
+
+    padding: 13px 15px;
+
+    border: 1px solid #cddfe5;
+    border-radius: 12px;
+
+    background: #ffffff;
+    color: #203d4c;
+
+    font-family: inherit;
+    font-size: 0.88rem;
+    line-height: 1.6;
+
+    resize: vertical;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.cj-comentarios .cj-comentario-form .cj-campo::placeholder {
+
+    color: #8a9ea7;
+}
+
+
+.cj-comentarios .cj-comentario-form .cj-campo:focus {
+
+    border-color: #1fb4b0;
+
+    box-shadow:
+        0 0 0 3px rgba(31, 180, 176, 0.13);
+}
+
+
+/* ============================================================
+   12 — BOTÃO PUBLICAR COMENTÁRIO
+   ============================================================ */
+
+.cj-comentarios .cj-comentario-form .cj-botao {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    align-self: flex-end;
+
+    gap: 9px;
+
+    min-height: 43px;
+
+    padding: 11px 18px;
+
+    border: 1px solid #118d8c;
+    border-radius: 11px;
+
+    background: #118d8c;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(17, 141, 140, 0.12);
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.cj-comentarios .cj-comentario-form .cj-botao:hover {
+
+    background: #0e7776;
+    border-color: #0e7776;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 15px rgba(17, 141, 140, 0.17);
+}
+
+
+.cj-comentarios .cj-comentario-form .cj-botao:focus-visible {
+
+    outline: 3px solid #1fb4b0;
+    outline-offset: 3px;
+}
+
+
+/* ============================================================
+   13 — ESTADO DESABILITADO DOS BOTÕES
+   ============================================================ */
+
+.cj-comentarios button:disabled {
+
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   14 — MENSAGENS DE STATUS
+   ============================================================ */
+
+.cj-comentarios .cj-status {
+
+    margin: 11px 0;
+
+    color: #687f8c;
+
+    font-size: 0.81rem;
+    line-height: 1.6;
+}
+
+
+.cj-comentarios .cj-status:empty {
+
+    display: none;
+}
+
+
+/* ============================================================
+   15 — BOTÃO VER MAIS COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios .cj-comentarios-corpo > .cj-link {
+
+    display: inline-flex;
+    align-items: center;
+
+    align-self: flex-start;
+
+    margin-top: 13px;
+    padding: 7px 2px;
+
+    border: none;
+
+    background: transparent;
+    color: #118d8c;
+
+    font-size: 0.81rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+
+.cj-comentarios
+.cj-comentarios-corpo > .cj-link:hover {
+
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+
+/* ============================================================
+   16 — EXCLUSÃO DO PRÓPRIO COMENTÁRIO
+   ============================================================ */
+
+.cj-comentarios .cj-link-perigo {
+
+    display: inline-flex;
+
+    margin-top: 9px;
+    padding: 4px 0;
+
+    border: none;
+
+    background: transparent;
+    color: #ad4e5a;
+
+    font-size: 0.76rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+
+.cj-comentarios .cj-link-perigo:hover {
+
+    color: #8e3441;
+
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+
+/* ============================================================
+   17 — RESPONSIVIDADE
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .cj-comentarios {
+
+        margin-top: 15px;
+        padding-top: 13px;
+    }
+
+    .cj-comentarios .cj-comentario {
+
+        gap: 9px;
+    }
+
+    .cj-comentarios .cj-avatar {
+
+        width: 32px;
+        height: 32px;
+
+        border-radius: 10px;
+    }
+
+    .cj-comentarios .cj-comentario-conteudo {
+
+        padding: 12px;
+
+        border-radius: 5px 12px 12px 12px;
+    }
+
+    .cj-comentarios .cj-comentario-form {
+
+        padding: 12px;
+    }
+
+    .cj-comentarios .cj-comentario-form .cj-campo {
+
+        min-height: 90px;
+    }
+
+    .cj-comentarios .cj-comentario-form .cj-botao {
+
+        width: 100%;
+        align-self: stretch;
+    }
+
+    .cj-comentarios .cj-comentario-topo {
+
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 2px;
+    }
+}
+
+
+/* ============================================================
+   18 — ACESSIBILIDADE
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .cj-comentarios .cj-comentarios-alternar,
+    .cj-comentarios .cj-comentario-form .cj-botao,
+    .cj-comentarios .cj-comentario-form .cj-campo {
+
+        transition: none;
+    }
+}

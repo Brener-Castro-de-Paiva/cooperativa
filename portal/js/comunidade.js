@@ -52,6 +52,9 @@
 
 import { auth, db } from "./firebase-config.js";
 
+import { criarAreaComentarios } from "./recursos/comentarios.js";
+
+
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
@@ -562,6 +565,18 @@ function criarCartaoComunicado(documento) {
         conteudo,
         rodape
     );
+    
+// ============================================================
+// ÁREA DE COMENTÁRIOS DO COMUNICADO
+//
+// Reutiliza o componente de comentários.
+// Cada comunicado possui sua própria discussão.
+// ============================================================
+
+    cartao.append(
+        criarAreaComentarios(`comunicados/${documento.id}`)
+    );
+
 
     // --------------------------------------------
     // 09.7 — NOVO BOTÃO DE DISPENSA INDIVIDUAL
