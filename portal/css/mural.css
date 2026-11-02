@@ -1,0 +1,1354 @@
+
+/* ============================================================
+   COJURIS — MURAL PROFISSIONAL
+
+   ARQUIVO: portal/css/mural.css
+   REPOSITÓRIO: cooperativa
+
+   ORGANIZAÇÃO:
+
+   01 — Variáveis visuais
+   02 — Configurações gerais
+   03 — Tela de autenticação
+   04 — Cabeçalho institucional
+   05 — Navegação
+   06 — Conteúdo principal
+   07 — Apresentação do mural
+   08 — Identificação do perfil
+   09 — Cards institucionais
+   10 — Formulário de propostas
+   11 — Botões
+   12 — Listagem de publicações
+   13 — Cards de publicações
+   14 — Comentários
+   15 — Mensagens e orientações
+   16 — Rodapé
+   17 — Responsividade
+   18 — Acessibilidade
+
+   DIRETRIZES:
+
+   - Visual profissional e institucional.
+   - Identidade visual compatível com a COJURIS.
+   - Compatível com portal/mural.html.
+   - Preparado para conteúdo dinâmico.
+   - Não interfere nas demais páginas.
+   ============================================================ */
+
+
+/* ============================================================
+   01 — VARIÁVEIS VISUAIS
+   ============================================================ */
+
+.mural-page {
+
+    --mural-azul-escuro: #102f40;
+    --mural-azul: #173a4c;
+    --mural-azul-suave: #36596b;
+
+    --mural-turquesa: #118d8c;
+    --mural-turquesa-hover: #0c7776;
+
+    --mural-turquesa-claro: #e5f5f3;
+
+    --mural-fundo: #f1f6f8;
+    --mural-branco: #ffffff;
+
+    --mural-texto: #193b4c;
+    --mural-texto-suave: #64808e;
+
+    --mural-borda: #dce8ec;
+
+    --mural-sombra:
+        0 10px 30px rgba(23, 58, 76, 0.045);
+
+    --mural-raio: 18px;
+
+    --mural-transicao:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+/* ============================================================
+   02 — CONFIGURAÇÕES GERAIS
+   ============================================================ */
+
+.mural-page,
+.mural-page *,
+.mural-page *::before,
+.mural-page *::after {
+
+    box-sizing: border-box;
+}
+
+
+body.mural-page {
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    background: var(--mural-fundo);
+
+    color: var(--mural-texto);
+
+    font-family:
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+}
+
+
+.mural-page button,
+.mural-page input,
+.mural-page select,
+.mural-page textarea {
+
+    font: inherit;
+}
+
+
+.mural-page a {
+
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+.mural-page button {
+
+    cursor: pointer;
+}
+
+
+.mural-page [hidden] {
+
+    display: none !important;
+}
+
+
+/* ============================================================
+   03 — TELA DE AUTENTICAÇÃO
+   ============================================================ */
+
+.mural-page .mural-acesso {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 100vh;
+
+    padding: 24px;
+
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(17, 141, 140, 0.08),
+            transparent 38%
+        ),
+        var(--mural-fundo);
+}
+
+
+.mural-page .mural-acesso-card {
+
+    width: 100%;
+    max-width: 420px;
+
+    padding: 45px 34px;
+
+    border: 1px solid var(--mural-borda);
+    border-radius: 24px;
+
+    background: var(--mural-branco);
+
+    text-align: center;
+
+    box-shadow: var(--mural-sombra);
+}
+
+
+.mural-page .mural-logo {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 62px;
+    height: 62px;
+
+    margin: 0 auto 20px;
+
+    border-radius: 19px;
+
+    background: var(--mural-azul);
+
+    color: #a0eee3;
+
+    font-size: 30px;
+}
+
+
+.mural-page .mural-acesso-card h1 {
+
+    margin: 0 0 12px;
+
+    color: var(--mural-azul);
+
+    font-size: 1.8rem;
+    letter-spacing: 0.08em;
+}
+
+
+.mural-page .mural-acesso-card p {
+
+    margin: 0 0 22px;
+
+    color: var(--mural-texto-suave);
+
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
+
+
+.mural-page .mural-acesso-card a {
+
+    display: inline-flex;
+
+    padding: 11px 18px;
+
+    border: 1px solid #cee5e4;
+    border-radius: 11px;
+
+    background: #edf8f7;
+
+    color: var(--mural-turquesa);
+
+    font-weight: 700;
+    font-size: 0.86rem;
+
+    transition: var(--mural-transicao);
+}
+
+
+.mural-page .mural-acesso-card a:hover {
+
+    background: #e0f2f0;
+}
+
+
+/* ============================================================
+   04 — APLICAÇÃO PROTEGIDA
+   ============================================================ */
+
+.mural-page .mural-app {
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ============================================================
+   05 — CABEÇALHO INSTITUCIONAL
+   ============================================================ */
+
+.mural-page .mural-header {
+
+    position: relative;
+
+    background: var(--mural-branco);
+
+    border-bottom: 1px solid var(--mural-borda);
+}
+
+
+.mural-page .mural-header-inner {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    width: min(100% - 48px, 1180px);
+
+    margin: 0 auto;
+
+    padding: 18px 0;
+}
+
+
+/* ============================================================
+   06 — MARCA COJURIS
+   ============================================================ */
+
+.mural-page .mural-brand {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+}
+
+
+.mural-page .mural-brand-icon {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 14px;
+
+    background: var(--mural-azul);
+
+    color: #a0eee3;
+
+    font-size: 25px;
+}
+
+
+.mural-page .mural-brand-text {
+
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.2;
+}
+
+
+.mural-page .mural-brand-text strong {
+
+    color: var(--mural-azul);
+
+    font-size: 1.14rem;
+    font-weight: 800;
+
+    letter-spacing: 0.06em;
+}
+
+
+.mural-page .mural-brand-text small {
+
+    margin-top: 5px;
+
+    color: var(--mural-texto-suave);
+
+    font-size: 0.64rem;
+    font-weight: 700;
+
+    letter-spacing: 0.14em;
+}
+
+
+/* ============================================================
+   07 — NAVEGAÇÃO
+   ============================================================ */
+
+.mural-page .mural-nav {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.mural-page .mural-nav a {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 40px;
+
+    padding: 9px 13px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    color: #557080;
+
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    transition: var(--mural-transicao);
+}
+
+
+.mural-page .mural-nav a:hover {
+
+    background: #f1f7f8;
+
+    color: var(--mural-azul);
+}
+
+
+.mural-page .mural-nav a[aria-current="page"] {
+
+    border-color: #c9e6e4;
+
+    background: #e8f6f4;
+
+    color: var(--mural-turquesa);
+}
+
+
+/* ============================================================
+   08 — CONTEÚDO PRINCIPAL
+   ============================================================ */
+
+.mural-page .mural-container {
+
+    width: min(100% - 48px, 1080px);
+
+    margin: 0 auto;
+
+    padding: 42px 0 58px;
+
+    flex: 1;
+}
+
+
+/* ============================================================
+   09 — TÍTULOS E RÓTULOS
+   ============================================================ */
+
+.mural-page .mural-rotulo {
+
+    margin: 0 0 10px;
+
+    color: var(--mural-turquesa);
+
+    font-size: 0.73rem;
+    font-weight: 800;
+
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+
+.mural-page h1,
+.mural-page h2,
+.mural-page h3 {
+
+    color: var(--mural-azul);
+}
+
+
+/* ============================================================
+   10 — APRESENTAÇÃO DO MURAL
+   ============================================================ */
+
+.mural-page .mural-introducao {
+
+    margin-bottom: 30px;
+}
+
+
+.mural-page .mural-introducao h1 {
+
+    margin: 0 0 13px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(2rem, 4vw, 2.8rem);
+
+    font-weight: 700;
+    line-height: 1.15;
+
+    letter-spacing: -0.025em;
+}
+
+
+.mural-page .mural-descricao {
+
+    max-width: 730px;
+
+    margin: 0 0 18px;
+
+    color: var(--mural-texto-suave);
+
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+
+/* ============================================================
+   11 — IDENTIFICAÇÃO DO PERFIL
+   ============================================================ */
+
+.mural-page .mural-identificacao {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 8px 13px;
+
+    border: 1px solid #d1e7e8;
+    border-radius: 999px;
+
+    background: #eaf5f5;
+
+    color: #456775;
+
+    font-size: 0.81rem;
+    font-weight: 700;
+}
+
+
+.mural-page .mural-identificacao-icone {
+
+    color: var(--mural-turquesa);
+
+    font-size: 1rem;
+}
+
+
+/* ============================================================
+   12 — CARD INSTITUCIONAL
+   ============================================================ */
+
+.mural-page .mural-card {
+
+    padding: 27px;
+
+    border: 1px solid var(--mural-borda);
+    border-radius: var(--mural-raio);
+
+    background: var(--mural-branco);
+
+    box-shadow: var(--mural-sombra);
+}
+
+
+.mural-page .mural-card-cabecalho {
+
+    margin-bottom: 21px;
+}
+
+
+.mural-page .mural-card-cabecalho h2 {
+
+    margin: 0 0 9px;
+
+    font-size: 1.35rem;
+    line-height: 1.3;
+}
+
+
+.mural-page .mural-card-cabecalho p:last-child {
+
+    margin: 0;
+
+    color: var(--mural-texto-suave);
+
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   13 — ÁREA DE PUBLICAÇÃO
+   ============================================================ */
+
+.mural-page .mural-publicacao {
+
+    margin-bottom: 32px;
+}
+
+
+.mural-page #mural-formulario {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 19px;
+}
+
+
+/* ============================================================
+   14 — CAMPOS DO FORMULÁRIO
+   ============================================================ */
+
+.mural-page .mural-campo {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.mural-page .mural-campo label {
+
+    color: var(--mural-azul);
+
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+
+.mural-page .mural-campo input,
+.mural-page .mural-campo select,
+.mural-page .mural-campo textarea {
+
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: 12px 15px;
+
+    border: 1px solid #cbdfe6;
+    border-radius: 11px;
+
+    background: #fbfdfd;
+
+    color: var(--mural-texto);
+
+    font-size: 0.91rem;
+    line-height: 1.6;
+
+    outline: none;
+
+    transition: var(--mural-transicao);
+}
+
+
+.mural-page .mural-campo input,
+.mural-page .mural-campo select {
+
+    min-height: 47px;
+}
+
+
+.mural-page .mural-campo textarea {
+
+    min-height: 150px;
+
+    resize: vertical;
+}
+
+
+.mural-page .mural-campo input::placeholder,
+.mural-page .mural-campo textarea::placeholder {
+
+    color: #91a4ae;
+}
+
+
+.mural-page .mural-campo input:focus,
+.mural-page .mural-campo select:focus,
+.mural-page .mural-campo textarea:focus {
+
+    border-color: #27a8a5;
+
+    box-shadow:
+        0 0 0 3px rgba(39, 168, 165, 0.12);
+
+    background: #ffffff;
+}
+
+
+/* ============================================================
+   15 — CONTADOR DE CARACTERES
+   ============================================================ */
+
+.mural-page .mural-contador {
+
+    margin: 0;
+
+    color: #7c929e;
+
+    font-size: 0.76rem;
+
+    text-align: right;
+}
+
+
+/* ============================================================
+   16 — PRIVACIDADE
+   ============================================================ */
+
+.mural-page .mural-privacidade {
+
+    margin: 0;
+
+    padding: 13px 15px;
+
+    border: 1px solid #d9e9eb;
+    border-radius: 11px;
+
+    background: #f2f8f9;
+
+    color: #637d89;
+
+    font-size: 0.8rem;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   17 — AÇÕES DOS FORMULÁRIOS
+   ============================================================ */
+
+.mural-page .mural-form-acoes {
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+}
+
+
+/* ============================================================
+   18 — BOTÃO PRINCIPAL
+   ============================================================ */
+
+.mural-page .mural-botao-primario {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 45px;
+
+    padding: 12px 20px;
+
+    border: 1px solid var(--mural-turquesa);
+    border-radius: 11px;
+
+    background: var(--mural-turquesa);
+    color: #ffffff;
+
+    font-size: 0.84rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(17, 141, 140, 0.13);
+
+    transition: var(--mural-transicao);
+}
+
+
+.mural-page .mural-botao-primario:hover:not(:disabled) {
+
+    background: var(--mural-turquesa-hover);
+
+    border-color: var(--mural-turquesa-hover);
+
+    box-shadow:
+        0 6px 15px rgba(17, 141, 140, 0.18);
+}
+
+
+/* ============================================================
+   19 — BOTÃO SECUNDÁRIO
+   ============================================================ */
+
+.mural-page .mural-botao-secundario {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 16px;
+
+    border: 1px solid #c9e3e6;
+    border-radius: 11px;
+
+    background: #eff7f8;
+    color: #207b84;
+
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: var(--mural-transicao);
+}
+
+
+.mural-page .mural-botao-secundario:hover:not(:disabled) {
+
+    background: #e3f1f3;
+
+    border-color: #aacfd2;
+}
+
+
+/* ============================================================
+   20 — ESTADO DESABILITADO
+   ============================================================ */
+
+.mural-page button:disabled {
+
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   21 — LISTAGEM DE PUBLICAÇÕES
+   ============================================================ */
+
+.mural-page .mural-publicacoes {
+
+    margin-top: 32px;
+}
+
+
+.mural-page .mural-listagem-cabecalho {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    margin-bottom: 19px;
+}
+
+
+.mural-page .mural-listagem-cabecalho h2 {
+
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 1.65rem;
+    line-height: 1.3;
+}
+
+
+/* ============================================================
+   22 — LISTA DE CARDS
+   ============================================================ */
+
+.mural-page .mural-lista {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+
+/* ============================================================
+   23 — CARD DE UMA PUBLICAÇÃO
+
+   Será gerado dinamicamente pelo mural.js.
+   ============================================================ */
+
+.mural-page .mural-item {
+
+    padding: 23px;
+
+    border: 1px solid var(--mural-borda);
+    border-radius: var(--mural-raio);
+
+    background: var(--mural-branco);
+
+    box-shadow: var(--mural-sombra);
+}
+
+
+/* ============================================================
+   24 — CABEÇALHO DA PUBLICAÇÃO
+   ============================================================ */
+
+.mural-page .mural-item-topo {
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 13px;
+
+    margin-bottom: 15px;
+}
+
+
+.mural-page .mural-item-identificacao {
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.mural-page .mural-item-avatar {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 13px;
+
+    background: var(--mural-azul);
+
+    color: #9eede5;
+
+    font-size: 1.25rem;
+}
+
+
+.mural-page .mural-item-autor {
+
+    display: block;
+
+    color: var(--mural-azul);
+
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+
+.mural-page .mural-item-data {
+
+    color: #7d929e;
+
+    font-size: 0.75rem;
+}
+
+
+/* ============================================================
+   25 — CATEGORIA
+   ============================================================ */
+
+.mural-page .mural-item-categoria {
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 8px;
+
+    background: #e4f5f2;
+    color: #128380;
+
+    font-size: 0.73rem;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   26 — CONTEÚDO DA PUBLICAÇÃO
+   ============================================================ */
+
+.mural-page .mural-item-titulo {
+
+    margin: 13px 0 10px;
+
+    color: var(--mural-azul);
+
+    font-size: 1.18rem;
+    font-weight: 800;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+
+.mural-page .mural-item-texto {
+
+    margin: 0;
+
+    color: #42606f;
+
+    font-size: 0.91rem;
+    line-height: 1.8;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   27 — RODAPÉ DO CARD
+   ============================================================ */
+
+.mural-page .mural-item-rodape {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-top: 20px;
+    padding-top: 16px;
+
+    border-top: 1px solid #e5edef;
+}
+
+
+/* ============================================================
+   28 — COMENTÁRIOS DO MURAL
+
+   Preparação para integração futura.
+   ============================================================ */
+
+.mural-page .mural-item-comentarios {
+
+    width: 100%;
+
+    margin-top: 18px;
+}
+
+
+/* ============================================================
+   29 — AVISO DE LEITURA
+   ============================================================ */
+
+.mural-page .mural-aviso-leitura {
+
+    margin-bottom: 26px;
+
+    padding: 16px 19px;
+
+    border: 1px solid #d8e6e9;
+    border-radius: 12px;
+
+    background: #edf6f7;
+
+    color: #527382;
+
+    font-size: 0.87rem;
+    line-height: 1.7;
+}
+
+
+.mural-page .mural-aviso-leitura p {
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   30 — MENSAGENS OPERACIONAIS
+   ============================================================ */
+
+.mural-page .mural-status {
+
+    margin: 12px 0;
+
+    color: #6d8592;
+
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+
+.mural-page .mural-status:empty {
+
+    display: none;
+}
+
+
+/* ============================================================
+   31 — PAGINAÇÃO
+   ============================================================ */
+
+.mural-page .mural-paginacao {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 23px;
+}
+
+
+/* ============================================================
+   32 — ORIENTAÇÕES
+   ============================================================ */
+
+.mural-page .mural-orientacoes {
+
+    margin-top: 33px;
+
+    padding: 22px 24px;
+
+    border: 1px solid #d8e7e9;
+    border-radius: 15px;
+
+    background: #eaf4f5;
+}
+
+
+.mural-page .mural-orientacoes h2 {
+
+    margin: 0 0 12px;
+
+    color: var(--mural-azul);
+
+    font-size: 1rem;
+}
+
+
+.mural-page .mural-orientacoes p {
+
+    margin: 0 0 9px;
+
+    color: #587785;
+
+    font-size: 0.84rem;
+    line-height: 1.75;
+}
+
+
+.mural-page .mural-orientacoes p:last-child {
+
+    margin-bottom: 0;
+}
+
+
+/* ============================================================
+   33 — RODAPÉ
+   ============================================================ */
+
+.mural-page .mural-footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    padding: 24px max(24px, calc((100% - 1180px) / 2));
+
+    border-top: 1px solid var(--mural-borda);
+
+    background: var(--mural-branco);
+
+    color: #78919c;
+
+    font-size: 0.8rem;
+}
+
+
+.mural-page .mural-footer a {
+
+    color: var(--mural-turquesa);
+
+    font-weight: 700;
+}
+
+
+.mural-page .mural-footer a:hover {
+
+    text-decoration: underline;
+
+    text-underline-offset: 3px;
+}
+
+
+/* ============================================================
+   34 — ACESSIBILIDADE
+   ============================================================ */
+
+.mural-page button:focus-visible,
+.mural-page a:focus-visible {
+
+    outline: 3px solid #1ba7a4;
+
+    outline-offset: 3px;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .mural-page *,
+    .mural-page *::before,
+    .mural-page *::after {
+
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================
+   35 — TABLETS
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .mural-page .mural-header-inner {
+
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .mural-page .mural-container {
+
+        width: min(100% - 36px, 1080px);
+
+        padding: 30px 0 45px;
+    }
+
+    .mural-page .mural-card {
+
+        padding: 22px;
+    }
+}
+
+
+/* ============================================================
+   36 — CELULARES
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .mural-page .mural-header-inner {
+
+        width: calc(100% - 30px);
+
+        padding: 15px 0;
+    }
+
+    .mural-page .mural-nav {
+
+        width: 100%;
+
+        gap: 5px;
+    }
+
+    .mural-page .mural-nav a {
+
+        flex: 1;
+
+        padding: 9px 8px;
+
+        font-size: 0.76rem;
+    }
+
+    .mural-page .mural-container {
+
+        width: calc(100% - 28px);
+
+        padding: 25px 0 38px;
+    }
+
+    .mural-page .mural-introducao h1 {
+
+        font-size: 2rem;
+    }
+
+    .mural-page .mural-card {
+
+        padding: 19px 16px;
+        border-radius: 15px;
+    }
+
+    .mural-page .mural-campo textarea {
+
+        min-height: 125px;
+    }
+
+    .mural-page .mural-form-acoes {
+
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mural-page .mural-botao-primario,
+    .mural-page .mural-botao-secundario {
+
+        width: 100%;
+    }
+
+    .mural-page .mural-listagem-cabecalho {
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .mural-page .mural-item {
+
+        padding: 18px 15px;
+    }
+
+    .mural-page .mural-item-topo {
+
+        flex-direction: column;
+    }
+
+    .mural-page .mural-item-rodape {
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .mural-page .mural-orientacoes {
+
+        padding: 18px 16px;
+    }
+
+    .mural-page .mural-footer {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        padding: 23px 18px;
+    }
+
+    .mural-page .mural-acesso-card {
+
+        padding: 35px 23px;
+    }
+}

@@ -42,6 +42,7 @@
                     </span>
 
                 </a>
+
                 <a
                     href="./admin.html"
                     id="voltar-admin"
@@ -51,6 +52,7 @@
                     Administração
 
                 </a>
+
                 <button
                     type="button"
                     id="btn-sair"
@@ -134,17 +136,18 @@
 
                 <div class="feature-grid">
 
-                    
                     <!-- ==========================================
-                        ACESSO À COMUNIDADE COJURIS
-                        ========================================== -->
+                         ACESSO À COMUNIDADE COJURIS
+                         ========================================== -->
 
                     <a
                         href="./comunidade.html"
                         class="feature-card comunidade-link"
                         aria-label="Acessar Área Comum da COJURIS"
                     >
-                        <span class="feature-icon" aria-hidden="true">
+                        <span
+                            class="feature-icon"
+                            aria-hidden="true">
                             ◈
                         </span>
 
@@ -161,9 +164,55 @@
                     </a>
 
 
+                    <!-- ==========================================
+                         NOVO — MURAL PROFISSIONAL COJURIS
+
+                         Acesso à página mural.html.
+
+                         Reutiliza o estilo feature-card
+                         existente no painel.
+
+                         A autorização de participação
+                         será controlada pelo mural.js.
+
+                         Nenhuma alteração é necessária
+                         no painel.js ou no Firebase.
+                         ========================================== -->
+
+                    <a
+                        href="./mural.html"
+                        class="feature-card mural-link"
+                        aria-label="Acessar Mural Profissional da COJURIS"
+                    >
+                        <span
+                            class="feature-icon"
+                            aria-hidden="true">
+                            ✧
+                        </span>
+
+                        <h3>Mural Profissional</h3>
+
+                        <p>
+                            Propostas, sugestões e discussões
+                            para o desenvolvimento da rede
+                            profissional COJURIS.
+                        </p>
+
+                        <span class="feature-status">
+                            Acessar mural
+                        </span>
+                    </a>
+
+
+                    <!-- ==========================================
+                         OPORTUNIDADES
+                         ========================================== -->
+
                     <article class="feature-card">
-                        <span class="feature-icon"
-                              aria-hidden="true">⚖</span>
+
+                        <span
+                            class="feature-icon"
+                            aria-hidden="true">⚖</span>
 
                         <h3>Oportunidades</h3>
 
@@ -172,45 +221,76 @@
                         <span class="feature-tag">
                             Em desenvolvimento
                         </span>
+
                     </article>
 
+
+                    <!-- ==========================================
+                         MINHA REDE
+                         ========================================== -->
+
                     <article class="feature-card">
-                        <span class="feature-icon"
-                              aria-hidden="true">◎</span>
+
+                        <span
+                            class="feature-icon"
+                            aria-hidden="true">◎</span>
 
                         <h3>Minha rede</h3>
 
-                        <p>Conexão entre profissionais do Direito.</p>
+                        <p>
+                            Conexão entre profissionais do Direito.
+                        </p>
 
                         <span class="feature-tag">
                             Em desenvolvimento
                         </span>
+
                     </article>
 
+
+                    <!-- ==========================================
+                         DOCUMENTOS
+                         ========================================== -->
+
                     <article class="feature-card">
-                        <span class="feature-icon"
-                              aria-hidden="true">▤</span>
+
+                        <span
+                            class="feature-icon"
+                            aria-hidden="true">▤</span>
 
                         <h3>Documentos</h3>
 
-                        <p>Materiais e documentos institucionais.</p>
+                        <p>
+                            Materiais e documentos institucionais.
+                        </p>
 
                         <span class="feature-tag">
                             Em desenvolvimento
                         </span>
+
                     </article>
 
+
+                    <!-- ==========================================
+                         MENSAGENS
+                         ========================================== -->
+
                     <article class="feature-card">
-                        <span class="feature-icon"
-                              aria-hidden="true">✉</span>
+
+                        <span
+                            class="feature-icon"
+                            aria-hidden="true">✉</span>
 
                         <h3>Mensagens</h3>
 
-                        <p>Comunicação dentro da plataforma.</p>
+                        <p>
+                            Comunicação dentro da plataforma.
+                        </p>
 
                         <span class="feature-tag">
                             Em desenvolvimento
                         </span>
+
                     </article>
 
                 </div>
@@ -233,6 +313,7 @@
                 </div>
 
                 <article class="info-card">
+
                     <h3>Acompanhamento cadastral</h3>
 
                     <p id="atividade-status">
@@ -244,6 +325,7 @@
                         serão disponibilizadas conforme
                         a evolução da plataforma.
                     </p>
+
                 </article>
 
             </section>
@@ -265,9 +347,10 @@
 
                 <article class="info-card">
 
-                    <div class="profile-avatar"
-                         aria-hidden="true"
-                         id="perfil-inicial">
+                    <div
+                        class="profile-avatar"
+                        aria-hidden="true"
+                        id="perfil-inicial">
                         C
                     </div>
 
@@ -300,8 +383,9 @@
 
         <!-- NAVEGAÇÃO MOBILE -->
 
-        <nav class="bottom-navigation"
-             aria-label="Navegação do painel">
+        <nav
+            class="bottom-navigation"
+            aria-label="Navegação do painel">
 
             <button
                 type="button"
@@ -341,15 +425,18 @@
 
     <!-- MENSAGEM DE CARREGAMENTO OU ERRO -->
 
-    <div id="painel-feedback"
-         class="painel-feedback"
-         role="status"
-         aria-live="polite">
+    <div
+        id="painel-feedback"
+        class="painel-feedback"
+        role="status"
+        aria-live="polite">
 
         Verificando sua sessão...
 
     </div>
 
+
+    <!-- JAVASCRIPT ORIGINAL DO PAINEL -->
 
     <script
         type="module"
@@ -357,4 +444,5 @@
     </script>
 
 </body>
+
 </html>

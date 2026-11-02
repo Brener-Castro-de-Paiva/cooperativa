@@ -1,0 +1,553 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- ==================================================
+         COJURIS — MURAL PROFISSIONAL
+
+         ARQUIVO: portal/mural.html
+         REPOSITÓRIO: cooperativa
+
+         ETAPA 01 — ESTRUTURA HTML
+
+         A autenticação e a integração com o
+         Firebase serão implementadas em mural.js.
+
+         Nenhum dado pessoal dos cooperados
+         será exibido publicamente.
+         ================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta name="theme-color" content="#123748">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta
+        name="description"
+        content="Mural profissional da comunidade COJURIS."
+    >
+
+    <title>Mural Profissional | COJURIS</title>
+
+    <!-- Estilos institucionais existentes -->
+    <link rel="stylesheet" href="./css/portal.css">
+
+    <!-- Estilos específicos do mural -->
+    <link rel="stylesheet" href="./css/mural.css">
+
+</head>
+
+<body class="mural-page">
+
+    <!-- ==================================================
+         01 — TELA DE VERIFICAÇÃO DE ACESSO
+
+         Permanecerá visível até o módulo mural.js
+         confirmar a autorização do usuário.
+         ================================================== -->
+
+    <section
+        id="mural-acesso"
+        class="mural-acesso"
+        role="status"
+        aria-live="polite"
+    >
+
+        <div class="mural-acesso-card">
+
+            <div
+                class="mural-logo"
+                aria-hidden="true"
+            >
+                ✦
+            </div>
+
+            <h1>COJURIS</h1>
+
+            <p id="mural-mensagem-acesso">
+                Verificando sua autorização...
+            </p>
+
+            <a href="./painel.html">
+                Voltar ao meu painel
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==================================================
+         02 — APLICAÇÃO PROTEGIDA
+
+         O JavaScript removerá o atributo hidden
+         somente após confirmar o perfil.
+
+         As regras do Firestore deverão validar
+         separadamente todas as operações.
+         ================================================== -->
+
+    <div
+        id="mural-app"
+        class="mural-app"
+        hidden
+    >
+
+        <!-- ==============================================
+             03 — CABEÇALHO
+             ============================================== -->
+
+        <header class="mural-header">
+
+            <div class="mural-header-inner">
+
+                <a
+                    href="./painel.html"
+                    class="mural-brand"
+                    aria-label="COJURIS — Meu painel"
+                >
+
+                    <span
+                        class="mural-brand-icon"
+                        aria-hidden="true"
+                    >
+                        ✦
+                    </span>
+
+                    <span class="mural-brand-text">
+
+                        <strong>COJURIS</strong>
+
+                        <small>
+                            REDE PROFISSIONAL
+                        </small>
+
+                    </span>
+
+                </a>
+
+
+                <nav
+                    class="mural-nav"
+                    aria-label="Navegação principal"
+                >
+
+                    <a href="./comunidade.html">
+                        Comunidade
+                    </a>
+
+                    <a
+                        href="./mural.html"
+                        aria-current="page"
+                    >
+                        Mural
+                    </a>
+
+                    <a href="./painel.html">
+                        Meu painel
+                    </a>
+
+                    <a
+                        href="./admin.html"
+                        id="mural-link-admin"
+                        hidden
+                    >
+                        Administração
+                    </a>
+
+                </nav>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==============================================
+             04 — CONTEÚDO CENTRAL
+             ============================================== -->
+
+        <main class="mural-container">
+
+            <!-- ==========================================
+                 04.1 — APRESENTAÇÃO
+                 ========================================== -->
+
+            <section
+                class="mural-introducao"
+                aria-labelledby="mural-titulo"
+            >
+
+                <p class="mural-rotulo">
+                    COMUNIDADE PROFISSIONAL
+                </p>
+
+                <h1 id="mural-titulo">
+                    Mural da COJURIS
+                </h1>
+
+                <p class="mural-descricao">
+                    Compartilhe propostas, sugestões
+                    e experiências que contribuam para
+                    o desenvolvimento da nossa rede.
+                </p>
+
+                <div class="mural-identificacao">
+
+                    <span
+                        class="mural-identificacao-icone"
+                        aria-hidden="true"
+                    >
+                        ◈
+                    </span>
+
+                    <span id="mural-perfil">
+                        Consultando seu perfil...
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 05 — PUBLICAÇÃO DE PROPOSTAS
+
+                 Apenas administradores e profissionais
+                 aprovados e verificados poderão publicar.
+
+                 O formulário permanecerá oculto até
+                 a autorização em mural.js.
+                 ========================================== -->
+
+            <section
+                id="mural-area-publicacao"
+                class="mural-card mural-publicacao"
+                aria-labelledby="mural-titulo-publicacao"
+                hidden
+            >
+
+                <div class="mural-card-cabecalho">
+
+                    <p class="mural-rotulo">
+                        PARTICIPAÇÃO
+                    </p>
+
+                    <h2 id="mural-titulo-publicacao">
+                        Nova proposta
+                    </h2>
+
+                    <p>
+                        Apresente uma sugestão,
+                        iniciativa ou assunto para
+                        discussão na comunidade.
+                    </p>
+
+                </div>
+
+
+                <form id="mural-formulario">
+
+                    <!-- TÍTULO DA PROPOSTA -->
+
+                    <div class="mural-campo">
+
+                        <label for="mural-titulo-proposta">
+                            Título da proposta
+                        </label>
+
+                        <input
+                            id="mural-titulo-proposta"
+                            name="titulo"
+                            type="text"
+                            minlength="5"
+                            maxlength="120"
+                            placeholder="Ex.: Sugestão para a rede"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CATEGORIA -->
+
+                    <div class="mural-campo">
+
+                        <label for="mural-categoria">
+                            Categoria
+                        </label>
+
+                        <select
+                            id="mural-categoria"
+                            name="categoria"
+                            required
+                        >
+
+                            <option value="">
+                                Selecione uma categoria
+                            </option>
+
+                            <option value="sugestao">
+                                Sugestão
+                            </option>
+
+                            <option value="discussao">
+                                Discussão profissional
+                            </option>
+
+                            <option value="proposta">
+                                Proposta institucional
+                            </option>
+
+                            <option value="duvida">
+                                Dúvida
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- CONTEÚDO -->
+
+                    <div class="mural-campo">
+
+                        <label for="mural-texto">
+                            Conteúdo
+                        </label>
+
+                        <textarea
+                            id="mural-texto"
+                            name="texto"
+                            rows="5"
+                            minlength="10"
+                            maxlength="2000"
+                            placeholder="Descreva sua proposta ou contribuição..."
+                            required
+                        ></textarea>
+
+                        <p
+                            id="mural-contador"
+                            class="mural-contador"
+                        >
+                            0 / 2.000 caracteres
+                        </p>
+
+                    </div>
+
+
+                    <!-- AVISO DE PRIVACIDADE -->
+
+                    <p class="mural-privacidade">
+
+                        Sua publicação será exibida
+                        sob identificação institucional.
+                        Seus dados pessoais não serão
+                        disponibilizados aos demais
+                        participantes.
+
+                    </p>
+
+
+                    <!-- BOTÃO PUBLICAR -->
+
+                    <div class="mural-form-acoes">
+
+                        <button
+                            id="mural-publicar"
+                            type="submit"
+                            class="mural-botao-primario"
+                            disabled
+                        >
+                            Publicar proposta
+                        </button>
+
+                    </div>
+
+
+                    <!-- MENSAGENS DO FORMULÁRIO -->
+
+                    <p
+                        id="mural-status-publicacao"
+                        class="mural-status"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                </form>
+
+            </section>
+
+
+            <!-- ==========================================
+                 06 — AVISO PARA INTERESSADOS PENDENTES
+                 ========================================== -->
+
+            <section
+                id="mural-aviso-leitura"
+                class="mural-aviso-leitura"
+                hidden
+            >
+
+                <p>
+                    Você pode acompanhar as publicações
+                    da comunidade. A participação será
+                    disponibilizada após a aprovação
+                    e verificação profissional.
+                </p>
+
+            </section>
+
+
+            <!-- ==========================================
+                 07 — LISTAGEM DE PUBLICAÇÕES
+                 ========================================== -->
+
+            <section
+                class="mural-publicacoes"
+                aria-labelledby="mural-titulo-listagem"
+            >
+
+                <div class="mural-listagem-cabecalho">
+
+                    <div>
+
+                        <p class="mural-rotulo">
+                            CONVERSAS DA REDE
+                        </p>
+
+                        <h2 id="mural-titulo-listagem">
+                            Publicações recentes
+                        </h2>
+
+                    </div>
+
+                    <button
+                        id="mural-atualizar"
+                        type="button"
+                        class="mural-botao-secundario"
+                        disabled
+                    >
+                        Atualizar
+                    </button>
+
+                </div>
+
+
+                <!-- MENSAGEM OPERACIONAL -->
+
+                <p
+                    id="mural-status-listagem"
+                    class="mural-status"
+                    role="status"
+                    aria-live="polite"
+                >
+                    Aguardando autorização...
+                </p>
+
+
+                <!-- CARDS GERADOS PELO JAVASCRIPT -->
+
+                <div
+                    id="mural-lista"
+                    class="mural-lista"
+                ></div>
+
+
+                <!-- PAGINAÇÃO -->
+
+                <div class="mural-paginacao">
+
+                    <button
+                        id="mural-carregar-mais"
+                        type="button"
+                        class="mural-botao-secundario"
+                        hidden
+                        disabled
+                    >
+                        Carregar mais publicações
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 08 — ORIENTAÇÕES DA COMUNIDADE
+                 ========================================== -->
+
+            <aside
+                class="mural-orientacoes"
+                aria-labelledby="mural-orientacoes-titulo"
+            >
+
+                <h2 id="mural-orientacoes-titulo">
+                    Participação responsável
+                </h2>
+
+                <p>
+                    A COJURIS incentiva o diálogo,
+                    a colaboração e o respeito
+                    entre os profissionais.
+                </p>
+
+                <p>
+                    Não publique dados de clientes,
+                    informações processuais sigilosas
+                    ou documentos com dados pessoais.
+                </p>
+
+            </aside>
+
+        </main>
+
+
+        <!-- ==============================================
+             09 — RODAPÉ
+             ============================================== -->
+
+        <footer class="mural-footer">
+
+            <span>
+                © COJURIS — Rede Profissional
+            </span>
+
+            <a href="./painel.html">
+                Voltar ao meu painel
+            </a>
+
+        </footer>
+
+    </div>
+
+
+    <!-- ==================================================
+         10 — SCRIPT DO MURAL
+
+         Será implementado na próxima etapa.
+
+         Por enquanto, não carregamos mural.js
+         para evitar executar um arquivo vazio.
+         ================================================== -->
+
+
+<!-- ==================================================
+     COJURIS — MÓDULO DO MURAL
+     ================================================== -->
+
+        <script
+            type="module"
+            src="./js/recursos/mural.js"
+        ></script>
+
+
+</body>
+
+</html>
