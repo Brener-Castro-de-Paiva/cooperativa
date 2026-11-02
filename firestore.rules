@@ -1546,7 +1546,232 @@ service cloud.firestore {
 
 
     // ==================================================
-    // 13 — BLOQUEIO PADRÃO
+    // 13 — COMENTÁRIOS DAS PUBLICAÇÕES DO MURAL
+    // ==================================================
+
+    match /mural_publicacoes/{publicacaoId}/comentarios/{comentarioId} {
+
+      allow get, list: if podeVisualizarComunidade()
+        && exists(
+          /databases/$(database)/documents/mural_publicacoes/$(publicacaoId)
+        );
+
+      function comentarioMuralValido() {
+        return request.resource.data.keys().hasAll(['texto', 'criadoEm'])
+        && request.resource.data.keys().hasOnly(['texto', 'criadoEm'])
+        && request.resource.data.texto is string
+        && request.resource.data.texto.size() >= 1
+        && request.resource.data.texto.size() <= (administrador() ? 2000 : 500)
+        && request.resource.data.criadoEm == request.time;
+      }
+
+      allow create: if podeParticiparComunidade()
+        && exists(
+          /databases/$(database)/documents/mural_publicacoes/$(publicacaoId)
+        )
+        && comentarioMuralValido()
+        && !exists(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        ).data.autorUid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        ).data.publicacaoId == publicacaoId
+        && getAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        ).data.criadoEm == request.time
+        && (
+          administrador()
+          || (
+            getAfter(
+              /databases/$(database)/documents/limites_comentarios_mural/$(request.auth.uid)
+            ).data.ultimoEm == request.time
+            && getAfter(
+              /databases/$(database)/documents/limites_comentarios_mural/$(request.auth.uid)
+            ).data.ultimoComentarioId == comentarioId
+            && getAfter(
+              /databases/$(database)/documents/limites_comentarios_mural/$(request.auth.uid)
+            ).data.ultimaPublicacaoId == publicacaoId
+          )
+        );
+
+      allow update: if false;
+
+      // Excluir comentário e autoria no mesmo lote.
+      allow delete: if autenticado()
+        && exists(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        )
+        && get(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        ).data.publicacaoId == publicacaoId
+        && (
+          administrador()
+          || get(
+            /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+          ).data.autorUid == request.auth.uid
+        )
+        && !existsAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(comentarioId)
+        );
+    }
+
+
+    // ==================================================
+    // 14 — AUTORIA PRIVADA DOS COMENTÁRIOS DO MURAL
+    // ==================================================
+
+    match /mural_comentarios_autores/{comentarioId} {
+
+      // Um participante só lista documentos filtrados por seu UID.
+      allow get, list: if administrador()
+        || (
+          autenticado()
+          && resource.data.autorUid == request.auth.uid
+        );
+
+      allow create: if podeParticiparComunidade()
+        && request.resource.data.keys().hasAll([
+          'autorUid', 'publicacaoId', 'criadoEm'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'autorUid', 'publicacaoId', 'criadoEm'
+        ])
+        && request.resource.data.autorUid == request.auth.uid
+        && request.resource.data.publicacaoId is string
+        && request.resource.data.publicacaoId.size() > 0
+        && request.resource.data.criadoEm == request.time
+        && exists(
+          /databases/$(database)/documents/mural_publicacoes/$(request.resource.data.publicacaoId)
+        )
+        && !exists(
+          /databases/$(database)/documents/mural_publicacoes/$(request.resource.data.publicacaoId)/comentarios/$(comentarioId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(request.resource.data.publicacaoId)/comentarios/$(comentarioId)
+        ).data.criadoEm == request.time
+        && getAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(request.resource.data.publicacaoId)/comentarios/$(comentarioId)
+        ).data.keys().hasOnly(['texto', 'criadoEm']);
+
+      allow update: if false;
+
+      allow delete: if autenticado()
+        && (
+          administrador()
+          || resource.data.autorUid == request.auth.uid
+        )
+        && !existsAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(resource.data.publicacaoId)/comentarios/$(comentarioId)
+        );
+    }
+
+
+    // ==================================================
+    // 15 — COTA DOS COMENTÁRIOS DO MURAL
+    //
+    // Cooperado: 2 por janela de 24h; intervalo de 3min.
+    // Cota independente dos comentários em comunicados.
+    // Exclusão de comentário não restitui a cota.
+    // ==================================================
+
+    match /limites_comentarios_mural/{uid} {
+
+      allow get: if autenticado() && request.auth.uid == uid;
+      allow list, delete: if false;
+
+      function contadorComentariosMuralValido() {
+        return request.resource.data.keys().hasAll([
+          'inicioJanela', 'quantidade', 'ultimoEm',
+          'ultimoComentarioId', 'ultimaPublicacaoId'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'inicioJanela', 'quantidade', 'ultimoEm',
+          'ultimoComentarioId', 'ultimaPublicacaoId'
+        ])
+        && request.resource.data.inicioJanela is timestamp
+        && request.resource.data.quantidade is int
+        && request.resource.data.ultimoEm == request.time
+        && request.resource.data.ultimoComentarioId is string
+        && request.resource.data.ultimoComentarioId.size() > 0
+        && request.resource.data.ultimaPublicacaoId is string
+        && request.resource.data.ultimaPublicacaoId.size() > 0;
+      }
+
+      function comentarioMuralNovoVinculado() {
+        let cid = request.resource.data.ultimoComentarioId;
+        let pid = request.resource.data.ultimaPublicacaoId;
+
+        return exists(
+          /databases/$(database)/documents/mural_publicacoes/$(pid)
+        )
+        && !exists(
+          /databases/$(database)/documents/mural_publicacoes/$(pid)/comentarios/$(cid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(pid)/comentarios/$(cid)
+        ).data.criadoEm == request.time
+        && !exists(
+          /databases/$(database)/documents/mural_comentarios_autores/$(cid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(cid)
+        ).data.autorUid == uid
+        && getAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(cid)
+        ).data.publicacaoId == pid
+        && getAfter(
+          /databases/$(database)/documents/mural_comentarios_autores/$(cid)
+        ).data.criadoEm == request.time;
+      }
+
+      allow create: if autenticado()
+        && request.auth.uid == uid
+        && !administrador()
+        && podeParticiparComunidade()
+        && contadorComentariosMuralValido()
+        && request.resource.data.quantidade == 1
+        && request.resource.data.inicioJanela == request.time
+        && comentarioMuralNovoVinculado();
+
+      allow update: if autenticado()
+        && request.auth.uid == uid
+        && !administrador()
+        && podeParticiparComunidade()
+        && contadorComentariosMuralValido()
+        && resource.data.inicioJanela is timestamp
+        && resource.data.ultimoEm is timestamp
+        && resource.data.quantidade is int
+        && comentarioMuralNovoVinculado()
+        && request.time >= (
+          resource.data.ultimoEm + duration.value(3, 'm')
+        )
+        && (
+          (
+            request.time < (
+              resource.data.inicioJanela + duration.value(24, 'h')
+            )
+            && resource.data.quantidade == 1
+            && request.resource.data.quantidade == 2
+            && request.resource.data.inicioJanela ==
+               resource.data.inicioJanela
+          )
+          ||
+          (
+            request.time >= (
+              resource.data.inicioJanela + duration.value(24, 'h')
+            )
+            && request.resource.data.quantidade == 1
+            && request.resource.data.inicioJanela == request.time
+          )
+        );
+    }
+
+
+    // ==================================================
+    // 16 — BLOQUEIO PADRÃO
     //
     // Nenhuma outra coleção recebe autorização
     // explícita neste conjunto de regras.
