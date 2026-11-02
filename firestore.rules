@@ -1,0 +1,1566 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+
+    // ==================================================
+    // 01 — AUTENTICAÇÃO E ADMINISTRAÇÃO
+    //
+    // Funções compartilhadas pelas demais regras.
+    //
+    // Nenhuma operação administrativa depende
+    // exclusivamente de elementos visuais do site.
+    // ==================================================
+
+
+    // --------------------------------------------------
+    // 01.1 — USUÁRIO AUTENTICADO
+    // --------------------------------------------------
+
+    function autenticado() {
+
+      return request.auth != null;
+
+    }
+
+
+    // --------------------------------------------------
+    // 01.2 — VALIDAÇÃO DE E-MAIL GMAIL
+    //
+    // Mantém a política original do cadastro.
+    // --------------------------------------------------
+
+    function emailGmail() {
+
+      return autenticado()
+
+        && request.auth.token.email is string
+
+        && request.auth.token.email.matches(
+          '^[A-Za-z0-9._%+-]+@gmail[.]com$'
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // 01.3 — ADMINISTRADOR ATIVO
+    //
+    // A identificação decorre exclusivamente do
+    // documento existente em:
+    //
+    // administradores/{uid}
+    //
+    // Campo exigido:
+    // ativo == true
+    //
+    // O navegador não pode criar privilégios.
+    // --------------------------------------------------
+
+    function administrador() {
+
+      return autenticado()
+
+        && exists(
+          /databases/$(database)/documents/administradores/$(request.auth.uid)
+        )
+
+        && get(
+          /databases/$(database)/documents/administradores/$(request.auth.uid)
+        ).data.ativo == true;
+
+    }
+
+
+
+    // ==================================================
+    // 02 — CONTROLE DE ACESSO À COMUNIDADE
+    //
+    // VISUALIZAÇÃO:
+    //
+    // - administradores ativos;
+    // - interessados pendentes;
+    // - interessados aprovados.
+    //
+    // PARTICIPAÇÃO:
+    //
+    // - administradores ativos;
+    // - interessados aprovados e verificados.
+    //
+    // REJEITADOS:
+    //
+    // - não possuem acesso à comunidade;
+    // - não recebem notificações internas.
+    // ==================================================
+
+
+    // --------------------------------------------------
+    // 02.1 — EXISTÊNCIA DE CADASTRO
+    // --------------------------------------------------
+
+    function cadastroExistente() {
+
+      return autenticado()
+
+        && exists(
+          /databases/$(database)/documents/interessados/$(request.auth.uid)
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // 02.2 — PERMISSÃO PARA VISUALIZAR A COMUNIDADE
+    //
+    // Esta função também será utilizada para
+    // consultar os comunicados e suas notificações.
+    // --------------------------------------------------
+
+    function podeVisualizarComunidade() {
+
+      return administrador()
+
+        || (
+
+          cadastroExistente()
+
+          && get(
+            /databases/$(database)/documents/interessados/$(request.auth.uid)
+          ).data.status in [
+            'pendente',
+            'aprovado'
+          ]
+
+        );
+
+    }
+
+
+    // --------------------------------------------------
+    // 02.3 — PERMISSÃO PARA PARTICIPAÇÃO
+    //
+    // A autodeclaração não equivale à comprovação
+    // de inscrição profissional na OAB.
+    //
+    // A participação exige aprovação e verificação.
+    // --------------------------------------------------
+
+    function podeParticiparComunidade() {
+
+      return administrador()
+
+        || (
+
+          cadastroExistente()
+
+          && get(
+            /databases/$(database)/documents/interessados/$(request.auth.uid)
+          ).data.status == 'aprovado'
+
+          && get(
+            /databases/$(database)/documents/interessados/$(request.auth.uid)
+          ).data.get(
+            'verificacaoProfissional',
+            'nao_verificada'
+          ) == 'verificada'
+
+        );
+
+    }
+
+
+
+    // ==================================================
+    // 03 — ADMINISTRADORES
+    //
+    // Caminho:
+    //
+    // administradores/{uid}
+    //
+    // Os privilégios administrativos são controlados
+    // pelo banco e não podem ser criados, alterados
+    // ou excluídos pelo aplicativo cliente.
+    // ==================================================
+
+    match /administradores/{uid} {
+
+
+      // O usuário pode consultar apenas o próprio
+      // documento de identificação administrativa.
+
+      allow get: if autenticado()
+
+        && request.auth.uid == uid;
+
+
+      // Nenhuma operação de alteração administrativa
+      // é autorizada diretamente pelo navegador.
+
+      allow list, create, update, delete: if false;
+
+    }
+
+
+
+    // ==================================================
+    // 04 — INTERESSADOS
+    //
+    // Caminho:
+    //
+    // interessados/{userId}
+    //
+    // Mantém:
+    //
+    // - cadastro simplificado;
+    // - consulta individual;
+    // - listagem administrativa;
+    // - aprovação;
+    // - rejeição;
+    // - verificação profissional;
+    // - exclusão controlada.
+    // ==================================================
+
+    match /interessados/{userId} {
+
+
+      // ------------------------------------------------
+      // 04.1 — VALIDAÇÃO DO CADASTRO INICIAL
+      //
+      // O novo interessado poderá criar exclusivamente
+      // o documento correspondente ao próprio UID.
+      //
+      // O usuário não poderá escolher inicialmente
+      // o status aprovado ou verificado.
+      // ------------------------------------------------
+
+      function cadastroInicialValido() {
+
+        return autenticado()
+
+          && request.auth.uid == userId
+
+          && emailGmail()
+
+
+          // ------------------------------------------
+          // CAMPOS OBRIGATÓRIOS
+          // ------------------------------------------
+
+          && request.resource.data.keys().hasAll([
+            'nome',
+            'email',
+            'declaracaoAdvogado',
+            'versaoDeclaracao',
+            'dataDeclaracao',
+            'verificacaoProfissional',
+            'status',
+            'dataCadastro'
+          ])
+
+
+          // ------------------------------------------
+          // IMPEDE CAMPOS EXTRAS
+          // ------------------------------------------
+
+          && request.resource.data.keys().hasOnly([
+            'nome',
+            'email',
+            'declaracaoAdvogado',
+            'versaoDeclaracao',
+            'dataDeclaracao',
+            'verificacaoProfissional',
+            'status',
+            'dataCadastro'
+          ])
+
+
+          // ------------------------------------------
+          // NOME DO INTERESSADO
+          // ------------------------------------------
+
+          && request.resource.data.nome is string
+
+          && request.resource.data.nome.size() > 0
+
+          && request.resource.data.nome.size() <= 150
+
+
+          // ------------------------------------------
+          // E-MAIL VINCULADO À AUTENTICAÇÃO
+          // ------------------------------------------
+
+          && request.resource.data.email is string
+
+          && request.resource.data.email
+             == request.auth.token.email
+
+
+          // ------------------------------------------
+          // DECLARAÇÃO PROFISSIONAL
+          // ------------------------------------------
+
+          && request.resource.data.declaracaoAdvogado
+             == true
+
+          && request.resource.data.versaoDeclaracao
+             == '1.0'
+
+          && request.resource.data.dataDeclaracao
+             == request.time
+
+
+          // ------------------------------------------
+          // VERIFICAÇÃO INICIAL
+          //
+          // O interessado nunca poderá se declarar
+          // profissionalmente verificado no cadastro.
+          // ------------------------------------------
+
+          && request.resource.data.verificacaoProfissional
+             == 'nao_verificada'
+
+
+          // ------------------------------------------
+          // STATUS INICIAL
+          // ------------------------------------------
+
+          && request.resource.data.status
+             == 'pendente'
+
+
+          // ------------------------------------------
+          // DATA DO CADASTRO
+          // ------------------------------------------
+
+          && request.resource.data.dataCadastro
+             == request.time;
+
+      }
+
+
+      // ------------------------------------------------
+      // 04.2 — CRIAÇÃO DO CADASTRO
+      // ------------------------------------------------
+
+      allow create: if cadastroInicialValido();
+
+
+      // ------------------------------------------------
+      // 04.3 — CONSULTA INDIVIDUAL
+      //
+      // O próprio titular pode consultar seus dados.
+      //
+      // Administradores também podem consultar.
+      //
+      // Não permite que um interessado consulte
+      // os dados de outros interessados.
+      // ------------------------------------------------
+
+      allow get: if (
+
+        autenticado()
+
+        && request.auth.uid == userId
+
+      ) || administrador();
+
+
+      // ------------------------------------------------
+      // 04.4 — LISTAGEM ADMINISTRATIVA
+      //
+      // Somente administradores ativos podem listar
+      // documentos da coleção de interessados.
+      // ------------------------------------------------
+
+      allow list: if administrador();
+
+
+      // ------------------------------------------------
+      // 04.5 — APROVAÇÃO OU REJEIÇÃO
+      //
+      // A alteração somente poderá ocorrer quando
+      // o cadastro estiver inicialmente pendente.
+      //
+      // Nenhum outro campo poderá ser modificado.
+      // ------------------------------------------------
+
+      function alteracaoStatusValida() {
+
+        return resource.data.status == 'pendente'
+
+          && request.resource.data.diff(resource.data)
+            .affectedKeys().hasOnly([
+              'status'
+            ])
+
+          && request.resource.data.status in [
+            'aprovado',
+            'rejeitado'
+          ];
+
+      }
+
+
+      // ------------------------------------------------
+      // 04.6 — VERIFICAÇÃO PROFISSIONAL
+      //
+      // A verificação somente é admitida quando:
+      //
+      // - o cadastro estiver aprovado;
+      // - ainda não estiver verificado;
+      // - forem registrados data e administrador;
+      // - não houver modificação de outros campos.
+      // ------------------------------------------------
+
+      function verificacaoProfissionalValida() {
+
+        return resource.data.status == 'aprovado'
+
+          && request.resource.data.status == 'aprovado'
+
+
+          // ------------------------------------------
+          // SITUAÇÃO PROFISSIONAL ANTERIOR
+          // ------------------------------------------
+
+          && resource.data.get(
+            'verificacaoProfissional',
+            'nao_verificada'
+          ) == 'nao_verificada'
+
+
+          // ------------------------------------------
+          // CAMPOS AUTORIZADOS PARA ALTERAÇÃO
+          // ------------------------------------------
+
+          && request.resource.data.diff(resource.data)
+            .affectedKeys().hasOnly([
+              'verificacaoProfissional',
+              'verificadoEm',
+              'verificadoPor'
+            ])
+
+
+          // ------------------------------------------
+          // CAMPOS QUE PRECISAM SER REGISTRADOS
+          // ------------------------------------------
+
+          && request.resource.data.diff(resource.data)
+            .affectedKeys().hasAll([
+              'verificacaoProfissional',
+              'verificadoEm',
+              'verificadoPor'
+            ])
+
+
+          // ------------------------------------------
+          // NOVA CONDIÇÃO PROFISSIONAL
+          // ------------------------------------------
+
+          && request.resource.data.verificacaoProfissional
+             == 'verificada'
+
+
+          // ------------------------------------------
+          // IDENTIFICAÇÃO DA VERIFICAÇÃO
+          // ------------------------------------------
+
+          && request.resource.data.verificadoEm
+             == request.time
+
+          && request.resource.data.verificadoPor
+             == request.auth.uid;
+
+      }
+
+
+      // ------------------------------------------------
+      // 04.7 — ATUALIZAÇÕES ADMINISTRATIVAS
+      //
+      // Somente administradores poderão:
+      //
+      // - aprovar ou rejeitar cadastros;
+      // - realizar a verificação profissional.
+      //
+      // As alterações precisam satisfazer as
+      // respectivas funções de validação.
+      // ------------------------------------------------
+
+      allow update: if administrador()
+
+        && (
+
+          alteracaoStatusValida()
+
+          || verificacaoProfissionalValida()
+
+        );
+
+
+      // ------------------------------------------------
+      // 04.8 — EXCLUSÃO CONTROLADA
+      //
+      // Proteções:
+      //
+      // - somente administrador ativo;
+      // - não pode excluir próprio cadastro;
+      // - não pode excluir cadastro de administrador;
+      // - não pode excluir profissional verificado.
+      //
+      // A exclusão deste documento não exclui
+      // automaticamente a conta no Authentication.
+      // ------------------------------------------------
+
+      allow delete: if administrador()
+
+        && request.auth.uid != userId
+
+        && !exists(
+          /databases/$(database)/documents/administradores/$(userId)
+        )
+
+        && resource.data.get(
+          'verificacaoProfissional',
+          'nao_verificada'
+        ) != 'verificada';
+
+    }
+
+
+
+    // ==================================================
+    // 05 — COMUNICADOS OFICIAIS
+    //
+    // Caminho:
+    //
+    // comunicados/{comunicadoId}
+    //
+    // LEITURA:
+    // - usuários autorizados à comunidade.
+    //
+    // PUBLICAÇÃO:
+    // - administradores ativos.
+    //
+    // EDIÇÃO:
+    // - desabilitada nesta etapa.
+    //
+    // EXCLUSÃO:
+    // - administradores ativos.
+    //
+    // As notificações acompanham esta coleção.
+    // ==================================================
+
+    match /comunicados/{comunicadoId} {
+
+
+      // ------------------------------------------------
+      // 05.1 — LEITURA DOS COMUNICADOS
+      //
+      // Abrange as consultas executadas por:
+      //
+      // - comunidade.html;
+      // - comunicados.html;
+      // - notificacoes.js.
+      // ------------------------------------------------
+
+      allow get, list: if podeVisualizarComunidade();
+
+
+      // ------------------------------------------------
+      // 05.2 — VALIDAÇÃO DE PUBLICAÇÃO
+      //
+      // Somente os quatro campos previstos
+      // poderão compor um comunicado.
+      // ------------------------------------------------
+
+      function comunicadoValido() {
+
+        return request.resource.data.keys().hasAll([
+          'titulo',
+          'conteudo',
+          'autorUid',
+          'publicadoEm'
+        ])
+
+        && request.resource.data.keys().hasOnly([
+          'titulo',
+          'conteudo',
+          'autorUid',
+          'publicadoEm'
+        ])
+
+
+        // ------------------------------------------
+        // TÍTULO
+        // ------------------------------------------
+
+        && request.resource.data.titulo is string
+
+        && request.resource.data.titulo.size() >= 5
+
+        && request.resource.data.titulo.size() <= 150
+
+
+        // ------------------------------------------
+        // CONTEÚDO
+        // ------------------------------------------
+
+        && request.resource.data.conteudo is string
+
+        && request.resource.data.conteudo.size() >= 10
+
+        && request.resource.data.conteudo.size() <= 10000
+
+
+        // ------------------------------------------
+        // AUTORIA
+        // ------------------------------------------
+
+        && request.resource.data.autorUid
+           == request.auth.uid
+
+
+        // ------------------------------------------
+        // DATA DE PUBLICAÇÃO
+        // ------------------------------------------
+
+        && request.resource.data.publicadoEm
+           == request.time;
+
+      }
+
+
+      // ------------------------------------------------
+      // 05.3 — CRIAÇÃO DE COMUNICADOS
+      // ------------------------------------------------
+
+      allow create: if administrador()
+
+        && comunicadoValido();
+
+
+      // ------------------------------------------------
+      // 05.4 — EDIÇÃO
+      //
+      // A edição permanece desabilitada para
+      // preservar o comportamento atual.
+      // ------------------------------------------------
+
+      allow update: if false;
+
+
+      // ------------------------------------------------
+      // 05.5 — EXCLUSÃO ADMINISTRATIVA
+      // ------------------------------------------------
+
+      allow delete: if administrador();
+
+    }
+
+
+
+    // ==================================================
+    // 06 — NOTIFICAÇÕES INTERNAS
+    //
+    // NOVA IMPLEMENTAÇÃO
+    //
+    // A COJURIS utiliza os comunicados existentes
+    // como origem das notificações.
+    //
+    // Não é necessário criar uma cópia de cada
+    // comunicado para todos os interessados.
+    //
+    // Para registrar a leitura individual, usamos:
+    //
+    // leituras_comunicados/{uid}/itens/{comunicadoId}
+    //
+    // Exemplo:
+    //
+    // leituras_comunicados
+    //   └── UID_DO_USUARIO
+    //       └── itens
+    //           └── ID_DO_COMUNICADO
+    //               └── lidoEm
+    //
+    // Essa estrutura assegura que:
+    //
+    // - cada usuário tenha seu próprio histórico;
+    // - um usuário não consulte leituras de outro;
+    // - um usuário não marque leituras para outro;
+    // - usuários rejeitados não tenham acesso;
+    // - a leitura não altere o comunicado original.
+    // ==================================================
+
+    match /leituras_comunicados/{uid} {
+
+
+      // ------------------------------------------------
+      // 06.1 — DOCUMENTO SUPERIOR
+      //
+      // O documento:
+      //
+      // leituras_comunicados/{uid}
+      //
+      // não precisa existir para que a subcoleção
+      // itens contenha documentos.
+      //
+      // Por isso, todas as operações diretas nesse
+      // documento superior permanecem bloqueadas.
+      // ------------------------------------------------
+
+      allow get, list, create, update, delete: if false;
+
+
+
+      // ==================================================
+      // 06.2 — SUBCOLEÇÃO DE COMUNICADOS LIDOS
+      //
+      // Caminho:
+      //
+      // leituras_comunicados/{uid}/itens/{comunicadoId}
+      // ==================================================
+
+      match /itens/{comunicadoId} {
+
+
+        // ----------------------------------------------
+        // 06.2.1 — IDENTIFICAÇÃO DO TITULAR
+        //
+        // A conta autenticada deve corresponder
+        // ao UID presente no caminho consultado.
+        //
+        // Além disso, o titular precisa continuar
+        // autorizado a visualizar a comunidade.
+        // ----------------------------------------------
+
+        function titularAutorizado() {
+
+          return autenticado()
+
+            && request.auth.uid == uid
+
+            && podeVisualizarComunidade();
+
+        }
+
+
+        // ----------------------------------------------
+        // 06.2.2 — CONSULTA INDIVIDUAL
+        //
+        // Permite ao usuário consultar somente
+        // os seus próprios registros de leitura.
+        //
+        // Não permite que cooperados consultem
+        // informações pessoais de outros usuários.
+        // ----------------------------------------------
+
+        allow get, list: if titularAutorizado();
+
+
+        // ----------------------------------------------
+        // 06.2.3 — VALIDAÇÃO DO REGISTRO
+        //
+        // Para marcar um comunicado como lido:
+        //
+        // - o usuário deve estar autorizado;
+        // - o comunicado precisa existir;
+        // - somente o campo lidoEm é admitido;
+        // - a data deve ser a data da solicitação.
+        //
+        // O JavaScript utiliza serverTimestamp().
+        // ----------------------------------------------
+
+        function leituraValida() {
+
+          return titularAutorizado()
+
+
+            // O comunicado precisa existir.
+
+            && exists(
+              /databases/$(database)/documents/comunicados/$(comunicadoId)
+            )
+
+
+            // Campo obrigatório.
+
+            && request.resource.data.keys().hasAll([
+              'lidoEm'
+            ])
+
+
+            // Nenhum campo extra é permitido.
+
+            && request.resource.data.keys().hasOnly([
+              'lidoEm'
+            ])
+
+
+            // Data gerada pelo servidor.
+
+            && request.resource.data.lidoEm
+               == request.time;
+
+        }
+
+
+        // ----------------------------------------------
+        // 06.2.4 — CRIAÇÃO DA LEITURA
+        //
+        // O documento será criado automaticamente
+        // pelo aplicativo quando o usuário abrir
+        // uma notificação pela primeira vez.
+        // ----------------------------------------------
+
+        allow create: if leituraValida();
+
+
+        // ----------------------------------------------
+        // 06.2.5 — ALTERAÇÃO DE LEITURA
+        //
+        // Impede substituir ou adulterar um registro
+        // de leitura já existente.
+        // ----------------------------------------------
+
+        // ----------------------------------------------
+        // 06.2.5-A — DISPENSA DA NOTIFICAÇÃO
+        //
+        // Implementação adicional: permite apenas
+        // acrescentar dispensadoEm ao registro lido.
+        // O comunicado original permanece intacto.
+        // ----------------------------------------------
+
+        function dispensaValida() {
+
+          return titularAutorizado()
+
+            // É necessário que a leitura já exista.
+            && resource.data.keys().hasAll([
+              'lidoEm'
+            ])
+
+            // Impede dispensar novamente o mesmo item.
+            && !resource.data.keys().hasAny([
+              'dispensadoEm'
+            ])
+
+            // Preserva a data original de leitura.
+            && request.resource.data.lidoEm
+               == resource.data.lidoEm
+
+            // Não aceita campos além dos dois previstos.
+            && request.resource.data.keys().hasAll([
+              'lidoEm',
+              'dispensadoEm'
+            ])
+
+            && request.resource.data.keys().hasOnly([
+              'lidoEm',
+              'dispensadoEm'
+            ])
+
+            // Autoriza somente acrescentar dispensadoEm.
+            && request.resource.data.diff(resource.data)
+              .affectedKeys().hasOnly([
+                'dispensadoEm'
+              ])
+
+            && request.resource.data.diff(resource.data)
+              .affectedKeys().hasAll([
+                'dispensadoEm'
+              ])
+
+            // Exige timestamp gerado pelo servidor.
+            && request.resource.data.dispensadoEm
+               == request.time;
+
+        }
+
+        allow update: if dispensaValida();
+
+
+        // ----------------------------------------------
+        // 06.2.6 — EXCLUSÃO DE LEITURA
+        //
+        // O interessado não poderá excluir o
+        // registro diretamente pelo navegador.
+        //
+        // Procedimentos administrativos de retenção
+        // ou eliminação de dados deverão ser tratados
+        // separadamente, com controles adequados.
+        // ----------------------------------------------
+
+        allow delete: if false;
+
+      }
+
+    }
+
+    // ==================================================
+    // 07 — COMENTÁRIOS DOS COMUNICADOS
+    //
+    // IMPLEMENTAÇÃO ADICIONAL — COJURIS
+    //
+    // Mantém separação entre:
+    //
+    // 1. Conteúdo público do comentário;
+    // 2. Identificação privada do autor.
+    //
+    // As duas gravações devem ocorrer no mesmo lote.
+    //
+    // Utiliza as funções existentes:
+    //
+    // autenticado()
+    // administrador()
+    // podeVisualizarComunidade()
+    // podeParticiparComunidade()
+    // ==================================================
+
+
+    // --------------------------------------------------
+    // 07.1 — COMENTÁRIOS VINCULADOS A COMUNICADOS
+    //
+    // Caminho:
+    //
+    // comunicados/{comunicadoId}/comentarios/{comentarioId}
+    // --------------------------------------------------
+
+    match /comunicados/{comunicadoId}/comentarios/{comentarioId} {
+
+      // Usuários autorizados podem ler o conteúdo.
+
+      allow get, list: if podeVisualizarComunidade();
+
+
+      // ------------------------------------------------
+      // 07.1.1 — VALIDAÇÃO DO CONTEÚDO
+      // ------------------------------------------------
+
+      function comentarioPublicoValido() {
+
+        return request.resource.data.keys().hasAll([
+          'texto',
+          'criadoEm'
+        ])
+
+        && request.resource.data.keys().hasOnly([
+          'texto',
+          'criadoEm'
+        ])
+
+        && request.resource.data.texto is string
+
+        && request.resource.data.texto.size() >= 1
+
+        && request.resource.data.texto.size() <= (
+          administrador() ? 2000 : 500
+        )
+
+        && request.resource.data.criadoEm == request.time;
+      }
+
+
+      // ------------------------------------------------
+      // 07.1.2 — CRIAÇÃO
+      //
+      // Exige o registro privado de autoria
+      // no mesmo lote de gravação.
+      // ------------------------------------------------
+
+      allow create: if podeParticiparComunidade()
+
+        && exists(
+          /databases/$(database)/documents/comunicados/$(comunicadoId)
+        )
+
+        && comentarioPublicoValido()
+
+        // Não aceita registro de autoria preexistente.
+        // A autoria deverá ser criada neste mesmo lote.
+        && !exists(
+          /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+        )
+
+        && getAfter(
+          /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+        ).data.autorUid == request.auth.uid
+
+        && getAfter(
+          /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+        ).data.comunicadoId == comunicadoId
+
+        && getAfter(
+          /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+        ).data.criadoEm == request.time
+
+        // Administradores não usam contador de frequência.
+        // Cooperados devem atualizar seu controle no mesmo commit.
+        && (
+          administrador()
+          || (
+            getAfter(
+              /databases/$(database)/documents/limites_comentarios/$(request.auth.uid)
+            ).data.ultimoEm == request.time
+
+            && getAfter(
+              /databases/$(database)/documents/limites_comentarios/$(request.auth.uid)
+            ).data.ultimoComentarioId == comentarioId
+
+            && getAfter(
+              /databases/$(database)/documents/limites_comentarios/$(request.auth.uid)
+            ).data.ultimoComunicadoId == comunicadoId
+          )
+        );
+
+
+      // ------------------------------------------------
+      // 07.1.3 — IDENTIFICAÇÃO PARA EXCLUSÃO
+      // ------------------------------------------------
+
+      function podeExcluirComentario() {
+
+        return administrador()
+
+          || (
+
+            autenticado()
+
+            && exists(
+              /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+            )
+
+            && get(
+              /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+            ).data.autorUid == request.auth.uid
+
+          );
+      }
+
+
+      // ------------------------------------------------
+      // 07.1.4 — EXCLUSÃO
+      //
+      // Exige que o registro privado seja removido
+      // no mesmo lote.
+      // ------------------------------------------------
+
+      allow delete: if podeExcluirComentario()
+
+        && !existsAfter(
+          /databases/$(database)/documents/comentarios_autores/$(comentarioId)
+        );
+
+
+      // A edição permanece desabilitada.
+
+      allow update: if false;
+    }
+
+
+
+    // ==================================================
+    // 08 — IDENTIFICAÇÃO PRIVADA DOS AUTORES
+    //
+    // Caminho:
+    //
+    // comentarios_autores/{comentarioId}
+    //
+    // A identidade não é disponibilizada aos
+    // demais participantes.
+    // ==================================================
+
+    match /comentarios_autores/{comentarioId} {
+
+
+      // ------------------------------------------------
+      // 08.1 — LEITURA INDIVIDUAL
+      // ------------------------------------------------
+
+      allow get: if administrador()
+
+        || (
+
+          autenticado()
+
+          && resource.data.autorUid == request.auth.uid
+
+        );
+
+
+      // ------------------------------------------------
+      // 08.2 — LISTAGEM
+      //
+      // Administradores podem listar.
+      //
+      // Demais usuários precisam consultar
+      // exclusivamente seus próprios registros,
+      // usando where("autorUid", "==", uid).
+      // ------------------------------------------------
+
+      allow list: if administrador()
+
+        || (
+
+          autenticado()
+
+          && resource.data.autorUid == request.auth.uid
+
+        );
+
+
+      // ------------------------------------------------
+      // 08.3 — VALIDAÇÃO DA AUTORIA
+      // ------------------------------------------------
+
+      function autoriaValida() {
+
+        return request.resource.data.keys().hasAll([
+          'autorUid',
+          'comunicadoId',
+          'criadoEm'
+        ])
+
+        && request.resource.data.keys().hasOnly([
+          'autorUid',
+          'comunicadoId',
+          'criadoEm'
+        ])
+
+        && request.resource.data.autorUid == request.auth.uid
+
+        && request.resource.data.comunicadoId is string
+
+        && request.resource.data.criadoEm == request.time;
+      }
+
+
+      // ------------------------------------------------
+      // 08.4 — CRIAÇÃO DA AUTORIA
+      //
+      // Exige que o comentário público correspondente
+      // seja criado no mesmo lote.
+      // ------------------------------------------------
+
+      allow create: if podeParticiparComunidade()
+
+        && autoriaValida()
+
+        // O comentário público não pode existir antes
+        // desta operação; será criado no mesmo lote.
+        && !exists(
+          /databases/$(database)/documents/comunicados/$(request.resource.data.comunicadoId)/comentarios/$(comentarioId)
+        )
+
+        && getAfter(
+          /databases/$(database)/documents/comunicados/$(request.resource.data.comunicadoId)/comentarios/$(comentarioId)
+        ).data.criadoEm == request.time
+
+        && getAfter(
+          /databases/$(database)/documents/comunicados/$(request.resource.data.comunicadoId)/comentarios/$(comentarioId)
+        ).data.keys().hasOnly([
+          'texto',
+          'criadoEm'
+        ]);
+
+
+      // Não permite modificar a autoria.
+
+      allow update: if false;
+
+
+      // ------------------------------------------------
+      // 08.5 — EXCLUSÃO DA AUTORIA
+      //
+      // Somente o autor ou administrador.
+      //
+      // O comentário público também precisa
+      // ser excluído no mesmo lote.
+      // ------------------------------------------------
+
+      allow delete: if (
+
+        administrador()
+
+        || (
+
+          autenticado()
+
+          && resource.data.autorUid == request.auth.uid
+
+        )
+
+      )
+
+      && !existsAfter(
+        /databases/$(database)/documents/comunicados/$(resource.data.comunicadoId)/comentarios/$(comentarioId)
+      );
+    }
+
+
+    // ==================================================
+    // 09 — LIMITES INDIVIDUAIS DOS COMENTÁRIOS
+    //
+    // limites_comentarios/{uid}
+    //
+    // Cooperado verificado:
+    // - até 2 comentários por janela de 24 horas;
+    // - intervalo mínimo de 3 minutos;
+    // - sem edição/exclusão direta do contador.
+    //
+    // Administradores não precisam criar este documento.
+    // O registro é atualizado atomicamente com a publicação.
+    // ==================================================
+
+    match /limites_comentarios/{uid} {
+
+      // Somente o titular pode ler seu controle.
+      allow get: if autenticado() && request.auth.uid == uid;
+      allow list, delete: if false;
+
+      // Estrutura estrita do contador.
+      function contadorValido() {
+        return request.resource.data.keys().hasAll([
+          'inicioJanela',
+          'quantidade',
+          'ultimoEm',
+          'ultimoComentarioId',
+          'ultimoComunicadoId'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'inicioJanela',
+          'quantidade',
+          'ultimoEm',
+          'ultimoComentarioId',
+          'ultimoComunicadoId'
+        ])
+        && request.resource.data.inicioJanela is timestamp
+        && request.resource.data.quantidade is int
+        && request.resource.data.ultimoEm == request.time
+        && request.resource.data.ultimoComentarioId is string
+        && request.resource.data.ultimoComentarioId.size() > 0
+        && request.resource.data.ultimoComunicadoId is string
+        && request.resource.data.ultimoComunicadoId.size() > 0;
+      }
+
+      // O contador só pode ser gravado junto com um comentário
+      // novo e sua autoria privada, ambos da mesma operação.
+      function comentarioNovoVinculado() {
+        let cid = request.resource.data.ultimoComentarioId;
+        let comunicado = request.resource.data.ultimoComunicadoId;
+
+        return !exists(
+          /databases/$(database)/documents/comunicados/$(comunicado)/comentarios/$(cid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/comunicados/$(comunicado)/comentarios/$(cid)
+        ).data.criadoEm == request.time
+        && !exists(
+          /databases/$(database)/documents/comentarios_autores/$(cid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/comentarios_autores/$(cid)
+        ).data.autorUid == uid
+        && getAfter(
+          /databases/$(database)/documents/comentarios_autores/$(cid)
+        ).data.comunicadoId == comunicado;
+      }
+
+      // Criação do contador: primeira postagem da janela.
+      allow create: if autenticado()
+        && request.auth.uid == uid
+        && !administrador()
+        && podeParticiparComunidade()
+        && contadorValido()
+        && request.resource.data.quantidade == 1
+        && request.resource.data.inicioJanela == request.time
+        && comentarioNovoVinculado();
+
+      // Atualização: intervalo mínimo e incremento controlado.
+      allow update: if autenticado()
+        && request.auth.uid == uid
+        && !administrador()
+        && podeParticiparComunidade()
+        && contadorValido()
+        && resource.data.inicioJanela is timestamp
+        && resource.data.ultimoEm is timestamp
+        && resource.data.quantidade is int
+        && comentarioNovoVinculado()
+
+        // Bloqueio por 3 minutos desde a última publicação.
+        && request.time >= (
+          resource.data.ultimoEm + duration.value(3, 'm')
+        )
+        && (
+          // Janela vigente: permite apenas a segunda postagem.
+          (
+            request.time < (
+              resource.data.inicioJanela + duration.value(24, 'h')
+            )
+            && resource.data.quantidade == 1
+            && request.resource.data.quantidade == 2
+            && request.resource.data.inicioJanela ==
+               resource.data.inicioJanela
+          )
+          ||
+          // Após 24h: inicia uma nova janela com 1 postagem.
+          (
+            request.time >= (
+              resource.data.inicioJanela + duration.value(24, 'h')
+            )
+            && request.resource.data.quantidade == 1
+            && request.resource.data.inicioJanela == request.time
+          )
+        );
+    }
+
+
+    // ==================================================
+    // 10 — MURAL PROFISSIONAL: PUBLICAÇÕES
+    //
+    // Conteúdo público sem nome, e-mail ou UID.
+    // Cooperado: texto de 10 a 1.000 caracteres,
+    // até 2 publicações por janela de 24 horas,
+    // intervalo mínimo de 10 minutos.
+    // Administrador: até 2.000 caracteres,
+    // sem contador nem intervalo obrigatório.
+    // ==================================================
+
+    match /mural_publicacoes/{publicacaoId} {
+
+      allow get, list: if podeVisualizarComunidade();
+
+      function publicacaoValida() {
+        return request.resource.data.keys().hasAll([
+          'titulo', 'categoria', 'texto', 'criadoEm'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'titulo', 'categoria', 'texto', 'criadoEm'
+        ])
+        && request.resource.data.titulo is string
+        && request.resource.data.titulo.size() >= 5
+        && request.resource.data.titulo.size() <= 120
+        && request.resource.data.categoria is string
+        && request.resource.data.categoria in [
+          'sugestao', 'discussao', 'proposta', 'duvida'
+        ]
+        && request.resource.data.texto is string
+        && request.resource.data.texto.size() >= 10
+        && request.resource.data.texto.size() <= (
+          administrador() ? 2000 : 1000
+        )
+        && request.resource.data.criadoEm == request.time;
+      }
+
+      allow create: if podeParticiparComunidade()
+        && publicacaoValida()
+        // A autoria não pode ter sido criada previamente.
+        && !exists(
+          /databases/$(database)/documents/mural_autores/$(publicacaoId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_autores/$(publicacaoId)
+        ).data.autorUid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/mural_autores/$(publicacaoId)
+        ).data.criadoEm == request.time
+        // O contador é dispensado somente para administrador.
+        && (
+          administrador()
+          || (
+            getAfter(
+              /databases/$(database)/documents/limites_publicacoes/$(request.auth.uid)
+            ).data.ultimoEm == request.time
+            && getAfter(
+              /databases/$(database)/documents/limites_publicacoes/$(request.auth.uid)
+            ).data.ultimaPublicacaoId == publicacaoId
+          )
+        );
+
+      allow update: if false;
+
+      // Publicação e autoria devem sumir no mesmo lote.
+      allow delete: if autenticado()
+        && exists(
+          /databases/$(database)/documents/mural_autores/$(publicacaoId)
+        )
+        && (
+          administrador()
+          || get(
+            /databases/$(database)/documents/mural_autores/$(publicacaoId)
+          ).data.autorUid == request.auth.uid
+        )
+        && !existsAfter(
+          /databases/$(database)/documents/mural_autores/$(publicacaoId)
+        );
+    }
+
+
+    // ==================================================
+    // 11 — MURAL: AUTORIA PRIVADA
+    //
+    // Somente o próprio autor e o administrador
+    // consultam a identidade privada.
+    // ==================================================
+
+    match /mural_autores/{publicacaoId} {
+
+      allow get, list: if administrador()
+        || (
+          autenticado()
+          && resource.data.autorUid == request.auth.uid
+        );
+
+      allow create: if podeParticiparComunidade()
+        && request.resource.data.keys().hasAll([
+          'autorUid', 'criadoEm'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'autorUid', 'criadoEm'
+        ])
+        && request.resource.data.autorUid == request.auth.uid
+        && request.resource.data.criadoEm == request.time
+        && !exists(
+          /databases/$(database)/documents/mural_publicacoes/$(publicacaoId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(publicacaoId)
+        ).data.criadoEm == request.time
+        && getAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(publicacaoId)
+        ).data.keys().hasOnly([
+          'titulo', 'categoria', 'texto', 'criadoEm'
+        ]);
+
+      allow update: if false;
+
+      allow delete: if autenticado()
+        && (
+          administrador()
+          || resource.data.autorUid == request.auth.uid
+        )
+        && !existsAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(publicacaoId)
+        );
+    }
+
+
+    // ==================================================
+    // 12 — MURAL: LIMITES INDIVIDUAIS
+    //
+    // Uma transação precisa criar/atualizar:
+    // - publicação pública;
+    // - autoria privada;
+    // - contador individual do autor (não administrador).
+    // Apagar a publicação não reembolsa a cota.
+    // ==================================================
+
+    match /limites_publicacoes/{uid} {
+
+      allow get: if autenticado() && request.auth.uid == uid;
+      allow list, delete: if false;
+
+      function contadorMuralValido() {
+        return request.resource.data.keys().hasAll([
+          'inicioJanela', 'quantidade', 'ultimoEm',
+          'ultimaPublicacaoId'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'inicioJanela', 'quantidade', 'ultimoEm',
+          'ultimaPublicacaoId'
+        ])
+        && request.resource.data.inicioJanela is timestamp
+        && request.resource.data.quantidade is int
+        && request.resource.data.ultimoEm == request.time
+        && request.resource.data.ultimaPublicacaoId is string
+        && request.resource.data.ultimaPublicacaoId.size() > 0;
+      }
+
+      // Impede criar/atualizar cotas sem uma nova publicação
+      // associada ao UID e sua autoria na mesma transação.
+      function publicacaoMuralNovaVinculada() {
+        let pid = request.resource.data.ultimaPublicacaoId;
+        return !exists(
+          /databases/$(database)/documents/mural_publicacoes/$(pid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_publicacoes/$(pid)
+        ).data.criadoEm == request.time
+        && !exists(
+          /databases/$(database)/documents/mural_autores/$(pid)
+        )
+        && getAfter(
+          /databases/$(database)/documents/mural_autores/$(pid)
+        ).data.autorUid == uid
+        && getAfter(
+          /databases/$(database)/documents/mural_autores/$(pid)
+        ).data.criadoEm == request.time;
+      }
+
+      allow create: if autenticado()
+        && request.auth.uid == uid
+        && !administrador()
+        && podeParticiparComunidade()
+        && contadorMuralValido()
+        && request.resource.data.inicioJanela == request.time
+        && request.resource.data.quantidade == 1
+        && publicacaoMuralNovaVinculada();
+
+      allow update: if autenticado()
+        && request.auth.uid == uid
+        && !administrador()
+        && podeParticiparComunidade()
+        && contadorMuralValido()
+        && resource.data.inicioJanela is timestamp
+        && resource.data.ultimoEm is timestamp
+        && resource.data.quantidade is int
+        && publicacaoMuralNovaVinculada()
+        // Intervalo obrigatório, inclusive ao reiniciar a janela.
+        && request.time >= (
+          resource.data.ultimoEm + duration.value(10, 'm')
+        )
+        && (
+          // Janela aberta: permite exatamente a segunda publicação.
+          (
+            request.time < (
+              resource.data.inicioJanela + duration.value(24, 'h')
+            )
+            && resource.data.quantidade == 1
+            && request.resource.data.quantidade == 2
+            && request.resource.data.inicioJanela ==
+               resource.data.inicioJanela
+          )
+          ||
+          // Janela expirada: nova janela com uma publicação.
+          (
+            request.time >= (
+              resource.data.inicioJanela + duration.value(24, 'h')
+            )
+            && request.resource.data.quantidade == 1
+            && request.resource.data.inicioJanela == request.time
+          )
+        );
+    }
+
+
+    // ==================================================
+    // 13 — BLOQUEIO PADRÃO
+    //
+    // Nenhuma outra coleção recebe autorização
+    // explícita neste conjunto de regras.
+    //
+    // Novas funcionalidades deverão possuir regras
+    // específicas antes de acessar o Firestore.
+    //
+    // Não criar regras genéricas como:
+    //
+    // allow read, write: if true;
+    //
+    // Elas comprometeriam a proteção dos dados.
+    // ==================================================
+
+  }
+
+}
