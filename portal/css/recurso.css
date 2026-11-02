@@ -587,3 +587,45 @@
         transition: none;
     }
 }
+
+/* ============================================================
+   COJURIS — INDICADORES DOS COMENTÁRIOS
+   ============================================================ */
+
+.cj-comentarios .cj-contador-caracteres {
+    margin: 0;
+
+    color: #78909b;
+    font-size: 0.76rem;
+
+    text-align: right;
+}
+
+.cj-comentarios .cj-politica-comentarios {
+    margin: 4px 0 0;
+
+    padding: 11px 13px;
+
+    border: 1px solid #dce9ec;
+    border-radius: 10px;
+
+    background: #f2f8f9;
+    color: #607b88;
+
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+.cj-comentarios .cj-aviso-intervalo {
+    margin: 0;
+
+    color: #0e817e;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.cj-comentarios .cj-aviso-intervalo:empty {
+    display: none;
+}

@@ -1,0 +1,616 @@
+
+/* ============================================================
+   COJURIS — ADMIN.CSS
+
+   MODERAÇÃO ADMINISTRATIVA DE COMENTÁRIOS
+
+   REPOSITÓRIO: cooperativa
+   CAMINHO: portal/css/admin.css
+
+   OBJETIVOS:
+   01 — Cabeçalho da moderação
+   02 — Controles administrativos
+   03 — Lista de comentários
+   04 — Cards individuais
+   05 — Identificação do comunicado
+   06 — Conteúdo do comentário
+   07 — Identificação privada do autor
+   08 — Ações administrativas
+   09 — Botão de exclusão
+   10 — Avisos e acessibilidade
+   11 — Responsividade
+
+   Este arquivo complementa portal.css.
+   Não modifica autenticação ou Firebase.
+   ============================================================ */
+
+
+/* ============================================================
+   01 — VARIÁVEIS VISUAIS
+   ============================================================ */
+
+.moderacao-section {
+    --mod-azul: #173a4c;
+    --mod-turquesa: #118d8c;
+    --mod-texto: #355363;
+    --mod-suave: #758b97;
+    --mod-borda: #dce7eb;
+    --mod-fundo: #f8fbfc;
+    --mod-branco: #ffffff;
+    --mod-perigo: #a83e50;
+
+    box-sizing: border-box;
+}
+
+.moderacao-section *,
+.moderacao-section *::before,
+.moderacao-section *::after {
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   02 — SEÇÃO PRINCIPAL
+   ============================================================ */
+
+.admin-page .moderacao-section {
+    width: 100%;
+    margin-top: 24px;
+    padding: 30px;
+
+    border: 1px solid var(--mod-borda);
+    border-radius: 20px;
+
+    background: var(--mod-branco);
+
+    box-shadow:
+        0 10px 30px rgba(23, 58, 76, 0.04);
+}
+
+
+/* ============================================================
+   03 — CABEÇALHO
+   ============================================================ */
+
+.moderacao-section .moderacao-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 20px;
+
+    margin-bottom: 22px;
+}
+
+.moderacao-section .moderacao-cabecalho > div {
+    flex: 1;
+    min-width: 220px;
+}
+
+.moderacao-section .moderacao-cabecalho h2 {
+    margin: 8px 0 12px;
+
+    color: var(--mod-azul);
+
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.moderacao-section .moderacao-descricao {
+    max-width: 740px;
+    margin: 0;
+
+    color: #617b88;
+
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   04 — BOTÃO ATUALIZAR
+   ============================================================ */
+
+.moderacao-section #moderacao-atualizar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    min-height: 44px;
+    padding: 11px 18px;
+
+    border: 1px solid var(--mod-turquesa);
+    border-radius: 11px;
+
+    background: var(--mod-turquesa);
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.moderacao-section
+#moderacao-atualizar:hover:not(:disabled) {
+    background: #0e7776;
+
+    box-shadow:
+        0 5px 13px rgba(17, 141, 140, 0.15);
+}
+
+.moderacao-section
+#moderacao-atualizar:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   05 — MENSAGEM DE STATUS
+   ============================================================ */
+
+.moderacao-section .moderacao-mensagem {
+    margin: 0 0 20px;
+
+    color: var(--mod-suave);
+
+    font-size: 0.84rem;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   06 — LISTAGEM DOS COMENTÁRIOS
+
+   Grid com cards responsivos.
+   ============================================================ */
+
+.moderacao-section .moderacao-lista {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+
+    align-items: start;
+    gap: 18px;
+
+    width: 100%;
+}
+
+
+/* ============================================================
+   07 — CARD PRINCIPAL DO COMENTÁRIO
+
+   Cada comentário recebe uma estrutura independente,
+   com borda fina e espaçamento entre os elementos.
+   ============================================================ */
+
+.moderacao-section .moderacao-card {
+    display: flex;
+    flex-direction: column;
+
+    gap: 17px;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: 22px;
+
+    border: 1px solid #d4e2e7;
+    border-radius: 16px;
+
+    background: var(--mod-fundo);
+
+    box-shadow:
+        0 4px 14px rgba(23, 58, 76, 0.04);
+}
+
+
+/* ============================================================
+   08 — CABEÇALHO DO CARD
+   ============================================================ */
+
+.moderacao-section .moderacao-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+    gap: 12px;
+
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid #e3ecef;
+}
+
+.moderacao-section .moderacao-card-identificacao {
+    flex: 1;
+    min-width: 0;
+}
+
+.moderacao-section .moderacao-categoria {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 11px;
+
+    border-radius: 999px;
+
+    background: #e2f4f1;
+    color: #0e817e;
+
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.moderacao-section
+.moderacao-card-identificacao h3 {
+    margin: 12px 0 0;
+
+    color: var(--mod-azul);
+
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+.moderacao-section .moderacao-data {
+    color: var(--mod-suave);
+
+    font-size: 0.76rem;
+    line-height: 1.6;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   09 — QUADRO INTERNO DO COMENTÁRIO
+   ============================================================ */
+
+.moderacao-section .moderacao-comentario-box {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+    min-width: 0;
+}
+
+.moderacao-section .moderacao-subtitulo {
+    color: var(--mod-azul);
+
+    font-size: 0.83rem;
+    font-weight: 700;
+}
+
+.moderacao-section .moderacao-texto-card {
+    width: 100%;
+    min-width: 0;
+
+    padding: 16px;
+
+    border: 1px solid #d8e5e9;
+    border-radius: 12px;
+
+    background: #ffffff;
+}
+
+.moderacao-section
+.moderacao-texto-card .moderacao-texto {
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    background: transparent;
+
+    color: var(--mod-texto);
+
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.75;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   10 — IDENTIFICAÇÃO ADMINISTRATIVA
+
+   Dados visíveis apenas no painel administrativo,
+   condicionado à autorização do Firebase.
+   ============================================================ */
+
+.moderacao-section .moderacao-autor {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    min-width: 0;
+    padding: 16px;
+
+    border: 1px solid #d7e5e9;
+    border-radius: 12px;
+
+    background: #edf5f7;
+}
+
+.moderacao-section .moderacao-autor-titulo {
+    display: block;
+
+    margin: 0 0 3px;
+    padding-bottom: 11px;
+
+    border-bottom: 1px solid #d7e5e9;
+
+    color: var(--mod-azul);
+
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.moderacao-section .moderacao-autor-linha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+
+    gap: 5px 8px;
+
+    margin: 0;
+    min-width: 0;
+
+    color: #42606d;
+
+    font-size: 0.83rem;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+.moderacao-section .moderacao-autor-rotulo {
+    flex-shrink: 0;
+
+    color: var(--mod-azul);
+    font-weight: 700;
+}
+
+.moderacao-section .moderacao-uid {
+    color: #6c8490;
+    font-size: 0.74rem;
+}
+
+
+/* ============================================================
+   11 — AÇÕES ADMINISTRATIVAS
+   ============================================================ */
+
+.moderacao-section .moderacao-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin: 0;
+    padding-top: 15px;
+
+    border-top: 1px solid #e1ebee;
+}
+
+
+/* ============================================================
+   12 — BOTÃO DE EXCLUSÃO MODERNO
+   ============================================================ */
+
+.moderacao-section .moderacao-excluir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-height: 43px;
+    padding: 11px 17px;
+
+    border: 1px solid #e8c5cb;
+    border-radius: 11px;
+
+    background: #fff1f4;
+    color: var(--mod-perigo);
+
+    font-family: inherit;
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 2px 7px rgba(168, 62, 80, 0.04);
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.moderacao-section .moderacao-excluir-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.moderacao-section
+.moderacao-excluir:hover:not(:disabled) {
+    background: #fbdfe5;
+    border-color: #dda4b0;
+
+    box-shadow:
+        0 5px 12px rgba(168, 62, 80, 0.11);
+}
+
+.moderacao-section
+.moderacao-excluir:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   13 — AVISO INSTITUCIONAL
+
+   Mantemos o aviso no final da seção,
+   fora de cada cartão de comentário.
+   ============================================================ */
+
+.moderacao-section .moderacao-aviso {
+    margin: 22px 0 0;
+
+    padding-top: 16px;
+
+    border-top: 1px solid #e1ebee;
+
+    color: #718995;
+
+    font-size: 0.78rem;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   14 — ACESSIBILIDADE
+   ============================================================ */
+
+.moderacao-section button:focus-visible {
+    outline: 3px solid #1fb4b0;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .moderacao-section button {
+        transition: none;
+    }
+}
+
+
+/* ============================================================
+   15 — RESPONSIVIDADE PARA TABLETS
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .moderacao-section .moderacao-lista {
+        grid-template-columns: 1fr;
+    }
+
+    .moderacao-section .moderacao-cabecalho {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .moderacao-section #moderacao-atualizar {
+        align-self: flex-start;
+    }
+}
+
+
+/* ============================================================
+   16 — RESPONSIVIDADE PARA CELULARES
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+    .admin-page .moderacao-section {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+
+    .moderacao-section .moderacao-card {
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .moderacao-section .moderacao-card-topo {
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .moderacao-section .moderacao-texto-card {
+        padding: 13px;
+    }
+
+    .moderacao-section .moderacao-autor {
+        padding: 13px;
+    }
+
+    .moderacao-section #moderacao-atualizar,
+    .moderacao-section .moderacao-excluir {
+        width: 100%;
+    }
+
+    .moderacao-section .moderacao-acoes {
+        justify-content: stretch;
+    }
+}
+
+/* ============================================================
+   COJURIS — ROLAGEM ADMINISTRATIVA
+
+   A área de comentários terá altura limitada,
+   mas permitirá consultar os cards carregados.
+   ============================================================ */
+
+.moderacao-section .moderacao-lista {
+    max-height: 680px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 4px 10px 10px 4px;
+
+    scrollbar-width: thin;
+    scrollbar-color: #b2cbd0 #edf4f5;
+
+    overscroll-behavior: contain;
+}
+
+.moderacao-section .moderacao-lista::-webkit-scrollbar {
+    width: 8px;
+}
+
+.moderacao-section .moderacao-lista::-webkit-scrollbar-track {
+    background: #edf4f5;
+    border-radius: 10px;
+}
+
+.moderacao-section .moderacao-lista::-webkit-scrollbar-thumb {
+    background: #b2cbd0;
+    border-radius: 10px;
+}
+
+.moderacao-section .moderacao-lista::-webkit-scrollbar-thumb:hover {
+    background: #82afb5;
+}
+
+@media (max-width: 600px) {
+    .moderacao-section .moderacao-lista {
+        max-height: 65vh;
+        padding-right: 6px;
+    }
+}

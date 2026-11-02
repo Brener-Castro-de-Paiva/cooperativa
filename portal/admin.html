@@ -353,6 +353,79 @@
             ></div>
 
         </section>
+        
+<!-- ==================================================
+     COJURIS — MODERAÇÃO ADMINISTRATIVA
+
+     Área independente da gestão de interessados.
+
+     A visualização somente será liberada depois
+     da confirmação do administrador ativo.
+
+     O módulo moderacao.js controla esta seção.
+     ================================================== -->
+
+        <section
+            id="moderacao-comentarios"
+            class="admin-section moderacao-section"
+            aria-labelledby="moderacao-titulo"
+            hidden
+        >
+
+            <div class="moderacao-cabecalho">
+
+                <div>
+
+                    <p class="admin-subtitle">
+                        COMUNIDADE PROFISSIONAL
+                    </p>
+
+                    <h2 id="moderacao-titulo">
+                        Moderação de comentários
+                    </h2>
+
+                    <p class="moderacao-descricao">
+                        Acompanhe os comentários publicados,
+                        consulte a identificação administrativa
+                        dos responsáveis e modere conteúdos
+                        quando necessário.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="moderacao-atualizar"
+                    class="btn-recarregar-lista"
+                    disabled
+                >
+                    Atualizar comentários
+                </button>
+
+            </div>
+
+            <p
+                id="moderacao-mensagem"
+                class="moderacao-mensagem"
+                role="status"
+                aria-live="polite"
+            >
+                Verificando autorização...
+            </p>
+
+            <div
+                id="moderacao-lista"
+                class="moderacao-lista"
+            ></div>
+
+            <p class="moderacao-aviso">
+                A identificação dos autores é restrita à
+                administração. A exclusão de um comentário
+                também remove seu registro privado de autoria.
+            </p>
+
+        </section>
+
 
 
         <!-- ======================================
@@ -396,6 +469,11 @@
     <script
         type="module"
         src="./js/admin.js"
+    ></script>
+    <!-- Moderação administrativa de comentários -->
+    <script
+        type="module"
+        src="./js/recursos/moderacao.js"
     ></script>
 
 </body>
