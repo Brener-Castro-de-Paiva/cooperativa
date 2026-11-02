@@ -1352,3 +1352,207 @@ body.mural-page {
         padding: 35px 23px;
     }
 }
+
+/* ============================================================
+   COJURIS — COMENTÁRIOS DO MURAL PROFISSIONAL
+
+   Estilos exclusivos de portal/mural.html.
+   Não alteram os comentários dos comunicados.
+   ============================================================ */
+
+.mural-page .cj-comentarios {
+    width: 100%;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--mural-borda);
+}
+
+/* Botão para abrir e fechar comentários */
+
+.mural-page .cj-comentarios-alternar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 10px 18px;
+    background: var(--mural-turquesa-claro);
+    color: var(--mural-azul-escuro);
+    border: 1px solid #c7e5e5;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--mural-transicao);
+}
+
+.mural-page .cj-comentarios-alternar:hover {
+    background: #d2eeeb;
+    border-color: var(--mural-turquesa);
+}
+
+.mural-page .cj-comentarios-alternar[aria-expanded="true"] {
+    background: var(--mural-turquesa);
+    border-color: var(--mural-turquesa);
+    color: #fff;
+}
+
+/* Área expandida */
+
+.mural-page .cj-comentarios-corpo {
+    margin-top: 18px;
+    padding: 20px;
+    background: #f7fbfc;
+    border: 1px solid var(--mural-borda);
+    border-radius: 14px;
+}
+
+/* Lista de comentários */
+
+.mural-page .cj-comentarios-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.mural-page .cj-comentario {
+    padding: 15px;
+    background: #fff;
+    border: 1px solid var(--mural-borda);
+    border-radius: 12px;
+}
+
+.mural-page .cj-comentario-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--mural-azul-escuro);
+    font-size: 0.9rem;
+}
+
+.mural-page .cj-comentario-cabecalho time {
+    color: var(--mural-texto-suave);
+    font-size: 0.8rem;
+}
+
+.mural-page .cj-comentario-texto {
+    margin: 10px 0;
+    color: var(--mural-texto);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Formulário */
+
+.mural-page .cj-comentario-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.mural-page .cj-campo {
+    display: block;
+    width: 100%;
+    min-height: 105px;
+    padding: 14px 16px;
+    border: 1px solid #c9dfe6;
+    border-radius: 11px;
+    background: #fff;
+    color: var(--mural-texto);
+    resize: vertical;
+    outline: none;
+    transition: var(--mural-transicao);
+}
+
+.mural-page .cj-campo:focus {
+    border-color: var(--mural-turquesa);
+    box-shadow: 0 0 0 3px rgba(17, 141, 140, 0.12);
+}
+
+.mural-page .cj-campo::placeholder {
+    color: #78929e;
+}
+
+/* Contador e mensagens */
+
+.mural-page .cj-contador-caracteres {
+    align-self: flex-end;
+    margin: 0;
+    color: var(--mural-texto-suave);
+    font-size: 0.79rem;
+}
+
+.mural-page .cj-politica-comentarios,
+.mural-page .cj-aviso-intervalo,
+.mural-page .cj-status {
+    margin: 4px 0;
+    color: var(--mural-texto-suave);
+    font-size: 0.85rem;
+    line-height: 1.55;
+}
+
+/* Botão publicar */
+
+.mural-page .cj-botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 43px;
+    padding: 10px 20px;
+    background: var(--mural-turquesa);
+    color: #fff;
+    border: 1px solid var(--mural-turquesa);
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--mural-transicao);
+}
+
+.mural-page .cj-botao:hover:not(:disabled) {
+    background: var(--mural-turquesa-hover);
+}
+
+.mural-page .cj-botao:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Links de paginação e exclusão */
+
+.mural-page .cj-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    margin-top: 8px;
+    color: var(--mural-turquesa-hover);
+    background: transparent;
+    border: 1px solid #c9dfe6;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.mural-page .cj-link:hover:not(:disabled) {
+    background: var(--mural-turquesa-claro);
+}
+
+/* Celulares */
+
+@media (max-width: 600px) {
+
+    .mural-page .cj-comentarios-corpo {
+        padding: 14px;
+    }
+
+    .mural-page .cj-comentario-form {
+        align-items: stretch;
+    }
+
+    .mural-page .cj-botao {
+        width: 100%;
+    }
+}

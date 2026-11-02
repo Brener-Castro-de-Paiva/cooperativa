@@ -1,35 +1,33 @@
 
 /* ============================================================
    COJURIS — MURAL PROFISSIONAL
+
    ARQUIVO: portal/js/recursos/mural.js
 
-   RECURSOS:
-   01. Autenticação e autorização
-   02. Perfis de administrador, participante e leitor
-   03. Autoria privada
-   04. Limites por janela de 24 horas
-   05. Intervalo mínimo de 10 minutos
-   06. Contagem regressiva
-   07. Publicação atômica
-   08. Listagem com paginação
-   09. Exclusão pelo autor ou administrador
+   FUNCIONALIDADES:
+   01 — Firebase e configurações
+   02 — Elementos da interface
+   03 — Autenticação e identificação de perfil
+   04 — Controle de cotas e intervalos
+   05 — Autoria privada
+   06 — Cartões de propostas
+   07 — Comentários do mural
+   08 — Listagem paginada
+   09 — Publicação de propostas
+   10 — Exclusão controlada
+   11 — Inicialização e eventos
 
-   COOPERADO:
-   - 2 publicações por janela de 24 horas;
-   - intervalo de 10 minutos;
-   - texto de 10 a 1.000 caracteres.
-
-   ADMINISTRAÇÃO:
-   - sem cota ou intervalo;
-   - texto de 10 a 2.000 caracteres.
-
-   O servidor aplica as regras do Firestore.
-   O JavaScript apenas complementa a experiência.
+   SEGURANÇA:
+   - Dados pessoais não aparecem nas publicações.
+   - Autoria armazenada separadamente.
+   - Operações atômicas no Firestore.
+   - Limites validados pelas regras do Firebase.
+   - Comentários separados dos comunicados.
    ============================================================ */
 
 
 // ============================================================
-// 01 — FIREBASE
+// 01 — IMPORTAÇÕES
 // ============================================================
 
 import {
@@ -57,6 +55,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
+// Módulo específico dos comentários profissionais.
+import {
+    criarComentariosMural
+} from "./comentarios-mural.js";
+
+
 // ============================================================
 // 02 — CONFIGURAÇÕES
 // ============================================================
@@ -64,6 +68,7 @@ import {
 const TAMANHO_PAGINA = 10;
 
 const LIMITE_TITULO = 120;
+
 const LIMITE_TEXTO_COOPERADO = 1000;
 const LIMITE_TEXTO_ADMIN = 2000;
 
@@ -81,13 +86,14 @@ const CATEGORIAS = {
 
 
 // ============================================================
-// 03 — ELEMENTOS HTML EXISTENTES
+// 03 — ELEMENTOS HTML
 // ============================================================
 
 const $ = id => document.getElementById(id);
 
 const telaAcesso = $("mural-acesso");
 const mensagemAcesso = $("mural-mensagem-acesso");
+
 const aplicacao = $("mural-app");
 
 const indicadorPerfil = $("mural-perfil");
@@ -97,6 +103,7 @@ const areaPublicacao = $("mural-area-publicacao");
 const avisoLeitura = $("mural-aviso-leitura");
 
 const formulario = $("mural-formulario");
+
 const tituloProposta = $("mural-titulo-proposta");
 const categoriaProposta = $("mural-categoria");
 const textoProposta = $("mural-texto");
@@ -114,7 +121,7 @@ const botaoCarregarMais = $("mural-carregar-mais");
 
 
 // ============================================================
-// 04 — REFERÊNCIAS DO FIRESTORE
+// 04 — REFERÊNCIAS FIRESTORE
 // ============================================================
 
 const colecaoPublicacoes = collection(
@@ -202,12 +209,16 @@ function informarListagem(texto) {
 }
 
 
-function sessaoValida() {
+// ============================================================
+// 07 — PERMISSÕES
+// ============================================================
 
-    return (
-        usuarioAtual !== null &&
-        auth.currentUser !== null &&
-        auth.currentUser.uid === usuarioAtual.uid
+function sessaoValida(uid = usuarioAtual?.uid) {
+
+    return Boolean(
+        uid &&
+        auth.currentUser &&
+        auth.currentUser.uid === uid
     );
 }
 
@@ -232,7 +243,7 @@ function podePublicar(perfil) {
 
 
 // ============================================================
-// 07 — FORMATAÇÃO
+// 08 — FORMATAÇÃO
 // ============================================================
 
 function formatarData(timestamp) {
@@ -242,6 +253,18 @@ function formatarData(timestamp) {
     if (!data) {
         return "Agora";
     }
+
+    return new Intl.DateTimeFormat(
+        "pt-BR",
+        {
+            dateStyle: "short",
+            timeStyle: "short"
+        }
+    ).format(data);
+}
+
+
+function formatarDataLocal(data) {
 
     return new Intl.DateTimeFormat(
         "pt-BR",
@@ -283,7 +306,7 @@ function formatarTempo(segundos) {
 
 
 // ============================================================
-// 08 — PERFIL
+// 09 — IDENTIFICAR PERFIL
 // ============================================================
 
 async function identificarPerfil(usuario) {
@@ -293,11 +316,7 @@ async function identificarPerfil(usuario) {
     }
 
     const admin = await getDoc(
-        doc(
-            db,
-            "administradores",
-            usuario.uid
-        )
+        doc(db, "administradores", usuario.uid)
     );
 
     if (
@@ -308,11 +327,7 @@ async function identificarPerfil(usuario) {
     }
 
     const interessado = await getDoc(
-        doc(
-            db,
-            "interessados",
-            usuario.uid
-        )
+        doc(db, "interessados", usuario.uid)
     );
 
     if (!interessado.exists()) {
@@ -344,10 +359,7 @@ async function identificarPerfil(usuario) {
 
 
 // ============================================================
-// 09 — ÁREA VISUAL DOS LIMITES
-//
-// Criada pelo JavaScript para não exigir
-// alterações em mural.html.
+// 10 — ÁREA VISUAL DA COTA
 // ============================================================
 
 const informacaoCota = elemento(
@@ -365,8 +377,6 @@ const avisoRelogio = elemento(
 avisoRelogio.id = "mural-aviso-relogio";
 avisoRelogio.setAttribute("role", "status");
 
-// Inserimos os avisos após o botão de publicação.
-
 const acoesFormulario = formulario.querySelector(
     ".mural-form-acoes"
 );
@@ -378,7 +388,7 @@ acoesFormulario.after(
 
 
 // ============================================================
-// 10 — CONTADOR DE CARACTERES
+// 11 — CONTADOR DE CARACTERES
 // ============================================================
 
 function limiteTextoAtual() {
@@ -408,17 +418,14 @@ textoProposta.addEventListener(
 
 
 // ============================================================
-// 11 — CONTROLE DA JANELA DE 24 HORAS
+// 12 — CONTROLE DE COTAS
 // ============================================================
 
 function janelaVigente() {
 
-    if (!inicioJanela) {
-        return false;
-    }
-
-    return Date.now() < (
-        inicioJanela.getTime() + JANELA_MS
+    return Boolean(
+        inicioJanela &&
+        Date.now() < inicioJanela.getTime() + JANELA_MS
     );
 }
 
@@ -446,7 +453,6 @@ function atualizarInformacaoCota() {
     if (perfilAtual !== "participante") {
 
         informacaoCota.textContent = "";
-
         return;
     }
 
@@ -486,48 +492,19 @@ function atualizarInformacaoCota() {
 }
 
 
-function formatarDataLocal(data) {
-
-    return new Intl.DateTimeFormat(
-        "pt-BR",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
-    ).format(data);
-}
-
-
 // ============================================================
-// 12 — RELÓGIO E BOTÃO DE PUBLICAÇÃO
-//
-// Prioridade:
-// 1. Publicação em andamento
-// 2. Cota de 24 horas
-// 3. Intervalo de 10 minutos
-// 4. Publicação liberada
+// 13 — DISPONIBILIDADE DE PUBLICAÇÃO
 // ============================================================
 
 function atualizarDisponibilidade() {
 
-    if (!sessaoValida()) {
+    if (
+        !sessaoValida() ||
+        !podePublicar(perfilAtual) ||
+        publicando
+    ) {
 
         botaoPublicar.disabled = true;
-
-        return;
-    }
-
-    if (!podePublicar(perfilAtual)) {
-
-        botaoPublicar.disabled = true;
-
-        return;
-    }
-
-    if (publicando) {
-
-        botaoPublicar.disabled = true;
-
         return;
     }
 
@@ -535,7 +512,6 @@ function atualizarDisponibilidade() {
 
         botaoPublicar.disabled = false;
         avisoRelogio.textContent = "";
-
         return;
     }
 
@@ -549,19 +525,13 @@ function atualizarDisponibilidade() {
         return;
     }
 
-    const agora = Date.now();
-
-    // --------------------------------------------------------
-    // 12.1 — COTA ESGOTADA
-    // --------------------------------------------------------
-
     if (cotaEsgotada()) {
 
         const liberacao =
             inicioJanela.getTime() + JANELA_MS;
 
         const segundos = Math.ceil(
-            (liberacao - agora) / 1000
+            (liberacao - Date.now()) / 1000
         );
 
         botaoPublicar.disabled = true;
@@ -575,17 +545,13 @@ function atualizarDisponibilidade() {
         return;
     }
 
-    // --------------------------------------------------------
-    // 12.2 — INTERVALO MÍNIMO
-    // --------------------------------------------------------
-
     if (ultimoEm) {
 
-        const proximaPublicacao =
+        const proxima =
             ultimoEm.getTime() + INTERVALO_MS;
 
         const segundos = Math.ceil(
-            (proximaPublicacao - agora) / 1000
+            (proxima - Date.now()) / 1000
         );
 
         if (segundos > 0) {
@@ -601,10 +567,6 @@ function atualizarDisponibilidade() {
         }
     }
 
-    // --------------------------------------------------------
-    // 12.3 — LIBERADO
-    // --------------------------------------------------------
-
     botaoPublicar.disabled = false;
 
     avisoRelogio.textContent =
@@ -613,7 +575,7 @@ function atualizarDisponibilidade() {
 
 
 // ============================================================
-// 13 — CONSULTAR CONTADOR INDIVIDUAL
+// 14 — CONSULTAR COTA NO FIRESTORE
 // ============================================================
 
 async function consultarCota() {
@@ -646,17 +608,10 @@ async function consultarCota() {
     try {
 
         const resultado = await getDoc(
-            doc(
-                db,
-                "limites_publicacoes",
-                uid
-            )
+            doc(db, "limites_publicacoes", uid)
         );
 
-        if (
-            !sessaoValida() ||
-            usuarioAtual.uid !== uid
-        ) {
+        if (!sessaoValida(uid)) {
             return;
         }
 
@@ -697,14 +652,14 @@ async function consultarCota() {
         botaoPublicar.disabled = true;
 
         avisoRelogio.textContent =
-            "Não foi possível verificar a cota. " +
+            "Não foi possível verificar sua cota. " +
             "Atualize a página para tentar novamente.";
     }
 }
 
 
 // ============================================================
-// 14 — ATUALIZAÇÃO DO RELÓGIO
+// 15 — RELÓGIO
 // ============================================================
 
 function pararRelogio() {
@@ -712,7 +667,6 @@ function pararRelogio() {
     if (relogio !== null) {
 
         clearInterval(relogio);
-
         relogio = null;
     }
 }
@@ -726,30 +680,25 @@ function iniciarRelogio() {
         return;
     }
 
-    relogio = setInterval(
-        () => {
+    relogio = setInterval(() => {
 
-            if (!sessaoValida()) {
+        if (!sessaoValida()) {
 
-                pararRelogio();
+            pararRelogio();
+            return;
+        }
 
-                return;
-            }
+        atualizarInformacaoCota();
+        atualizarDisponibilidade();
 
-            atualizarInformacaoCota();
-            atualizarDisponibilidade();
-
-        },
-        1000
-    );
+    }, 1000);
 }
 
 
 // ============================================================
-// 15 — IDENTIFICAR PUBLICAÇÕES PRÓPRIAS
+// 16 — IDENTIFICAR PUBLICAÇÕES PRÓPRIAS
 //
-// Nenhum cooperado recebe dados de autoria
-// pertencentes a outros participantes.
+// Não consulta a autoria de outros participantes.
 // ============================================================
 
 async function carregarAutoriaPropria() {
@@ -758,13 +707,18 @@ async function carregarAutoriaPropria() {
         return;
     }
 
+    const uid = usuarioAtual.uid;
+
     idsProprios = new Set();
 
     if (perfilAtual === "administrador") {
         return;
     }
 
-    const uid = usuarioAtual.uid;
+    // Leitores não precisam identificar autoria.
+    if (perfilAtual !== "participante") {
+        return;
+    }
 
     const consulta = query(
         colecaoAutores,
@@ -773,22 +727,20 @@ async function carregarAutoriaPropria() {
 
     const resultado = await getDocs(consulta);
 
-    if (
-        !sessaoValida() ||
-        usuarioAtual.uid !== uid
-    ) {
+    if (!sessaoValida(uid)) {
         return;
     }
 
     resultado.docs.forEach(documento => {
-
         idsProprios.add(documento.id);
     });
 }
 
 
 // ============================================================
-// 16 — CARD DE PUBLICAÇÃO
+// 17 — CARTÃO DE PUBLICAÇÃO
+//
+// Aqui integramos comentarios-mural.js.
 // ============================================================
 
 function criarCard(documento) {
@@ -801,6 +753,10 @@ function criarCard(documento) {
     );
 
     card.dataset.id = documento.id;
+
+    // --------------------------------------------------------
+    // 17.1 — IDENTIFICAÇÃO PÚBLICA
+    // --------------------------------------------------------
 
     const topo = elemento(
         "div",
@@ -847,6 +803,10 @@ function criarCard(documento) {
         informacoes
     );
 
+    // --------------------------------------------------------
+    // 17.2 — CATEGORIA
+    // --------------------------------------------------------
+
     const categoria = elemento(
         "span",
         "mural-item-categoria",
@@ -857,6 +817,10 @@ function criarCard(documento) {
         identificacao,
         categoria
     );
+
+    // --------------------------------------------------------
+    // 17.3 — TÍTULO E TEXTO
+    // --------------------------------------------------------
 
     const titulo = elemento(
         "h3",
@@ -875,8 +839,9 @@ function criarCard(documento) {
         "mural-item-rodape"
     );
 
-    // A autoria efetiva permanece na coleção privada.
-    // O administrador pode excluir qualquer publicação.
+    // --------------------------------------------------------
+    // 17.4 — EXCLUSÃO
+    // --------------------------------------------------------
 
     const podeExcluir =
         perfilAtual === "administrador" ||
@@ -901,11 +866,28 @@ function criarCard(documento) {
         rodape.append(excluir);
     }
 
+    // --------------------------------------------------------
+    // 17.5 — COMENTÁRIOS
+    //
+    // Cada proposta recebe um componente independente.
+    // Os comentários são carregados quando o usuário
+    // abre a seção correspondente.
+    // --------------------------------------------------------
+
+    const comentarios = criarComentariosMural(
+        documento.id
+    );
+
+    // --------------------------------------------------------
+    // 17.6 — MONTAGEM FINAL
+    // --------------------------------------------------------
+
     card.append(
         topo,
         titulo,
         texto,
-        rodape
+        rodape,
+        comentarios
     );
 
     return card;
@@ -913,14 +895,10 @@ function criarCard(documento) {
 
 
 // ============================================================
-// 17 — LISTAGEM PAGINADA
-//
-// Apenas dez publicações por consulta.
+// 18 — LISTAGEM PAGINADA
 // ============================================================
 
-async function carregarPublicacoes(
-    reiniciar = false
-) {
+async function carregarPublicacoes(reiniciar = false) {
 
     if (
         carregando ||
@@ -935,9 +913,10 @@ async function carregarPublicacoes(
     botaoAtualizar.disabled = true;
     botaoCarregarMais.disabled = true;
 
-    informarListagem(
-        "Carregando publicações..."
-    );
+    informarListagem("Carregando publicações...");
+
+    const uid = usuarioAtual.uid;
+    const versao = versaoSessao;
 
     try {
 
@@ -957,26 +936,25 @@ async function carregarPublicacoes(
         );
 
         const resultado = await getDocs(
-            query(
-                colecaoPublicacoes,
-                ...filtros
-            )
+            query(colecaoPublicacoes, ...filtros)
         );
 
-        if (!sessaoValida()) {
+        if (
+            !sessaoValida(uid) ||
+            versao !== versaoSessao
+        ) {
             return;
         }
 
         if (reiniciar) {
 
             listaPublicacoes.replaceChildren();
-
             ultimoDocumento = null;
         }
 
         resultado.docs.forEach(documento => {
 
-            listaPublicacoes.appendChild(
+            listaPublicacoes.append(
                 criarCard(documento)
             );
         });
@@ -984,9 +962,7 @@ async function carregarPublicacoes(
         if (!resultado.empty) {
 
             ultimoDocumento =
-                resultado.docs[
-                    resultado.docs.length - 1
-                ];
+                resultado.docs[resultado.docs.length - 1];
         }
 
         fimDaLista =
@@ -1016,14 +992,13 @@ async function carregarPublicacoes(
         carregando = false;
 
         botaoAtualizar.disabled = false;
-
         botaoCarregarMais.disabled = fimDaLista;
     }
 }
 
 
 // ============================================================
-// 18 — VALIDAÇÃO DO FORMULÁRIO
+// 19 — VALIDAÇÃO DA PROPOSTA
 // ============================================================
 
 function validarFormulario() {
@@ -1038,8 +1013,7 @@ function validarFormulario() {
     ) {
 
         informarPublicacao(
-            "O título deve conter entre 5 e " +
-            "120 caracteres."
+            "O título deve conter entre 5 e 120 caracteres."
         );
 
         return null;
@@ -1078,13 +1052,10 @@ function validarFormulario() {
 
 
 // ============================================================
-// 19 — PUBLICAÇÃO NO FIRESTORE
+// 20 — PUBLICAÇÃO DE PROPOSTAS
 //
-// Administrador:
-//   2 documentos em writeBatch.
-//
-// Cooperado:
-//   3 documentos em runTransaction.
+// Administrador: lote de dois documentos.
+// Participante: transação com três documentos.
 // ============================================================
 
 async function publicarProposta(evento) {
@@ -1101,28 +1072,22 @@ async function publicarProposta(evento) {
     }
 
     publicando = true;
-
     botaoPublicar.disabled = true;
 
     const uid = usuarioAtual.uid;
 
     try {
 
-        // Revalidar o perfil antes da gravação.
+        // Revalidação antes da publicação.
 
         const perfilConfirmado =
-            await identificarPerfil(
-                auth.currentUser
-            );
+            await identificarPerfil(auth.currentUser);
 
         if (
-            !sessaoValida() ||
+            !sessaoValida(uid) ||
             !podePublicar(perfilConfirmado)
         ) {
-
-            throw new Error(
-                "PERFIL_NAO_AUTORIZADO"
-            );
+            throw new Error("PERFIL_NAO_AUTORIZADO");
         }
 
         perfilAtual = perfilConfirmado;
@@ -1135,9 +1100,7 @@ async function publicarProposta(evento) {
             return;
         }
 
-        informarPublicacao(
-            "Publicando proposta..."
-        );
+        informarPublicacao("Publicando proposta...");
 
         const novaPublicacao = doc(
             colecaoPublicacoes
@@ -1160,9 +1123,8 @@ async function publicarProposta(evento) {
             criadoEm: serverTimestamp()
         };
 
-
         // ----------------------------------------------------
-        // 19.1 — ADMINISTRADOR
+        // 20.1 — ADMINISTRAÇÃO
         // ----------------------------------------------------
 
         if (perfilAtual === "administrador") {
@@ -1184,7 +1146,7 @@ async function publicarProposta(evento) {
         } else {
 
             // ------------------------------------------------
-            // 19.2 — COOPERADO: TRANSAÇÃO
+            // 20.2 — COOPERADO
             // ------------------------------------------------
 
             const referenciaLimite = doc(
@@ -1197,8 +1159,7 @@ async function publicarProposta(evento) {
                 db,
                 async transacao => {
 
-                    // Todas as leituras da transação
-                    // devem ocorrer antes das gravações.
+                    // Todas as leituras antes das escritas.
 
                     const contador = await transacao.get(
                         referenciaLimite
@@ -1226,9 +1187,7 @@ async function publicarProposta(evento) {
                             Number(anterior.quantidade) || 0;
                     }
 
-                    // ----------------------------------------
-                    // INTERVALO DE 10 MINUTOS
-                    // ----------------------------------------
+                    // Intervalo mínimo de dez minutos.
 
                     if (ultimoAnterior) {
 
@@ -1246,9 +1205,7 @@ async function publicarProposta(evento) {
                         }
                     }
 
-                    // ----------------------------------------
-                    // JANELA DE 24 HORAS
-                    // ----------------------------------------
+                    // Janela individual de 24 horas.
 
                     const expirada =
                         !inicioAnterior ||
@@ -1262,18 +1219,13 @@ async function publicarProposta(evento) {
                         : quantidadeAnterior + 1;
 
                     if (
-                        quantidadeNova >
-                        LIMITE_PUBLICACOES
+                        quantidadeNova > LIMITE_PUBLICACOES
                     ) {
 
-                        throw new Error(
-                            "LIMITE_DIARIO"
-                        );
+                        throw new Error("LIMITE_DIARIO");
                     }
 
-                    // ----------------------------------------
-                    // GRAVAÇÕES ATÔMICAS
-                    // ----------------------------------------
+                    // Escritas atômicas.
 
                     transacao.set(
                         novaPublicacao,
@@ -1304,16 +1256,11 @@ async function publicarProposta(evento) {
             );
         }
 
-        if (!sessaoValida()) {
+        if (!sessaoValida(uid)) {
             return;
         }
 
-        // ----------------------------------------------------
-        // 19.3 — ATUALIZAÇÃO DA INTERFACE
-        // ----------------------------------------------------
-
         formulario.reset();
-
         atualizarContador();
 
         idsProprios.add(
@@ -1374,15 +1321,6 @@ async function publicarProposta(evento) {
                 "Verifique suas permissões e limites."
             );
 
-        } else if (
-            erro.code === "unavailable"
-        ) {
-
-            informarPublicacao(
-                "O Firebase está indisponível. " +
-                "Tente novamente."
-            );
-
         } else {
 
             informarPublicacao(
@@ -1390,17 +1328,9 @@ async function publicarProposta(evento) {
             );
         }
 
-        // Atualiza a cota após um conflito ou
-        // uma negativa de frequência.
-
         if (
-            sessaoValida() &&
-            perfilAtual === "participante" &&
-            (
-                erro.message === "LIMITE_DIARIO" ||
-                erro.message?.startsWith("INTERVALO:") ||
-                erro.code === "permission-denied"
-            )
+            sessaoValida(uid) &&
+            perfilAtual === "participante"
         ) {
 
             await consultarCota();
@@ -1417,10 +1347,13 @@ async function publicarProposta(evento) {
 
 
 // ============================================================
-// 20 — EXCLUSÃO
+// 21 — EXCLUSÃO CONTROLADA
 //
-// Publicação e autoria são excluídas juntas.
-// O contador individual permanece inalterado.
+// Uma proposta com comentários não será excluída
+// diretamente pelo navegador nesta versão.
+//
+// Isso evita deixar comentários e autorias privadas
+// órfãos no Firestore.
 // ============================================================
 
 async function excluirPublicacao(
@@ -1451,7 +1384,41 @@ async function excluirPublicacao(
 
     botaoExcluir.disabled = true;
 
+    const uid = usuarioAtual.uid;
+
     try {
+
+        // Verificar se existem comentários associados.
+
+        const referenciaComentarios = collection(
+            db,
+            "mural_publicacoes",
+            publicacaoId,
+            "comentarios"
+        );
+
+        const resultadoComentarios = await getDocs(
+            query(
+                referenciaComentarios,
+                limit(1)
+            )
+        );
+
+        if (!sessaoValida(uid)) {
+            return;
+        }
+
+        if (!resultadoComentarios.empty) {
+
+            informarListagem(
+                "Esta proposta possui comentários e não " +
+                "pode ser excluída diretamente. " +
+                "A exclusão completa deverá ser realizada " +
+                "por procedimento administrativo."
+            );
+
+            return;
+        }
 
         const lote = writeBatch(db);
 
@@ -1473,7 +1440,7 @@ async function excluirPublicacao(
 
         await lote.commit();
 
-        if (!sessaoValida()) {
+        if (!sessaoValida(uid)) {
             return;
         }
 
@@ -1492,17 +1459,19 @@ async function excluirPublicacao(
             erro
         );
 
-        botaoExcluir.disabled = false;
-
         informarListagem(
             "Não foi possível excluir a publicação."
         );
+
+    } finally {
+
+        botaoExcluir.disabled = false;
     }
 }
 
 
 // ============================================================
-// 21 — APRESENTAR A INTERFACE
+// 22 — APRESENTAR INTERFACE
 // ============================================================
 
 function apresentarInterface() {
@@ -1530,7 +1499,9 @@ function apresentarInterface() {
         indicadorPerfil.textContent =
             "Administração COJURIS";
 
-    } else if (perfilAtual === "participante") {
+    } else if (
+        perfilAtual === "participante"
+    ) {
 
         indicadorPerfil.textContent =
             "Cooperado verificado";
@@ -1550,7 +1521,7 @@ function apresentarInterface() {
 
 
 // ============================================================
-// 22 — LIMPAR A INTERFACE
+// 23 — LIMPAR INTERFACE
 // ============================================================
 
 function ocultarAplicacao() {
@@ -1595,7 +1566,7 @@ function ocultarAplicacao() {
 
 
 // ============================================================
-// 23 — AUTENTICAÇÃO
+// 24 — AUTENTICAÇÃO
 // ============================================================
 
 onAuthStateChanged(
@@ -1653,9 +1624,6 @@ onAuthStateChanged(
 
             apresentarInterface();
 
-            // Autorias privadas são consultadas
-            // antes da montagem dos cards.
-
             try {
 
                 await carregarAutoriaPropria();
@@ -1677,14 +1645,14 @@ onAuthStateChanged(
 
             if (
                 sessaoDaConsulta !== versaoSessao ||
-                !sessaoValida()
+                !sessaoValida(usuario.uid)
             ) {
                 return;
             }
 
             await carregarPublicacoes(true);
 
-            if (!sessaoValida()) {
+            if (!sessaoValida(usuario.uid)) {
                 return;
             }
 
@@ -1720,14 +1688,18 @@ onAuthStateChanged(
 
 
 // ============================================================
-// 24 — EVENTOS
+// 25 — EVENTOS
 // ============================================================
+
+// Publicação de proposta.
 
 formulario.addEventListener(
     "submit",
     publicarProposta
 );
 
+
+// Atualização manual da listagem.
 
 botaoAtualizar.addEventListener(
     "click",
@@ -1744,7 +1716,6 @@ botaoAtualizar.addEventListener(
             await carregarPublicacoes(true);
 
             if (podePublicar(perfilAtual)) {
-
                 await consultarCota();
             }
 
@@ -1763,13 +1734,30 @@ botaoAtualizar.addEventListener(
 );
 
 
+// Carregar próxima página de propostas.
+
 botaoCarregarMais.addEventListener(
     "click",
     async () => {
 
         if (!fimDaLista) {
-
             await carregarPublicacoes(false);
         }
     }
 );
+
+
+/* ============================================================
+   FIM — COJURIS / MURAL PROFISSIONAL
+
+   Cada cartão contém agora:
+   - Identificação institucional
+   - Categoria
+   - Título
+   - Conteúdo
+   - Exclusão autorizada
+   - Comentários da publicação
+
+   As regras do Firestore continuam responsáveis
+   pela autorização efetiva das operações.
+   ============================================================ */
